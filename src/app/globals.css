@@ -1,26 +1,71 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@theme {
+  --color-ink: #17171c;
+  --color-ink-soft: #6e6e76;
+  --color-ink-faint: #a4a4ad;
+  --color-band: #f4f4f6;
+  --color-line: #ececf0;
+  --color-accent: #5147e5;
+  --color-accent-soft: #eeeefc;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:
+    "MiSans",
+    "HarmonyOS Sans SC",
+    "PingFang SC",
+    "Microsoft YaHei UI",
+    "Microsoft YaHei",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  background: #fafafb;
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* flolab 式点阵装饰 */
+.bg-dots {
+  background-image: radial-gradient(circle, rgba(81, 71, 229, 0.14) 1.3px, transparent 1.3px);
+  background-size: 22px 22px;
+}
+
+/* 浮岛卡片默认阴影:带色调的极浅投影 */
+.card-shadow {
+  box-shadow:
+    0 1px 2px rgba(23, 23, 28, 0.04),
+    0 8px 24px -16px rgba(81, 71, 229, 0.18);
+}
+
+/* 按压反馈 */
+.press {
+  transition: transform 0.15s ease;
+}
+.press:active {
+  transform: scale(0.98);
 }
