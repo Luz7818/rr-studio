@@ -1,9 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
+  serverExternalPackages: ["unpdf", "mammoth", "pptxgenjs", "docx"],
   turbopack: {
     rules: {
       "*.css": {
