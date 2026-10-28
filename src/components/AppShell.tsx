@@ -150,7 +150,7 @@ export default function AppShell({
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-md px-2.5 py-1.5 text-xs transition ${
+                className={`rounded-full px-2.5 py-1.5 text-xs transition ${
                   active ? "bg-accent-soft font-medium text-accent" : "text-ink-soft"
                 }`}
               >

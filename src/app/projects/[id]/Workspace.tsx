@@ -210,6 +210,8 @@ export default function Workspace() {
   const titleOnFocus = useRef("");
   /** 最近一次自动保存成功的线程(1.6s 后淡出) */
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  /** 标题失焦自动保存的瞬时反馈 */
+  const [titleSaved, setTitleSaved] = useState(false);
   /** 组会 Q&A 已展开参考要点的题号(默认隐藏,先自己答) */
   const [revealedQA, setRevealedQA] = useState<Set<number>>(new Set());
   /** 文献对标自定义检索词(分号分隔);首次载入已有时预填,便于增删而非从零写 */
@@ -445,6 +447,16 @@ export default function Workspace() {
         `${t.reviewer} (${t.type === "major" ? "Major" : "Minor"}):\n${t.commentText}\n\n回复:\n${t.polished.trim() || t.draft.trim()}`,
     )
     .join("\n\n————————\n\n");
+  /** Critique 报告的 Markdown 版,供粘贴进笔记/文档 */
+  const critiqueMarkdown = project.critique
+    ? [
+        `# Critique 报告 — ${project.title}`,
+        ...project.critique.items.map(
+          (i) =>
+            `\n## [${SEVERITY_LABEL[i.severity]} · ${CATEGORY_LABEL[i.category] ?? i.category}] ${i.section}\n${i.quote ? `> ${i.quote}\n` : ""}${i.comment}\n\n建议:${i.suggestion}`,
+        ),
+      ].join("\n")
+    : "";
 
   return (
     <div className="space-y-5">
@@ -463,12 +475,17 @@ export default function Workspace() {
             onFocus={(e) => {
               titleOnFocus.current = e.target.value;
             }}
-            onBlur={(e) => {
+            onBlur={async (e) => {
               const v = e.target.value.trim();
-              if (v && v !== titleOnFocus.current) void patchProject({ title: v });
+              if (v && v !== titleOnFocus.current) {
+                await patchProject({ title: v });
+                setTitleSaved(true);
+                setTimeout(() => setTitleSaved(false), 1600);
+              }
             }}
             className="min-w-0 flex-1 rounded-2xl border border-transparent px-2 py-1 text-xl font-semibold tracking-tight transition hover:border-line focus:border-accent/50 focus:outline-none"
           />
+          {titleSaved && <span className="rise-in text-xs text-emerald-600">已保存</span>}
           <span className="rounded-full border border-line bg-band px-2.5 py-0.5 text-[11px] font-medium text-ink-soft">
             {STATUS_LABEL[project.status] ?? project.status}
           </span>
@@ -661,6 +678,7 @@ export default function Workspace() {
                     "重新生成"
                   )}
                 </button>
+                <CopyButton text={critiqueMarkdown} label="复制 Markdown" />
                 <a
                   href={`/api/projects/${id}/export/critique`}
                   className="press group inline-flex items-center gap-1 rounded-full border border-line px-3.5 py-1.5 text-xs text-ink-soft transition hover:border-accent/40 hover:text-accent"
