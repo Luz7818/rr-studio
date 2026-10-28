@@ -125,7 +125,7 @@ export default function RevisionPanel({
 
   return (
     <div className="space-y-3">
-      <div className="rounded-xl border border-line bg-white p-5">
+      <div className="panel rounded-xl border border-line bg-white p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-[13px] font-semibold">修改稿对照</h3>
           {rev && (
@@ -186,13 +186,13 @@ export default function RevisionPanel({
                 value={pasteText}
                 onChange={(e) => setPasteText(e.target.value)}
                 placeholder="粘贴修改稿全文(含章节标题)…"
-                className="h-40 w-full resize-y rounded-2xl border border-line bg-band/50 p-3 text-sm outline-none transition focus:border-accent focus:bg-white"
+                className="field h-40 w-full resize-y rounded-2xl p-3 text-sm outline-none"
               />
             )}
             <button
               onClick={() => void uploadRevision()}
               disabled={busy !== null}
-              className="press mt-3 w-full rounded-full bg-accent py-2.5 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
+              className="btn-primary press mt-3 w-full rounded-full bg-accent py-2.5 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
             >
               {busy === "upload" ? "解析并脱敏中…" : "上传修改稿"}
             </button>
@@ -209,14 +209,14 @@ export default function RevisionPanel({
               <button
                 onClick={() => void run("revision/summary")}
                 disabled={busy !== null}
-                className="press rounded-full bg-accent px-5 py-2 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
+                className="btn-primary press rounded-full bg-accent px-5 py-2 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
               >
                 {busy === "revision/summary" ? "对比中…" : rev.summaryReady ? "重新生成对比" : "生成逐节对比"}
               </button>
               <button
                 onClick={() => void run("revision/re-review")}
                 disabled={busy !== null}
-                className="press rounded-full bg-ink px-5 py-2 text-sm font-medium text-white transition hover:bg-ink/90 disabled:opacity-50"
+                className="btn-dark press rounded-full bg-ink px-5 py-2 text-sm font-medium text-white transition hover:bg-ink/90 disabled:opacity-50"
               >
                 {busy === "revision/re-review" ? "审稿中…" : rev.reviews ? "重新模拟审稿" : "对修改稿重新模拟审稿"}
               </button>
@@ -229,7 +229,7 @@ export default function RevisionPanel({
       </div>
 
       {rev?.summaryReady && (
-        <div className="rounded-xl border border-line bg-white p-5">
+        <div className="panel rounded-xl border border-line bg-white p-5">
           <h3 className="font-semibold">AI 总评</h3>
           <p className="mt-2 text-sm leading-relaxed text-ink">{rev.overall}</p>
           <h4 className="mt-4 text-sm font-medium text-ink-soft">逐节差异({rev.diff.length})</h4>
@@ -248,13 +248,13 @@ export default function RevisionPanel({
       )}
 
       {rev && committedThreads.length > 0 && (
-        <div className="rounded-xl border border-line bg-white p-5">
+        <div className="panel rounded-xl border border-line bg-white p-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h3 className="font-semibold">承诺兑现核查</h3>
             <button
               onClick={() => void runPromiseCheck()}
               disabled={busy !== null}
-              className="press rounded-full bg-accent px-4 py-1.5 text-xs font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
+              className="btn-primary press rounded-full bg-accent px-4 py-1.5 text-xs font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
             >
               {busy === "promise" ? "核查中…" : rev.promiseChecks ? "重新核查" : `核查 ${committedThreads.length} 条承诺`}
             </button>
@@ -284,7 +284,7 @@ export default function RevisionPanel({
       {rev?.reviews && (
         <div className="grid gap-4 lg:grid-cols-3">
           {rev.reviews.map((r) => (
-            <div key={r.persona} className="rounded-xl border border-line bg-white p-5">
+            <div key={r.persona} className="panel rounded-xl border border-line bg-white p-5">
               <h4 className="text-sm font-semibold">{r.label}</h4>
               <span className={`mt-2 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${REC_STYLE[r.recommendation]}`}>
                 {REC_LABEL[r.recommendation] ?? r.recommendation}

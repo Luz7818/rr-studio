@@ -167,7 +167,7 @@ function EmptyState({
         <button
           onClick={onAction}
           disabled={disabled}
-          className="press mt-4 rounded-full bg-accent px-5 py-2 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
+          className="btn-primary press mt-4 rounded-full bg-accent px-5 py-2 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
         >
           {actionLabel}
         </button>
@@ -511,7 +511,7 @@ export default function Workspace() {
       {tab === "overview" && (
         <div className="space-y-5">
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-xl border border-line bg-white p-5">
+            <div className="panel rounded-xl border border-line bg-white p-5">
               <h3 className="text-[13px] font-semibold">脱敏报告</h3>
               <p className="mt-2 flex items-baseline gap-1.5">
                 <span className="text-3xl font-semibold text-emerald-600">{project.sanitize.redactions}</span>
@@ -532,7 +532,7 @@ export default function Workspace() {
                 </p>
               )}
             </div>
-            <div className="rounded-xl border border-line bg-white p-5">
+            <div className="panel rounded-xl border border-line bg-white p-5">
               <h3 className="text-[13px] font-semibold">稿件信息</h3>
               <dl className="mt-3 space-y-3 text-[13px]">
                 <div>
@@ -547,7 +547,7 @@ export default function Workspace() {
                       placeholder="如 IEEE Transactions on ITS"
                       onChange={(e) => setProject({ ...project, meta: { ...project.meta, targetJournal: e.target.value } })}
                       onBlur={(e) => void patchProject({ targetJournal: e.target.value })}
-                      className="w-full rounded-full border border-line px-3.5 py-2 text-[13px] outline-none transition focus:border-accent"
+                      className="field w-full rounded-full px-3.5 py-2 text-[13px] outline-none"
                     />
                   </dd>
                 </div>
@@ -559,7 +559,7 @@ export default function Workspace() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-line bg-white p-5">
+          <div className="panel rounded-xl border border-line bg-white p-5">
             <h3 className="text-[13px] font-semibold">章节结构({project.sections.length})</h3>
             <ul className="mt-3 divide-y divide-line text-[13px]">
               {project.sections.map((s) => (
@@ -580,7 +580,7 @@ export default function Workspace() {
             <button
               onClick={() => void runPipeline("critique", "critique")}
               disabled={busy !== null}
-              className="press rounded-full bg-accent px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
+              className="btn-primary press rounded-full bg-accent px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
             >
               {busy === "critique" ? (
                 <>
@@ -596,7 +596,7 @@ export default function Workspace() {
             <button
               onClick={() => void runPipeline("review", "review")}
               disabled={busy !== null}
-              className="press rounded-full bg-ink px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-ink/90 disabled:opacity-50"
+              className="btn-dark press rounded-full bg-ink px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-ink/90 disabled:opacity-50"
             >
               {busy === "review" ? (
                 <>
@@ -616,7 +616,7 @@ export default function Workspace() {
       {tab === "critique" && (
         <div className="space-y-3">
           {project.critique && (
-            <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-white px-4 py-3">
+            <div className="panel flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-white px-4 py-3">
               <SegmentedControl
                 value={severityFilter}
                 onChange={setSeverityFilter}
@@ -678,7 +678,7 @@ export default function Workspace() {
                   部分章节分析失败:{err}
                 </p>
               ))}
-              <ul className="divide-y divide-line rounded-xl border border-line bg-white">
+              <ul className="panel divide-y divide-line rounded-xl border border-line bg-white">
                 {critiqueItems.map((item, i) => (
                   <li
                     key={item.id}
@@ -721,7 +721,7 @@ export default function Workspace() {
 
       {tab === "review" && (
         <div className="space-y-3">
-          <div className="rounded-xl border border-line bg-white p-5">
+          <div className="panel rounded-xl border border-line bg-white p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
                 <h3 className="text-[13px] font-semibold">文献对标(审稿依据)</h3>
@@ -789,7 +789,7 @@ export default function Workspace() {
                 <div
                   key={r.persona}
                   style={{ animationDelay: `${i * 60}ms` }}
-                  className="stagger flex flex-col rounded-xl border border-line bg-white p-5"
+                  className="stagger flex flex-col panel rounded-xl border border-line bg-white p-5"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <h3 className="min-w-0 truncate text-[13px] font-semibold">{r.label}</h3>
@@ -822,7 +822,7 @@ export default function Workspace() {
       {tab === "response" && (
         <div className="space-y-3">
           {threads.length > 0 && (
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl border border-line bg-white px-4 py-3">
+            <div className="panel flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl border border-line bg-white px-4 py-3">
               <span className="text-[13px] text-ink-soft">
                 已打磨 <b className="font-medium text-ink">{threads.filter((t) => t.polished.trim()).length}</b>/{threads.length} 条
               </span>
@@ -834,7 +834,7 @@ export default function Workspace() {
                 <button
                   onClick={() => void polishAllPending()}
                   disabled={busy !== null || batch !== null}
-                  className="press rounded-full bg-accent px-3.5 py-1.5 text-xs font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
+                  className="btn-primary press rounded-full bg-accent px-3.5 py-1.5 text-xs font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
                 >
                   {batch ? `批量打磨中 ${batch.done}/${batch.total}…` : `批量打磨未完成 (${threads.filter((t) => !t.polished.trim()).length})`}
                 </button>
@@ -866,7 +866,7 @@ export default function Workspace() {
           ) : threads.length === 0 ? (
             <p className="py-8 text-center text-[13px] text-ink-faint">暂无待回复意见。</p>
           ) : (
-            <div className="divide-y divide-line rounded-xl border border-line bg-white">
+            <div className="panel divide-y divide-line rounded-xl border border-line bg-white">
               {threads.map((t, i) => (
                 <div
                   key={t.commentId}
@@ -886,7 +886,7 @@ export default function Workspace() {
                       <button
                         onClick={() => void polishThread(t.commentId)}
                         disabled={busy !== null}
-                        className="press rounded-full bg-accent px-3.5 py-1 text-xs font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
+                        className="btn-primary press rounded-full bg-accent px-3.5 py-1 text-xs font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
                       >
                         {busy === `polish-${t.commentId}` ? "打磨中…" : t.polished ? "重新打磨" : "AI 打磨回复"}
                       </button>
@@ -898,7 +898,7 @@ export default function Workspace() {
                     onChange={(e) => updateThreadLocal(t.commentId, { draft: e.target.value })}
                     onBlur={() => void saveThread(t)}
                     placeholder="先写下你的回复要点(数据、论据、修改位置)…失焦自动保存,AI 打磨时会保留你的事实与数字"
-                    className="mt-3 min-h-20 w-full resize-y rounded-xl border border-line bg-band/40 p-3 text-[13px] outline-none transition focus:border-accent focus:bg-white"
+                    className="field mt-3 min-h-20 w-full resize-y rounded-xl p-3 text-[13px] outline-none"
                   />
                   {t.polished && (
                     <div className="mt-3 rounded-xl border border-emerald-200/70 bg-emerald-50/50 p-3">
@@ -929,7 +929,7 @@ export default function Workspace() {
                       onChange={(e) => updateThreadLocal(t.commentId, { commitment: e.target.value })}
                       onBlur={() => void saveThread(t)}
                       placeholder="修改承诺:答应修改稿件的哪里、改什么(供承诺核查用)"
-                      className="ml-auto min-w-56 flex-1 rounded-full border border-line bg-band/40 px-3.5 py-1.5 text-xs outline-none transition focus:border-accent focus:bg-white"
+                      className="field ml-auto min-w-56 flex-1 rounded-full px-3.5 py-1.5 text-xs outline-none"
                     />
                   </div>
                 </div>
@@ -945,7 +945,7 @@ export default function Workspace() {
             <button
               onClick={() => void runPipeline("cover-letter")}
               disabled={busy !== null}
-              className="press rounded-full bg-accent px-5 py-2 text-[13px] font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
+              className="btn-primary press rounded-full bg-accent px-5 py-2 text-[13px] font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
             >
               {busy === "cover-letter" ? (
                 <>
@@ -968,7 +968,7 @@ export default function Workspace() {
               disabled={busy !== null}
             />
           ) : (
-            <div className="rounded-xl border border-line bg-white p-6 sm:p-8">
+            <div className="panel rounded-xl border border-line bg-white p-6 sm:p-8">
               <div className="mb-4 flex items-center justify-between border-b border-line pb-3">
                 <p className="text-[13px] font-semibold tracking-tight">Cover Letter Draft</p>
                 <CopyButton text={project.coverLetter.content} label="复制全文" />
@@ -982,13 +982,13 @@ export default function Workspace() {
 
       {tab === "seminar" && (
         <div className="space-y-3">
-          <div className="flex flex-wrap items-center gap-3 rounded-xl border border-line bg-white p-4">
+          <div className="panel flex flex-wrap items-center gap-3 rounded-xl border border-line bg-white p-4">
             <label className="flex items-center gap-2 text-[13px] text-ink-soft">
               时长
               <select
                 value={seminarDuration}
                 onChange={(e) => setSeminarDuration(Number(e.target.value) as 5 | 10 | 15)}
-                className="rounded-full border border-line px-3 py-1.5 text-[13px] outline-none transition focus:border-accent"
+                className="field rounded-full px-3 py-1.5 text-[13px] outline-none"
               >
                 <option value={5}>约 5 分钟</option>
                 <option value={10}>约 10 分钟</option>
@@ -1000,7 +1000,7 @@ export default function Workspace() {
               <select
                 value={seminarLang}
                 onChange={(e) => setSeminarLang(e.target.value as "zh" | "en")}
-                className="rounded-full border border-line px-3 py-1.5 text-[13px] outline-none transition focus:border-accent"
+                className="field rounded-full px-3 py-1.5 text-[13px] outline-none"
               >
                 <option value="zh">中文(术语保留英文)</option>
                 <option value="en">English</option>
@@ -1009,7 +1009,7 @@ export default function Workspace() {
             <button
               onClick={() => void runPipeline("seminar", "seminar", { durationMin: seminarDuration, language: seminarLang })}
               disabled={busy !== null}
-              className="press rounded-full bg-accent px-5 py-2 text-[13px] font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
+              className="btn-primary press rounded-full bg-accent px-5 py-2 text-[13px] font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
             >
               {busy === "seminar" ? (
                 <>
@@ -1050,7 +1050,7 @@ export default function Workspace() {
                   label="复制全部讲稿"
                 />
               </div>
-              <ol className="divide-y divide-line rounded-xl border border-line bg-white">
+              <ol className="panel divide-y divide-line rounded-xl border border-line bg-white">
                 {project.seminar.slides.map((s, i) => (
                   <li
                     key={i}

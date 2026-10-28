@@ -183,7 +183,7 @@ export default function Dashboard() {
         {loading ? (
           <ul className="grid gap-3 sm:grid-cols-2">
             {[0, 1].map((i) => (
-              <li key={i} className="rounded-xl border border-line bg-white p-4">
+              <li key={i} className="panel rounded-xl border border-line bg-white p-4">
                 <div className="skeleton h-5 w-3/4 rounded-full bg-band" />
                 <div className="skeleton mt-3 h-3.5 w-1/2 rounded-full bg-band" />
                 <div className="skeleton mt-2 h-3.5 w-2/3 rounded-full bg-band" />
@@ -204,7 +204,7 @@ export default function Dashboard() {
               <li
                 key={p.id}
                 style={{ animationDelay: `${Math.min(i * 40, 240)}ms` }}
-                className="stagger card-lift group relative rounded-xl border border-line bg-white p-4 hover:border-accent/40"
+                className="stagger card-lift group relative panel rounded-xl border border-line bg-white p-4 hover:border-accent/40"
               >
                 <button
                   onClick={() => router.push(`/projects/${p.id}`)}

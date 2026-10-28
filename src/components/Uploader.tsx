@@ -66,7 +66,7 @@ export default function Uploader({ onCreated }: { onCreated: (id: string) => voi
   };
 
   return (
-    <section className="rounded-xl border border-line bg-white p-6">
+    <section className="panel rounded-xl border border-line bg-white p-6">
       <div className="mb-5 flex items-center justify-between">
         <h2 className="text-[15px] font-semibold">新建稿件</h2>
         <SegmentedControl
@@ -132,7 +132,7 @@ export default function Uploader({ onCreated }: { onCreated: (id: string) => voi
             value={pasteText}
             onChange={(e) => setPasteText(e.target.value)}
             placeholder="粘贴英文稿件全文(建议包含 Abstract / Introduction / Methods / Results / Discussion 等章节标题,便于分节)…"
-            className="h-44 w-full resize-y rounded-2xl border border-line bg-band/50 p-3.5 text-sm outline-none transition focus:border-accent focus:bg-white"
+            className="field h-44 w-full resize-y rounded-2xl p-3.5 text-sm outline-none"
           />
           <div className="mt-1 flex items-center justify-between text-xs text-ink-faint">
             <span>{pasteText.trim() ? `${pasteText.trim().length} 字符` : "支持直接粘贴,无需清洗格式"}</span>
@@ -154,13 +154,13 @@ export default function Uploader({ onCreated }: { onCreated: (id: string) => voi
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="稿件标题(可选,留空自动识别)"
-          className="rounded-full border border-line bg-band/50 px-4 py-2.5 text-sm outline-none transition focus:border-accent focus:bg-white"
+          className="field rounded-full px-4 py-2.5 text-sm outline-none"
         />
         <input
           value={targetJournal}
           onChange={(e) => setTargetJournal(e.target.value)}
           placeholder="目标期刊(可选,如 IEEE T-ITS)"
-          className="rounded-full border border-line bg-band/50 px-4 py-2.5 text-sm outline-none transition focus:border-accent focus:bg-white"
+          className="field rounded-full px-4 py-2.5 text-sm outline-none"
         />
       </div>
 
@@ -171,7 +171,7 @@ export default function Uploader({ onCreated }: { onCreated: (id: string) => voi
       <button
         onClick={() => void submit()}
         disabled={busy}
-        className="press group mt-4 w-full rounded-full bg-accent py-2.5 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
+        className="btn-primary press group mt-4 w-full rounded-full bg-accent py-2.5 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
       >
         {busy ? (
           <>

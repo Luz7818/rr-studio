@@ -75,7 +75,7 @@ export default function AppShell({
       <div className="space-y-2">
         <Link
           href="/signup"
-          className="press block rounded-full bg-accent py-2.5 text-center text-sm font-medium text-white transition hover:bg-accent/90"
+          className="btn-primary press block rounded-full bg-accent py-2.5 text-center text-sm font-medium text-white transition hover:bg-accent/90"
         >
           注册(内测邀请码)
         </Link>

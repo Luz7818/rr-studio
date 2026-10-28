@@ -67,7 +67,7 @@ function useCountUp(target: number, duration = 600) {
 function StatCard({ label, value }: { label: string; value: number }) {
   const shown = useCountUp(value);
   return (
-    <div className="rounded-xl border border-line bg-white p-5 text-center">
+    <div className="panel rounded-xl border border-line bg-white p-5 text-center">
       <p className="text-3xl font-semibold text-accent">{shown}</p>
       <p className="mt-1 text-sm text-ink-soft">{label}</p>
     </div>
@@ -99,7 +99,7 @@ export default function InsightsPage() {
         <div className="skeleton h-8 w-32 rounded-md bg-band" />
         <div className="grid gap-4 sm:grid-cols-3">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="rounded-xl border border-line bg-white p-5">
+            <div key={i} className="panel rounded-xl border border-line bg-white p-5">
               <div className="skeleton mx-auto h-9 w-14 rounded-md bg-band" />
               <div className="skeleton mx-auto mt-2 h-3.5 w-20 rounded-md bg-band" />
             </div>
@@ -107,7 +107,7 @@ export default function InsightsPage() {
         </div>
         <div className="grid gap-4 lg:grid-cols-2">
           {[0, 1].map((i) => (
-            <div key={i} className="rounded-xl border border-line bg-white p-5">
+            <div key={i} className="panel rounded-xl border border-line bg-white p-5">
               <div className="skeleton h-4 w-40 rounded-md bg-band" />
               <div className="skeleton mt-4 h-3 w-full rounded-md bg-band" />
               <div className="skeleton mt-2 h-3 w-5/6 rounded-md bg-band" />
@@ -147,7 +147,7 @@ export default function InsightsPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-xl border border-line bg-white p-5">
+        <div className="panel rounded-xl border border-line bg-white p-5">
           <h2 className="font-semibold">三位审稿人的录用建议分布</h2>
           <div className="mt-3 space-y-3">
             {data.recommendations.map((r) => (
@@ -165,7 +165,7 @@ export default function InsightsPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-line bg-white p-5">
+        <div className="panel rounded-xl border border-line bg-white p-5">
           <h2 className="font-semibold">Critique 问题类型分布</h2>
           {data.categories.length === 0 ? (
             <p className="mt-3 text-sm text-ink-faint">暂无数据,先在稿件里生成 Critique 报告。</p>
@@ -193,7 +193,7 @@ export default function InsightsPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-xl border border-line bg-white p-5">
+        <div className="panel rounded-xl border border-line bg-white p-5">
           <h2 className="font-semibold">审稿人命中率</h2>
           <p className="mt-1 text-xs text-ink-faint">你标记为「有道理」的意见占比——衡量每类审稿人的意见可信度。</p>
           <div className="mt-3 space-y-2">
@@ -208,7 +208,7 @@ export default function InsightsPage() {
             ))}
           </div>
         </div>
-        <div className="rounded-xl border border-line bg-white p-5">
+        <div className="panel rounded-xl border border-line bg-white p-5">
           <h2 className="font-semibold">承诺兑现率</h2>
           <p className="mt-1 text-xs text-ink-faint">回复信里答应的修改,在修改稿中兑现的情况。</p>
           {data.promises.total === 0 ? (
@@ -226,7 +226,7 @@ export default function InsightsPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-line bg-white p-5">
+      <div className="panel rounded-xl border border-line bg-white p-5">
         <h2 className="font-semibold">审稿时间线</h2>
         {data.timeline.length === 0 ? (
           <p className="mt-3 text-sm text-ink-faint">暂无已审稿的稿件。</p>

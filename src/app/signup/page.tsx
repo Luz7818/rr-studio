@@ -40,7 +40,7 @@ export default function SignupPage() {
 
   return (
     <div className="flex min-h-dvh items-center justify-center px-4">
-      <form onSubmit={submit} className="rise-in w-full max-w-sm space-y-4 rounded-xl border border-line bg-white p-8">
+      <form onSubmit={submit} className="rise-in panel w-full max-w-sm space-y-4 rounded-xl border border-line bg-white p-8">
         <div className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.svg" alt="" className="h-10 w-10 rounded-full" />
@@ -53,7 +53,7 @@ export default function SignupPage() {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="邮箱"
           required
-          className="w-full rounded-full border border-line bg-band/50 px-4 py-2.5 text-sm outline-none transition focus:border-accent focus:bg-white"
+          className="field w-full rounded-full px-4 py-2.5 text-sm outline-none"
         />
         <input
           type="password"
@@ -62,13 +62,13 @@ export default function SignupPage() {
           placeholder="密码(至少 8 位)"
           required
           minLength={8}
-          className="w-full rounded-full border border-line bg-band/50 px-4 py-2.5 text-sm outline-none transition focus:border-accent focus:bg-white"
+          className="field w-full rounded-full px-4 py-2.5 text-sm outline-none"
         />
         <input
           value={inviteCode}
           onChange={(e) => setInviteCode(e.target.value)}
           placeholder="邀请码"
-          className="w-full rounded-full border border-line bg-band/50 px-4 py-2.5 text-sm outline-none transition focus:border-accent focus:bg-white"
+          className="field w-full rounded-full px-4 py-2.5 text-sm outline-none"
         />
         {error && <p className="text-sm text-red-600">{error}</p>}
         {notice && (
@@ -85,7 +85,7 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={busy}
-            className="press w-full rounded-full bg-accent py-2.5 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
+            className="btn-primary press w-full rounded-full bg-accent py-2.5 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
           >
             {busy ? "注册中…" : "注册"}
           </button>

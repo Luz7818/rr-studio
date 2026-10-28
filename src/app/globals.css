@@ -83,6 +83,44 @@ html {
     0 8px 24px -16px rgba(81, 71, 229, 0.18);
 }
 
+/* 质感层:产品内静态面板的发丝级落影(边框仍是层次主来源,此影只提供「纸面」厚度) */
+.panel {
+  box-shadow: 0 1px 2px rgba(23, 23, 28, 0.03);
+}
+
+/* 实底胶囊按钮的深度:内高光 + 主色/墨色柔影,配合 .press 按压 */
+.btn-primary {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 1px 2px rgba(81, 71, 229, 0.25),
+    0 3px 10px -3px rgba(81, 71, 229, 0.4);
+}
+.btn-dark {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 1px 2px rgba(23, 23, 28, 0.35);
+}
+
+/* 输入统一质感:灰底 → 聚焦白底 + 主色微光圈(键盘聚焦同样生效,故抑制全局 outline) */
+.field {
+  border: 1px solid var(--color-line);
+  background: rgba(244, 244, 246, 0.5);
+  transition:
+    border-color 0.15s cubic-bezier(0.23, 1, 0.32, 1),
+    background-color 0.15s cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.field:focus,
+.field:focus-visible {
+  outline: none;
+  border-color: var(--color-accent);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(81, 71, 229, 0.08);
+}
+.field::placeholder {
+  color: var(--color-ink-faint);
+}
+
 /* 卡片悬停:轻微上浮 + 投影加深,过渡只动 transform/box-shadow */
 .card-lift {
   transition:
