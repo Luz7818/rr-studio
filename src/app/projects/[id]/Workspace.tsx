@@ -212,6 +212,15 @@ export default function Workspace() {
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   /** 组会 Q&A 已展开参考要点的题号(默认隐藏,先自己答) */
   const [revealedQA, setRevealedQA] = useState<Set<number>>(new Set());
+  /** 文献对标自定义检索词(分号分隔);首次载入已有时预填,便于增删而非从零写 */
+  const [litQuery, setLitQuery] = useState("");
+  const litPrefilled = useRef(false);
+  useEffect(() => {
+    if (!litPrefilled.current && project?.literature) {
+      litPrefilled.current = true;
+      setLitQuery(project.literature.queries.join("; "));
+    }
+  }, [project?.literature]);
 
   const load = useCallback(async () => {
     try {
@@ -746,6 +755,25 @@ export default function Workspace() {
                   {busy === "review" ? "审稿中…" : "重新模拟审稿"}
                 </button>
               </div>
+            </div>
+            <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-line pt-3">
+              <input
+                value={litQuery}
+                onChange={(e) => setLitQuery(e.target.value)}
+                placeholder="自定义检索词(用分号;分隔,留空则自动从稿件提取)"
+                className="field min-w-56 flex-1 rounded-full px-3.5 py-1.5 text-xs outline-none"
+              />
+              <button
+                onClick={() =>
+                  void runPipeline("literature", undefined, {
+                    queries: litQuery.split(/[;;\n；]/).map((s) => s.trim()).filter(Boolean),
+                  })
+                }
+                disabled={busy !== null || !litQuery.trim()}
+                className="press shrink-0 rounded-full border border-accent/30 px-3.5 py-1.5 text-xs font-medium text-accent transition hover:bg-accent-soft disabled:opacity-50"
+              >
+                {busy === "literature" ? "检索中…" : "按这些检索词检索"}
+              </button>
             </div>
             {project.literature && (
               <div className="mt-3 border-t border-line pt-3">

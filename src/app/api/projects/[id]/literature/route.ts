@@ -8,29 +8,39 @@ import { getApiContext } from "@/lib/auth";
  * 文献对标:从稿件标题/摘要提取检索词,检索近三年真实文献
  * (OpenAlex 优先,Semantic Scholar 兜底),存入 project.literature
  * 作为模拟审稿的依据 —— 审稿人讨论文献缺口时只引用这些真实论文。
+ * 请求体可带 { queries: string[] } 手动指定检索词(≤4 条,自动提取被跳过)。
  */
-export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const actx = await getApiContext();
   if (!actx.ok) return actx.res;
   const { id } = await ctx.params;
   const project = await actx.ctx.store.get(actx.ctx.userId, id);
   if (!project) return NextResponse.json({ error: "项目不存在" }, { status: 404 });
 
-  const abstract = project.sections.find((s) => s.heading === "Abstract")?.text;
-  const intro = project.sections.find((s) => s.heading === "Introduction")?.text;
-  const seed = [abstract, intro].find((t) => t && t.trim().length > 100) ?? project.sections[0]?.text ?? "";
+  const body = (await req.json().catch(() => null)) as { queries?: unknown } | null;
+  const manual = Array.isArray(body?.queries)
+    ? body.queries.map((q) => String(q).trim()).filter(Boolean).slice(0, 4)
+    : [];
 
   let queries: string[];
-  if (isLlmConfigured()) {
-    try {
-      const { system, user } = literatureQueriesPrompt(project.title, seed);
-      const out = await chatJSON<{ queries?: string[] }>(system, user);
-      queries = (out.queries ?? []).map(String).filter(Boolean).slice(0, 3);
-    } catch {
+  if (manual.length > 0) {
+    queries = manual;
+  } else {
+    const abstract = project.sections.find((s) => s.heading === "Abstract")?.text;
+    const intro = project.sections.find((s) => s.heading === "Introduction")?.text;
+    const seed = [abstract, intro].find((t) => t && t.trim().length > 100) ?? project.sections[0]?.text ?? "";
+
+    if (isLlmConfigured()) {
+      try {
+        const { system, user } = literatureQueriesPrompt(project.title, seed);
+        const out = await chatJSON<{ queries?: string[] }>(system, user);
+        queries = (out.queries ?? []).map(String).filter(Boolean).slice(0, 3);
+      } catch {
+        queries = [];
+      }
+    } else {
       queries = [];
     }
-  } else {
-    queries = [];
   }
   if (queries.length === 0) {
     // 无 LLM 或提取失败:退化用标题 + 关键词章节

@@ -88,6 +88,19 @@ await step("文献对标(真实检索)", async () => {
   assert((d.project.literature?.papers ?? []).length >= 3, "papers < 3");
 });
 
+await step("文献对标(自定义检索词)", async () => {
+  const d = await json(
+    await fetch(`${BASE}/api/projects/${projectId}/literature`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ queries: ["adaptive traffic signal control deep learning"] }),
+    }),
+  );
+  const lit = d.project.literature;
+  assert((lit?.papers ?? []).length >= 3, "papers < 3");
+  assert(lit.queries.join(" ").includes("adaptive traffic signal"), "检索词未采用手动输入");
+});
+
 await step("Critique 报告", async () => {
   const d = await json(await fetch(`${BASE}/api/projects/${projectId}/critique`, { method: "POST" }));
   assert(d.project.critique.items.length > 0, "items 为空");
