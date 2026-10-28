@@ -58,7 +58,8 @@
 | 内嵌块(引用、代码、批注) | `rounded-md`~`rounded-xl` | 内容块,不参与胶囊语言 |
 | 弹窗 | `rounded-xl` + `shadow-xl` | 投影只给弹层 |
 
-- 分段控件(页签/筛选/切换)= `bg-band p-1 rounded-full` 槽 + `rounded-full` 白色活动块。
+- 分段控件(页签/筛选/切换)= `SegmentedControl` 组件:`bg-band p-1 rounded-full` 槽 +
+  白色活动块**滑动过渡**(220ms 统一缓动,只动 transform/width;键盘/reduced-motion 直跳)。
 - 列表优先于卡片:同质内容(Critique 条目、回复线程、讲稿页)用 `divide-y` 行列表装进
   一个容器,行 hover 用 `bg-band/40`,不用逐行卡片。
 - 点阵装饰 `.bg-dots` + 径向蒙版:仅落地页 hero;悬浮胶囊标签(黑/主色底白字)仅落地页 mockup。
@@ -76,12 +77,17 @@
 
 - 层次来源:**胶囊形 + 分隔线 + 边框**为主;`card-shadow` 用于浮岛(落地页 mockup、Logo
   胶囊、弹层);产品内静态面板以边框为主。
+- 质感层(v0.12):静态面板加 `.panel` 发丝级落影(纸面厚度,不抢边框的层次职责);
+  实底按钮加 `.btn-primary`/`.btn-dark`(内高光 + 主色/墨色柔影);输入统一 `.field`
+  (灰底 → 聚焦白底 + 主色微光圈,键盘聚焦同效)。新面板/按钮/输入一律复用,不再手写阴影。
 - `card-lift`(hover 上浮)只用于**可点击进入**的卡片(如仪表盘稿件卡);静态容器不飘。
 - 深色带(`bg-ink`)只出现在落地页 CTA 区。
 
 ## 动效
 
 - 统一缓动曲线 `cubic-bezier(0.23, 1, 0.32, 1)`(强 ease-out),UI 动效一律 ≤ 300ms。
+- 数据条一律用 `FillBar` 组件(挂载从 0 填充到目标宽度);弹层入场 `.pop-in`,退场淡出由
+  `ConfirmDialog` 内建(130ms,reduced-motion 直关)。
 - 微交互:按压 `.press`(active `scale(0.97)`);内容块进入 `.rise-in`;列表交错 `.stagger`
   (30–80ms 间隔,上限 240ms);数据条 `.bar-fill`;busy 按钮 `.spinner`(currentColor)。
 - 键盘触发的状态变化不加动画:页签数字键 1–7 直跳;count-up 只用于洞察页统计卡,
@@ -90,8 +96,10 @@
 
 ## 交互组件
 
-- **确认弹窗**:统一用 `components/ConfirmDialog.tsx`(遮罩 blur + rise-in 面板,Escape/点遮罩
-  取消,危险操作红色确认),禁止新写 `window.confirm`。
+- **确认弹窗**:统一用 `components/ConfirmDialog.tsx`(遮罩 blur + pop-in 面板,退场淡出,
+  Tab 焦点圈内循环,Escape/点遮罩取消,危险操作红色确认),禁止新写 `window.confirm`。
+- **分段控件**:统一用 `components/SegmentedControl.tsx`(滑动白胶囊),禁止手写瞬时切换的
+  `bg-band` 按钮组;数据条统一用 `components/FillBar.tsx`。
 - **空态**:纯文字 + 可选行动按钮(`EmptyState`),不放装饰图标。
 - **加载态**:busy 按钮/空态行动按钮内嵌 `.spinner`;页面初始加载用 `.skeleton` 脉冲。
 

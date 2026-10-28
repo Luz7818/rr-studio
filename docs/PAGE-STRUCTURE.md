@@ -30,10 +30,15 @@
 | `Uploader.tsx` | 文件/粘贴双模式新建 | FormData 上传,成功跳工作台 |
 | `Landing.tsx` | SaaS 落地页 | hero 点阵、浮岛 mockup、对比区、CTA |
 | `FooterYear` | 版权年份 | 客户端组件,绕开预渲染时间限制 |
+| `SegmentedControl.tsx` | 分段控件(滑动白胶囊) | 工作台页签、上传/修改稿模式切换、Critique 筛选 |
+| `FillBar.tsx` | 数据条入场填充 | 章节占比、打磨进度、洞察条形图 |
+| `ConfirmDialog.tsx` | 确认弹窗(入退场 + 焦点圈) | 替代 window.confirm |
 
 ## 交互约定
 
 - 所有写操作经 `runPipeline` / `patchProject` / `saveThread`,失败进页面错误条;
   `busy` 单值防重入。
+- 工作台页签持久化在 URL `?tab=`(replaceState,不产生路由历史);键盘 1–7 切签直跳不加动画
+  (容器 `data-still`)。
 - 自动保存:标题、期刊、回复草稿、承诺在 `onBlur` 时 PATCH;乐观更新本地 state 再落库。
 - 导出按钮一律 `<a href>` 直链 GET;PPTX/DOCX 响应带 `attachment` 头。

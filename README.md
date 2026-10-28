@@ -28,7 +28,7 @@ npm run dev
 |---|---|---|
 | 解析 + 脱敏 | 首页上传或粘贴 | 标题页整体排除;邮箱/基金号/链接自动打码 |
 | Critique 报告 | 工作台「Critique 报告」页签 | 逻辑/表达/语法/风格四维,可勾选采纳,导出 Word |
-| 模拟审稿 | 「模拟审稿」页签,先点「获取真实文献对标」 | 三位审稿人 Major/Minor;意见可标记「有道理/不成立」 |
+| 模拟审稿 | 「模拟审稿」页签,先点「获取真实文献对标」(可自定义检索词) | 三位审稿人 Major/Minor;意见可标记「有道理/不成立」 |
 | Response Letter | 「回复审稿人」页签 | 你写草稿 AI 打磨,批量打磨,导出 Word 逐点回复信 |
 | 修改稿对照 | 「修改稿对照」页签 | 逐节差异 + 重审;承诺兑现核查逐条验证是否真改了 |
 | 组会引擎 | 「组会汇报」页签 | PPT 大纲 + 逐页讲稿 + 导师 Q&A 预演,导出 PPTX(讲稿在演讲者备注) |
@@ -57,7 +57,7 @@ npm run dev
 - **文献对标依赖开放检索 API**:OpenAlex/Semantic Scholar 不可达时审稿退回无文献依据模式
   (不联网也能跑,但审稿人不再引用真实论文)。
 - **单元测试只覆盖纯函数**:parse/sanitize 有 vitest 用例(`npm test`);LLM 调用链的函数级回归
-  仍靠 14 步端到端 smoke(见 [docs/TESTING.md](docs/TESTING.md))。
+  仍靠 15 步端到端 smoke(见 [docs/TESTING.md](docs/TESTING.md))。
 - **双栏 PDF 公式密集稿解析质量有限**:unpdf 按文本流抽取,复杂排版可能切节不准,建议粘贴文本兜底。
 - **SaaS 模式 LLM 次数限额**:Free 每月默认 60 次(`FREE_LLM_MONTHLY_LIMIT`),需在 Supabase
   重跑 `supabase/migration.sql` 建 `llm_usage` 表后生效;本地/演示模式不限额。

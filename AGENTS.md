@@ -114,7 +114,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 | 项 | 值 | 复核命令 |
 |---|---|---|
-| 冒烟自检 | 14/14 项通过(演示模式与真实 LLM 模式同套件) | `LLM_API_KEY= npm run smoke` |
+| 冒烟自检 | 15/15 项通过(演示模式与真实 LLM 模式同套件) | `LLM_API_KEY= npm run smoke` |
 | 静态检查 | eslint 0 告警 0 错误 | `npm run lint` |
 | 单元测试 | parse/sanitize 17 个用例全绿 | `npm test` |
 | 生产构建 | 通过,21 个 API 路由 + 7 个页面 | `npm run build`(`find src/app -name route.ts` 输出 21 行) |
