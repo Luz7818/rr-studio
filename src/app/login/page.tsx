@@ -56,7 +56,7 @@ function LoginForm() {
         required
         className="field w-full rounded-full px-4 py-2.5 text-sm outline-none"
       />
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="rise-in rounded-xl bg-red-50 px-3.5 py-2 text-sm text-red-700">{error}</p>}
       <button
         type="submit"
         disabled={busy}

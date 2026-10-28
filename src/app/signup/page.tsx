@@ -70,7 +70,7 @@ export default function SignupPage() {
           placeholder="邀请码"
           className="field w-full rounded-full px-4 py-2.5 text-sm outline-none"
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="rise-in rounded-xl bg-red-50 px-3.5 py-2 text-sm text-red-700">{error}</p>}
         {notice && (
           <p className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
             {notice}{" "}
