@@ -2,7 +2,7 @@
 
 > 用途:改页面的人。每个页面是什么、由哪些组件与数据来源构成。视觉规则看 `DESIGN.md`。
 
-## 页面清单(6 个,复核:`find src/app -name page.tsx`)
+## 页面清单(9 个,复核:`find src/app -name page.tsx`)
 
 | 路由 | 文件 | 作用 | 数据来源 |
 |---|---|---|---|
@@ -12,6 +12,9 @@
 | `/pricing` | `app/pricing/page.tsx` | 定价(公开) | 静态 |
 | `/login` `signup` | 各自 `page.tsx` | 认证表单 | `POST /api/auth/*` |
 | `/auth/callback` | `app/auth/callback/route.ts` | 邮箱确认回调(非页面) | code 换 session |
+| `/guide` | `app/guide/page.tsx` | 使用指南(七步流水线) | 静态 |
+| `/changelog` | `app/changelog/page.tsx` | 更新日志(用户视角亮点) | 静态 |
+| `/privacy` | `app/privacy/page.tsx` | 隐私说明 | 静态 |
 
 公开性由 `src/proxy.ts` 控制:`/` 与 `/pricing` 放行,其余未登录跳 `/login`。
 

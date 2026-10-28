@@ -263,3 +263,15 @@
 - 验证:lint 0 告警、vitest 17/17、生产构建通过(21 API 路由 + 7 页面不变)、
   演示模式 smoke 15/15;浏览器实测分段控件滑动、吸顶、`?tab=` 恢复、手动检索词全链路
   (OpenAlex 返回 8 篇真实文献)与质感层渲染。
+
+## 2026-10-29 · v0.13.0 交付链补全与回复线程筛选
+
+- **Cover Letter 一键导出 Word**:新增 `export/cover-letter` 路由(正文按空行分段,页脚署名),
+  Cover 页签「复制全文」旁加「导出 Word」——四个产出物(Critique 报告 / Response Letter /
+  Cover Letter / 组会 PPTX)至此全部可一键导出,落地页「打磨交付」的表述落为真。
+- **回复线程状态筛选**:回复工具栏加「全部 / 未打磨 / 未裁决」分段筛选(带实时计数),
+  11+ 条意见时能快速定位还没处理完的;筛选为空有明确提示。裁决/打磨后计数即时联动。
+- smoke 的 Cover Letter 步并入导出断言(15 步不变);README/AGENTS 路由数更新为 22,
+  PAGE-STRUCTURE 补齐 guide/changelog/privacy 三个页面的欠账。
+- 验证:lint 0 告警、vitest 17/17、生产构建通过(22 API 路由 + 9 页面)、演示模式 smoke 15/15、
+  浏览器实测筛选计数联动(标记裁决后「未裁决」11→10)。
