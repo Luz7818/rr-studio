@@ -5,6 +5,7 @@ import { getSessionUser, isSaasMode } from "@/lib/auth";
 import AppShell from "@/components/AppShell";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: "R&R Studio — 投稿加速流水线",
   description:
     "上传英文论文草稿,生成逐段 Critique 报告、三份模拟审稿意见(真实文献对标)、Response Letter 打磨、Cover Letter、组会汇报 PPTX、修改稿对照与承诺兑现核查。",
@@ -35,7 +36,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const bare = saas && !user;
 
   return (
-    <html lang="zh-CN">
+    <html lang="zh-CN" data-scroll-behavior="smooth">
       <body className="antialiased" data-bare={bare ? "true" : undefined}>
         {bare ? (
           children

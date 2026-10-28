@@ -121,6 +121,28 @@ html {
   animation: rise-in 0.26s cubic-bezier(0.23, 1, 0.32, 1) both;
 }
 
+/* 弹层进入:rise-in 基础上带 0.98 起步的微缩放(ConfirmDialog 面板) */
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.pop-in {
+  animation: pop-in 0.2s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+/* 键盘触发的状态变化不加动画(DESIGN 动效纪律):容器标 data-still 时,
+   其内 rise-in/stagger 一律直显——数字键 1–7 切页签走这条路 */
+[data-still="true"] .rise-in,
+[data-still="true"] .stagger {
+  animation: none;
+}
+
 /* 列表交错入场:配合内联 animation-delay 使用(上限 ~240ms) */
 .stagger {
   animation: rise-in 0.3s cubic-bezier(0.23, 1, 0.32, 1) both;

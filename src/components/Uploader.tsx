@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { ArrowRight, Upload } from "lucide-react";
+import SegmentedControl from "@/components/SegmentedControl";
 
 export default function Uploader({ onCreated }: { onCreated: (id: string) => void }) {
   const [mode, setMode] = useState<"file" | "paste">("file");
@@ -48,19 +49,15 @@ export default function Uploader({ onCreated }: { onCreated: (id: string) => voi
     <section className="rounded-xl border border-line bg-white p-6">
       <div className="mb-5 flex items-center justify-between">
         <h2 className="text-[15px] font-semibold">新建稿件</h2>
-        <div className="inline-flex rounded-full bg-band p-1 text-[13px]">
-          {(["file", "paste"] as const).map((m) => (
-            <button
-              key={m}
-              onClick={() => setMode(m)}
-              className={`rounded-full px-3.5 py-1.5 transition ${
-                mode === m ? "bg-white font-medium text-ink shadow-sm" : "text-ink-soft hover:text-ink"
-              }`}
-            >
-              {m === "file" ? "上传文件" : "粘贴文本"}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl
+          value={mode}
+          onChange={setMode}
+          ariaLabel="新建稿件方式"
+          options={[
+            { value: "file", label: "上传文件" },
+            { value: "paste", label: "粘贴文本" },
+          ]}
+        />
       </div>
 
       {mode === "file" ? (
@@ -121,7 +118,7 @@ export default function Uploader({ onCreated }: { onCreated: (id: string) => voi
       </div>
 
       {error && (
-        <p className="mt-3 rounded-xl bg-red-50 px-3.5 py-2 text-sm text-red-700">{error}</p>
+        <p className="rise-in mt-3 rounded-xl bg-red-50 px-3.5 py-2 text-sm text-red-700">{error}</p>
       )}
 
       <button

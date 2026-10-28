@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { Upload } from "lucide-react";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import SegmentedControl from "@/components/SegmentedControl";
 import type { Project, RevisionDiffItem } from "@/lib/types";
 
 const CHANGE_STYLE: Record<RevisionDiffItem["changeType"], { label: string; cls: string }> = {
@@ -142,19 +143,15 @@ export default function RevisionPanel({
 
         {!rev ? (
           <>
-            <div className="mb-3 inline-flex rounded-full bg-band p-1 text-[13px]">
-              {(["file", "paste"] as const).map((m) => (
-                <button
-                  key={m}
-                  onClick={() => setMode(m)}
-                  className={`press rounded-full px-3.5 py-1.5 transition ${
-                    mode === m ? "bg-white font-medium text-accent shadow-sm" : "text-ink-soft hover:text-ink"
-                  }`}
-                >
-                  {m === "file" ? "上传文件" : "粘贴文本"}
-                </button>
-              ))}
-            </div>
+            <SegmentedControl
+              value={mode}
+              onChange={setMode}
+              ariaLabel="修改稿上传方式"
+              options={[
+                { value: "file", label: "上传文件" },
+                { value: "paste", label: "粘贴文本" },
+              ]}
+            />
             {mode === "file" ? (
               <div
                 onClick={() => fileInputRef.current?.click()}
@@ -227,7 +224,7 @@ export default function RevisionPanel({
           </div>
         )}
         {error && (
-          <p className="mt-3 rounded-xl bg-red-50 px-3.5 py-2 text-sm text-red-700">{error}</p>
+          <p className="rise-in mt-3 rounded-xl bg-red-50 px-3.5 py-2 text-sm text-red-700">{error}</p>
         )}
       </div>
 

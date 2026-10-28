@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import FillBar from "@/components/FillBar";
 
 const REC_LABEL: Record<string, string> = {
   accept: "Accept",
@@ -120,7 +121,7 @@ export default function InsightsPage() {
   const maxCat = Math.max(1, ...data.categories.map((c) => c.count));
 
   return (
-    <div className="space-y-6">
+    <div className="rise-in space-y-6">
       <div>
         <Link
           href="/"
@@ -173,9 +174,7 @@ export default function InsightsPage() {
               {data.categories.map((c) => (
                 <div key={c.key} className="flex items-center gap-3 text-sm">
                   <span className="w-10 shrink-0 text-ink-soft">{c.label}</span>
-                  <div className="h-3 flex-1 overflow-hidden rounded-full bg-band">
-                    <div className="bar-fill h-full rounded-full bg-accent" style={{ width: `${(c.count / maxCat) * 100}%` }} />
-                  </div>
+                  <FillBar pct={(c.count / maxCat) * 100} className="h-3 flex-1" />
                   <span className="w-8 text-right text-xs text-ink-soft">{c.count}</span>
                 </div>
               ))}
@@ -201,9 +200,7 @@ export default function InsightsPage() {
             {data.hitRates.map((h) => (
               <div key={h.persona} className="flex items-center gap-3 text-sm">
                 <span className="min-w-0 flex-1 truncate text-ink-soft">{h.label}</span>
-                <div className="h-3 w-32 overflow-hidden rounded-full bg-band">
-                  <div className="bar-fill h-full rounded-full bg-emerald-500" style={{ width: `${h.rate ?? 0}%` }} />
-                </div>
+                <FillBar pct={h.rate ?? 0} className="h-3 w-32" innerClassName="bg-emerald-500" />
                 <span className="w-20 text-right text-xs text-ink-soft">
                   {h.rate === null ? "未裁决" : `${h.rate}% (${h.valid}/${h.valid + h.invalid})`}
                 </span>

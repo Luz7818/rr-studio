@@ -13,6 +13,8 @@ import {
   X,
 } from "lucide-react";
 import type { CritiqueItem, Project, ResponseThread, Severity } from "@/lib/types";
+import FillBar from "@/components/FillBar";
+import SegmentedControl from "@/components/SegmentedControl";
 import RevisionPanel from "./RevisionPanel";
 
 type Tab = "overview" | "critique" | "review" | "response" | "cover" | "seminar" | "revision";
@@ -160,6 +162,12 @@ export default function Workspace() {
   const [project, setProject] = useState<Project | null>(null);
   const [llmConfigured, setLlmConfigured] = useState(true);
   const [tab, setTab] = useState<Tab>("overview");
+  /** 本次切签是否由指针触发:键盘(数字键 1–7)切签直跳不加动画(DESIGN 动效纪律) */
+  const [tabMotion, setTabMotion] = useState(true);
+  const switchTab = (t: Tab, motion: boolean) => {
+    setTabMotion(motion);
+    setTab(t);
+  };
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [severityFilter, setSeverityFilter] = useState<"all" | Severity>("all");
@@ -219,7 +227,10 @@ export default function Workspace() {
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const n = Number(e.key);
-      if (Number.isInteger(n) && n >= 1 && n <= TABS.length) setTab(TABS[n - 1].key);
+      if (Number.isInteger(n) && n >= 1 && n <= TABS.length) {
+        setTabMotion(false);
+        setTab(TABS[n - 1].key);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -251,7 +262,7 @@ export default function Workspace() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "执行失败");
       setProject(data.project);
-      if (after) setTab(after);
+      if (after) switchTab(after, true);
     } catch (e) {
       setError(e instanceof Error ? e.message : "执行失败");
     } finally {
@@ -431,30 +442,33 @@ export default function Workspace() {
           <b>演示模式</b>:未配置 <code>LLM_API_KEY</code>,以下内容由占位示例生成。配置后点击各步骤的「重新生成」即可获得真实结果。
         </div>
       )}
-      {error && <div className="rounded-2xl border border-red-200/60 bg-red-50 px-4 py-2.5 text-[13px] text-red-700">{error}</div>}
+      {error && (
+        <div className="rise-in rounded-2xl border border-red-200/60 bg-red-50 px-4 py-2.5 text-[13px] text-red-700">{error}</div>
+      )}
 
-      <nav className="no-scrollbar flex max-w-full gap-1 overflow-x-auto rounded-full bg-band p-1">
-        {TABS.map((t, i) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            title={`快捷键 ${i + 1}`}
-            className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-[13px] transition ${
-              tab === t.key
-                ? "bg-white font-medium text-ink shadow-sm"
-                : "text-ink-soft hover:text-ink"
-            }`}
-          >
-            {t.label}
-            {t.key === "critique" && project.critique ? ` (${project.critique.items.length})` : ""}
-            {t.key === "review" && project.reviews?.length ? ` (${project.reviews.length})` : ""}
-            {t.key === "response" && threads.length ? ` (${threads.length})` : ""}
-          </button>
-        ))}
-      </nav>
+      <div className="no-scrollbar max-w-full overflow-x-auto">
+        <SegmentedControl
+          value={tab}
+          onChange={(k) => switchTab(k, true)}
+          size="md"
+          ariaLabel="工作台页签"
+          options={TABS.map((t, i) => ({
+            value: t.key,
+            title: `快捷键 ${i + 1}`,
+            label: (
+              <>
+                {t.label}
+                {t.key === "critique" && project.critique ? ` (${project.critique.items.length})` : ""}
+                {t.key === "review" && project.reviews?.length ? ` (${project.reviews.length})` : ""}
+                {t.key === "response" && threads.length ? ` (${threads.length})` : ""}
+              </>
+            ),
+          }))}
+        />
+      </div>
 
-      {/* key 挂在页签上:切换时轻过渡,避免内容硬切 */}
-      <div key={tab} className="rise-in">
+      {/* key 挂在页签上:指针切签轻过渡;键盘切签 data-still 直显 */}
+      <div key={tab} className="rise-in" data-still={!tabMotion}>
       {tab === "overview" && (
         <div className="space-y-5">
           <div className="grid gap-4 sm:grid-cols-2">
@@ -512,12 +526,11 @@ export default function Workspace() {
               {project.sections.map((s) => (
                 <li key={s.id} className="-mx-2 flex items-center gap-3 rounded-md px-2 py-2 transition hover:bg-band">
                   <span className="w-24 shrink-0 truncate font-medium text-ink sm:w-36">{s.heading}</span>
-                  <span className="h-1 flex-1 overflow-hidden rounded-full bg-band" aria-hidden>
-                    <span
-                      className="bar-fill block h-full rounded-full bg-accent/60"
-                      style={{ width: `${Math.max(3, (s.chars / maxSectionChars) * 100)}%` }}
-                    />
-                  </span>
+                  <FillBar
+                    pct={Math.max(3, (s.chars / maxSectionChars) * 100)}
+                    className="h-1 flex-1"
+                    innerClassName="bg-accent/60"
+                  />
                   <span className="w-14 shrink-0 text-right text-xs text-ink-faint">{s.chars} 字符</span>
                 </li>
               ))}
@@ -565,28 +578,26 @@ export default function Workspace() {
         <div className="space-y-3">
           {project.critique && (
             <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-white px-4 py-3">
-              <div className="flex gap-1 rounded-full bg-band p-1 text-[13px]">
-                {(["all", "major", "minor", "suggestion"] as const).map((f) => {
+              <SegmentedControl
+                value={severityFilter}
+                onChange={setSeverityFilter}
+                ariaLabel="按严重程度筛选"
+                options={(["all", "major", "minor", "suggestion"] as const).map((f) => {
                   const count =
                     f === "all"
                       ? project.critique!.items.length
                       : project.critique!.items.filter((i) => i.severity === f).length;
-                  return (
-                    <button
-                      key={f}
-                      onClick={() => setSeverityFilter(f)}
-                      className={`press rounded-full px-3.5 py-1.5 transition ${
-                        severityFilter === f
-                          ? "bg-white font-medium text-accent shadow-sm"
-                          : "text-ink-soft hover:text-ink"
-                      }`}
-                    >
-                      {f === "all" ? "全部" : SEVERITY_LABEL[f]}
-                      {count > 0 && <span className="ml-1 text-xs text-ink-faint">{count}</span>}
-                    </button>
-                  );
+                  return {
+                    value: f,
+                    label: (
+                      <>
+                        {f === "all" ? "全部" : SEVERITY_LABEL[f]}
+                        {count > 0 && <span className="ml-1 text-xs text-ink-faint">{count}</span>}
+                      </>
+                    ),
+                  };
                 })}
-              </div>
+              />
               <div className="ml-auto flex items-center gap-2">
                 <button
                   onClick={() => void runPipeline("critique")}
@@ -776,14 +787,10 @@ export default function Workspace() {
               <span className="text-[13px] text-ink-soft">
                 已打磨 <b className="font-medium text-ink">{threads.filter((t) => t.polished.trim()).length}</b>/{threads.length} 条
               </span>
-              <div className="h-1 w-20 overflow-hidden rounded-full bg-band" aria-hidden>
-                <div
-                  className="bar-fill h-full rounded-full bg-accent"
-                  style={{
-                    width: `${Math.round((threads.filter((t) => t.polished.trim()).length / threads.length) * 100)}%`,
-                  }}
-                />
-              </div>
+              <FillBar
+                pct={(threads.filter((t) => t.polished.trim()).length / threads.length) * 100}
+                className="h-1 w-20"
+              />
               <div className="ml-auto flex flex-wrap items-center gap-2">
                 <button
                   onClick={() => void polishAllPending()}
@@ -815,7 +822,7 @@ export default function Workspace() {
               hint="请先完成「模拟审稿」。"
               action="三位审稿人的每条意见将在这里变成回复线程,可 AI 打磨成正式回复。"
               actionLabel="去模拟审稿"
-              onAction={() => setTab("review")}
+              onAction={() => switchTab("review", true)}
             />
           ) : threads.length === 0 ? (
             <p className="py-8 text-center text-[13px] text-ink-faint">暂无待回复意见。</p>
