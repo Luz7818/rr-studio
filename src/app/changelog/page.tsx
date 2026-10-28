@@ -7,6 +7,26 @@ import Reveal from "@/components/Reveal";
 /** 用户视角的版本亮点(开发者细节见仓库 HISTORY.md) */
 const RELEASES: Array<{ version: string; date: string; title: string; items: string[] }> = [
   {
+    version: "v0.13",
+    date: "2026-10",
+    title: "交付链补全",
+    items: [
+      "Cover Letter 一键导出 Word,四个产出物全部可直出",
+      "回复线程按「未打磨 / 未裁决」快速筛选,意见多时不再翻找",
+    ],
+  },
+  {
+    version: "v0.12",
+    date: "2026-10",
+    title: "动效、效率与质感",
+    items: [
+      "文献对标支持自定义检索词,审稿依据随你聚焦的方向走",
+      "工作台页签吸顶且地址可分享,刷新不丢位置",
+      "页签滑动切换、数据条填充入场、弹窗入退场,全局质感升级",
+      "上传支持拖拽高亮与大小校验,长意见自动折叠",
+    ],
+  },
+  {
     version: "v0.11",
     date: "2026-10",
     title: "品牌与官网全面升级",
