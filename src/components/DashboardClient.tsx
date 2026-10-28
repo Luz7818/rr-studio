@@ -250,7 +250,7 @@ export default function Dashboard() {
                   disabled={deleting === p.id}
                   aria-label={`删除「${p.title}」`}
                   title="删除稿件"
-                  className="absolute right-3 top-3 hidden rounded p-1 text-ink-faint transition hover:bg-red-50 hover:text-red-600 disabled:opacity-40 group-hover:block"
+                  className="absolute right-3 top-3 rounded bg-white/80 p-1 text-ink-faint opacity-0 transition hover:bg-red-50 hover:text-red-600 focus-visible:opacity-100 disabled:opacity-40 [@media(hover:none)]:opacity-100 group-hover:opacity-100"
                 >
                   {deleting === p.id ? (
                     <span className="spinner h-3.5 w-3.5" aria-hidden />

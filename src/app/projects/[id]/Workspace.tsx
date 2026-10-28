@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   Check,
@@ -88,6 +88,25 @@ function CopyButton({ text, label = "复制" }: { text: string; label?: string }
   );
 }
 
+/** 审稿意见引用:超长意见折叠为 4 行,展开/收起不丢上下文 */
+function CommentQuote({ text }: { text: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const long = text.length > 240;
+  return (
+    <blockquote className="mt-3 border-l-2 border-accent/25 pl-3 text-[13px] leading-relaxed text-ink-soft">
+      <span className={long && !expanded ? "line-clamp-4 block" : undefined}>{text}</span>
+      {long && (
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="mt-0.5 text-xs text-accent transition hover:opacity-80"
+        >
+          {expanded ? "收起" : "展开全文"}
+        </button>
+      )}
+    </blockquote>
+  );
+}
+
 function StepBadge({ done, label }: { done: boolean; label: string }) {
   return (
     <span
@@ -159,15 +178,28 @@ function EmptyState({
 
 export default function Workspace() {
   const { id } = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
   const [project, setProject] = useState<Project | null>(null);
   const [llmConfigured, setLlmConfigured] = useState(true);
-  const [tab, setTab] = useState<Tab>("overview");
-  /** 本次切签是否由指针触发:键盘(数字键 1–7)切签直跳不加动画(DESIGN 动效纪律) */
-  const [tabMotion, setTabMotion] = useState(true);
+  // 页签写入 ?tab= 持久化:刷新/回退/分享不丢位置(无效值回退解析概览)
+  const paramTab = searchParams.get("tab");
+  const [tab, setTab] = useState<Tab>(() =>
+    TABS.some((x) => x.key === paramTab) ? (paramTab as Tab) : "overview",
+  );
   const switchTab = (t: Tab, motion: boolean) => {
     setTabMotion(motion);
     setTab(t);
   };
+  // 页签变化统一同步到 ?tab=:刷新/回退/分享不丢位置
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("tab") !== tab) {
+      url.searchParams.set("tab", tab);
+      window.history.replaceState(null, "", url);
+    }
+  }, [tab]);
+  /** 本次切签是否由指针触发:键盘(数字键 1–7)切签直跳不加动画(DESIGN 动效纪律) */
+  const [tabMotion, setTabMotion] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [severityFilter, setSeverityFilter] = useState<"all" | Severity>("all");
@@ -319,7 +351,8 @@ export default function Workspace() {
     }, 1600);
   };
 
-  const polishThread = async (commentId: string) => {
+  /** 打磨单条回复;返回是否成功,批量流程据此汇总失败数 */
+  const polishThread = async (commentId: string): Promise<boolean> => {
     setBusy(`polish-${commentId}`);
     setError(null);
     try {
@@ -331,8 +364,10 @@ export default function Workspace() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "打磨失败");
       updateThreadLocal(commentId, { polished: data.thread.polished });
+      return true;
     } catch (e) {
       setError(e instanceof Error ? e.message : "打磨失败");
+      return false;
     } finally {
       setBusy(null);
     }
@@ -360,21 +395,22 @@ export default function Workspace() {
     await saveThread({ ...thread, verdict: verdict ?? undefined });
   };
 
-  /** 顺序打磨所有未完成的回复(尊重供应商限速),显示进度 */
+  /** 顺序打磨所有未完成的回复(尊重供应商限速),显示进度并汇总失败数 */
   const polishAllPending = async () => {
     const pending = (project?.responses ?? []).filter((t) => !t.polished.trim());
     if (pending.length === 0) return;
     setBatch({ total: pending.length, done: 0 });
     setError(null);
+    let failed = 0;
     for (let i = 0; i < pending.length; i++) {
-      try {
-        await polishThread(pending[i].commentId);
-      } catch {
-        // 单条失败不中断批量流程
-      }
+      const ok = await polishThread(pending[i].commentId);
+      if (!ok) failed++;
       setBatch({ total: pending.length, done: i + 1 });
     }
     setBatch(null);
+    if (failed > 0) {
+      setError(`批量打磨完成:${pending.length - failed}/${pending.length} 成功。失败多为供应商限速,稍后可对单条重试。`);
+    }
   };
 
   if (error && !project) {
@@ -446,25 +482,28 @@ export default function Workspace() {
         <div className="rise-in rounded-2xl border border-red-200/60 bg-red-50 px-4 py-2.5 text-[13px] text-red-700">{error}</div>
       )}
 
-      <div className="no-scrollbar max-w-full overflow-x-auto">
-        <SegmentedControl
-          value={tab}
-          onChange={(k) => switchTab(k, true)}
-          size="md"
-          ariaLabel="工作台页签"
-          options={TABS.map((t, i) => ({
-            value: t.key,
-            title: `快捷键 ${i + 1}`,
-            label: (
-              <>
-                {t.label}
-                {t.key === "critique" && project.critique ? ` (${project.critique.items.length})` : ""}
-                {t.key === "review" && project.reviews?.length ? ` (${project.reviews.length})` : ""}
-                {t.key === "response" && threads.length ? ` (${threads.length})` : ""}
-              </>
-            ),
-          }))}
-        />
+      {/* 页签条吸顶:长内容滚动时仍可切签;移动端让位 h-14 顶栏 */}
+      <div className="sticky top-14 z-20 -mx-1 bg-page/90 px-1 py-1.5 backdrop-blur-sm lg:top-0">
+        <div className="no-scrollbar max-w-full overflow-x-auto">
+          <SegmentedControl
+            value={tab}
+            onChange={(k) => switchTab(k, true)}
+            size="md"
+            ariaLabel="工作台页签"
+            options={TABS.map((t, i) => ({
+              value: t.key,
+              title: `快捷键 ${i + 1}`,
+              label: (
+                <>
+                  {t.label}
+                  {t.key === "critique" && project.critique ? ` (${project.critique.items.length})` : ""}
+                  {t.key === "review" && project.reviews?.length ? ` (${project.reviews.length})` : ""}
+                  {t.key === "response" && threads.length ? ` (${threads.length})` : ""}
+                </>
+              ),
+            }))}
+          />
+        </div>
       </div>
 
       {/* key 挂在页签上:指针切签轻过渡;键盘切签 data-still 直显 */}
@@ -853,9 +892,7 @@ export default function Workspace() {
                       </button>
                     </div>
                   </div>
-                  <blockquote className="mt-3 border-l-2 border-accent/25 pl-3 text-[13px] leading-relaxed text-ink-soft">
-                    {t.commentText}
-                  </blockquote>
+                  <CommentQuote text={t.commentText} />
                   <textarea
                     value={t.draft}
                     onChange={(e) => updateThreadLocal(t.commentId, { draft: e.target.value })}

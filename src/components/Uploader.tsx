@@ -1,18 +1,38 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ArrowRight, Upload } from "lucide-react";
+import { ArrowRight, Upload, X } from "lucide-react";
 import SegmentedControl from "@/components/SegmentedControl";
+
+/** 与文件选择框 accept 一致;单文件上限 30MB(unpdf/mammoth 在更大文件上易 OOM 或超时) */
+const ACCEPT_EXT = ["pdf", "docx", "txt", "md"];
+const MAX_FILE_MB = 30;
 
 export default function Uploader({ onCreated }: { onCreated: (id: string) => void }) {
   const [mode, setMode] = useState<"file" | "paste">("file");
   const [file, setFile] = useState<File | null>(null);
+  const [dragging, setDragging] = useState(false);
   const [pasteText, setPasteText] = useState("");
   const [title, setTitle] = useState("");
   const [targetJournal, setTargetJournal] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const pickFile = (f: File | null | undefined) => {
+    if (!f) return;
+    const ext = f.name.split(".").pop()?.toLowerCase() ?? "";
+    if (!ACCEPT_EXT.includes(ext)) {
+      setFile(null);
+      return setError(`暂不支持 .${ext} 文件,请选择 PDF / DOCX / TXT / MD`);
+    }
+    if (f.size > MAX_FILE_MB * 1024 * 1024) {
+      setFile(null);
+      return setError(`文件 ${(f.size / 1024 / 1024).toFixed(1)}MB 超过 ${MAX_FILE_MB}MB 上限,请拆分或压缩后上传`);
+    }
+    setError(null);
+    setFile(f);
+  };
 
   const submit = async () => {
     setError(null);
@@ -63,22 +83,35 @@ export default function Uploader({ onCreated }: { onCreated: (id: string) => voi
       {mode === "file" ? (
         <div
           onClick={() => fileInputRef.current?.click()}
-          onDragOver={(e) => e.preventDefault()}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragging(true);
+          }}
+          onDragLeave={() => setDragging(false)}
           onDrop={(e) => {
             e.preventDefault();
-            const f = e.dataTransfer.files?.[0];
-            if (f) setFile(f);
+            setDragging(false);
+            pickFile(e.dataTransfer.files?.[0]);
           }}
-          className="group cursor-pointer rounded-2xl border border-dashed border-line px-6 py-10 text-center transition hover:border-accent/60 hover:bg-accent-soft/30"
+          className={`group cursor-pointer rounded-2xl border border-dashed px-6 py-10 text-center transition ${
+            dragging
+              ? "border-accent bg-accent-soft/60"
+              : "border-line hover:border-accent/60 hover:bg-accent-soft/30"
+          }`}
         >
           <input
             ref={fileInputRef}
             type="file"
             accept=".pdf,.docx,.txt,.md"
             className="hidden"
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            onChange={(e) => pickFile(e.target.files?.[0] ?? null)}
           />
-          <Upload className="mx-auto mb-3 h-5 w-5 text-ink-faint transition-all duration-200 group-hover:-translate-y-0.5 group-hover:text-accent" strokeWidth={1.5} />
+          <Upload
+            className={`mx-auto mb-3 h-5 w-5 text-ink-faint transition-all duration-200 group-hover:-translate-y-0.5 group-hover:text-accent ${
+              dragging ? "-translate-y-1 text-accent" : ""
+            }`}
+            strokeWidth={1.5}
+          />
           {file ? (
             <div>
               <p className="text-sm font-medium text-accent">{file.name}</p>
@@ -88,18 +121,32 @@ export default function Uploader({ onCreated }: { onCreated: (id: string) => voi
             </div>
           ) : (
             <div>
-              <p className="text-sm text-ink">点击选择或拖拽文件到此处</p>
-              <p className="mt-1 text-xs text-ink-faint">支持 PDF / DOCX / TXT / MD,单文件</p>
+              <p className="text-sm text-ink">{dragging ? "松开即选择该文件" : "点击选择或拖拽文件到此处"}</p>
+              <p className="mt-1 text-xs text-ink-faint">支持 PDF / DOCX / TXT / MD,单文件 ≤ {MAX_FILE_MB}MB</p>
             </div>
           )}
         </div>
       ) : (
-        <textarea
-          value={pasteText}
-          onChange={(e) => setPasteText(e.target.value)}
-          placeholder="粘贴英文稿件全文(建议包含 Abstract / Introduction / Methods / Results / Discussion 等章节标题,便于分节)…"
-          className="h-44 w-full resize-y rounded-2xl border border-line bg-band/50 p-3.5 text-sm outline-none transition focus:border-accent focus:bg-white"
-        />
+        <div>
+          <textarea
+            value={pasteText}
+            onChange={(e) => setPasteText(e.target.value)}
+            placeholder="粘贴英文稿件全文(建议包含 Abstract / Introduction / Methods / Results / Discussion 等章节标题,便于分节)…"
+            className="h-44 w-full resize-y rounded-2xl border border-line bg-band/50 p-3.5 text-sm outline-none transition focus:border-accent focus:bg-white"
+          />
+          <div className="mt-1 flex items-center justify-between text-xs text-ink-faint">
+            <span>{pasteText.trim() ? `${pasteText.trim().length} 字符` : "支持直接粘贴,无需清洗格式"}</span>
+            {pasteText && (
+              <button
+                onClick={() => setPasteText("")}
+                className="inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-ink-faint transition hover:bg-band hover:text-ink"
+              >
+                <X className="h-3 w-3" strokeWidth={1.75} />
+                清空
+              </button>
+            )}
+          </div>
+        </div>
       )}
 
       <div className="mt-3.5 grid gap-3 sm:grid-cols-2">
