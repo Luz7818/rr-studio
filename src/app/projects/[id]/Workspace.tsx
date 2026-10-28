@@ -216,6 +216,8 @@ export default function Workspace() {
   const [revealedQA, setRevealedQA] = useState<Set<number>>(new Set());
   /** 文献对标自定义检索词(分号分隔);首次载入已有时预填,便于增删而非从零写 */
   const [litQuery, setLitQuery] = useState("");
+  /** 回复线程状态筛选:定位还没打磨完/还没裁决的意见 */
+  const [threadFilter, setThreadFilter] = useState<"all" | "undrafted" | "undecided">("all");
   const litPrefilled = useRef(false);
   useEffect(() => {
     if (!litPrefilled.current && project?.literature) {
@@ -457,6 +459,12 @@ export default function Workspace() {
         ),
       ].join("\n")
     : "";
+  const visibleThreads =
+    threadFilter === "undrafted"
+      ? threads.filter((t) => !t.polished.trim())
+      : threadFilter === "undecided"
+        ? threads.filter((t) => !t.verdict)
+        : threads;
 
   return (
     <div className="space-y-5">
@@ -900,6 +908,17 @@ export default function Workspace() {
                   导出 Word Response Letter
                 </a>
               </div>
+              <SegmentedControl
+                value={threadFilter}
+                onChange={setThreadFilter}
+                ariaLabel="按状态筛选回复线程"
+                className="w-full border-t border-line pt-2.5 sm:w-auto sm:border-t-0 sm:pt-0"
+                options={[
+                  { value: "all", label: `全部 (${threads.length})` },
+                  { value: "undrafted", label: `未打磨 (${threads.filter((t) => !t.polished.trim()).length})` },
+                  { value: "undecided", label: `未裁决 (${threads.filter((t) => !t.verdict).length})` },
+                ]}
+              />
             </div>
           )}
           {!project.reviews?.length ? (
@@ -909,11 +928,13 @@ export default function Workspace() {
               actionLabel="去模拟审稿"
               onAction={() => switchTab("review", true)}
             />
-          ) : threads.length === 0 ? (
-            <p className="py-8 text-center text-[13px] text-ink-faint">暂无待回复意见。</p>
+          ) : visibleThreads.length === 0 ? (
+            <p className="py-8 text-center text-[13px] text-ink-faint">
+              {threads.length === 0 ? "暂无待回复意见。" : "该筛选下暂无线程,切回「全部」查看。"}
+            </p>
           ) : (
             <div className="panel divide-y divide-line rounded-xl border border-line bg-white">
-              {threads.map((t, i) => (
+              {visibleThreads.map((t, i) => (
                 <div
                   key={t.commentId}
                   style={{ animationDelay: `${Math.min(i * 30, 240)}ms` }}
@@ -1017,7 +1038,16 @@ export default function Workspace() {
             <div className="panel rounded-xl border border-line bg-white p-6 sm:p-8">
               <div className="mb-4 flex items-center justify-between border-b border-line pb-3">
                 <p className="text-[13px] font-semibold tracking-tight">Cover Letter Draft</p>
-                <CopyButton text={project.coverLetter.content} label="复制全文" />
+                <div className="flex items-center gap-2">
+                  <CopyButton text={project.coverLetter.content} label="复制全文" />
+                  <a
+                    href={`/api/projects/${id}/export/cover-letter`}
+                    className="press group inline-flex items-center gap-1 rounded-full border border-line px-3.5 py-1.5 text-xs text-ink-soft transition hover:border-accent/40 hover:text-accent"
+                  >
+                    <Download className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-y-0.5" strokeWidth={1.75} />
+                    导出 Word
+                  </a>
+                </div>
               </div>
               <pre className="whitespace-pre-wrap font-sans text-sm leading-[1.9] text-ink">{project.coverLetter.content}</pre>
               <p className="mt-5 border-t border-line pt-3 text-xs text-ink-faint">发送前请替换 [方括号] 中的占位信息,并核对期刊对 Cover Letter 的具体要求。</p>

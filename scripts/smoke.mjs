@@ -157,9 +157,15 @@ await step("Word 导出:Critique 报告", async () => {
   assert(isZip(Buffer.from(await r.arrayBuffer())), "不是有效的 docx(zip)");
 });
 
-await step("Cover Letter", async () => {
+await step("Cover Letter + Word 导出", async () => {
   const d = await json(await fetch(`${BASE}/api/projects/${projectId}/cover-letter`, { method: "POST" }));
   assert(d.project.coverLetter.content.length > 50, "内容过短");
+  const exp = await fetch(`${BASE}/api/projects/${projectId}/export/cover-letter`);
+  assert(exp.ok, `导出 ${exp.status}`);
+  assert(
+    (exp.headers.get("content-type") ?? "").includes("wordprocessingml"),
+    "导出非 docx",
+  );
 });
 
 await step("组会引擎 + PPTX 导出", async () => {
