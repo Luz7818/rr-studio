@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BarChart3, RefreshCw, Trash2 } from "lucide-react";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import EmptyArt from "@/components/EmptyArt";
 import Uploader from "@/components/Uploader";
 
 interface ProjectSummary {
@@ -50,26 +51,6 @@ function relativeTime(iso: string): string {
   return new Date(iso).toLocaleDateString("zh-CN");
 }
 
-function EmptyArt() {
-  return (
-    <svg width="112" height="84" viewBox="0 0 112 84" fill="none" aria-hidden className="mx-auto mb-4">
-      <rect x="42" y="6" width="40" height="52" rx="5" fill="#eeeefc" transform="rotate(6 62 32)" />
-      <g transform="rotate(-5 44 42)">
-        <rect x="24" y="16" width="42" height="54" rx="5" fill="#fff" stroke="#ececf0" strokeWidth="1.5" />
-        <g stroke="#d9d5f8" strokeWidth="3.2" strokeLinecap="round">
-          <path d="M31 27 H50" />
-          <path d="M31 35 H59" />
-          <path d="M31 43 H46" />
-        </g>
-        <path d="M33 53 L41 61 L57 42" stroke="#5147E5" strokeWidth="4.4" strokeLinecap="round" strokeLinejoin="round" />
-      </g>
-      <circle cx="18" cy="20" r="3" fill="#eeeefc" />
-      <circle cx="96" cy="62" r="4" fill="#eeeefc" />
-      <path d="M92 16 L96 10 M98 18 L104 14" stroke="#d9d5f8" strokeWidth="2.4" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 export default function Dashboard() {
   const router = useRouter();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
@@ -78,10 +59,12 @@ export default function Dashboard() {
   const [llmUsed, setLlmUsed] = useState(0);
   const [llmLimit, setLlmLimit] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<ProjectSummary | null>(null);
 
   const load = useCallback(async () => {
+    setError(null);
     try {
       const res = await fetch("/api/projects");
       const data = await res.json();
@@ -91,7 +74,8 @@ export default function Dashboard() {
       setLlmUsed(Number(data.llmUsed ?? 0));
       setLlmLimit(data.llmLimit ?? null);
     } catch {
-      // 列表加载失败时保留空态
+      // 失败要可见可重试,不能装作「还没有稿件」
+      setError("稿件列表加载失败,请检查服务后重试");
     } finally {
       setLoading(false);
     }
@@ -110,7 +94,8 @@ export default function Dashboard() {
         setLlmUsed(Number(data.llmUsed ?? 0));
         setLlmLimit(data.llmLimit ?? null);
       } catch {
-        // 列表加载失败时保留空态
+        // 失败要可见可重试,不能装作「还没有稿件」
+        if (alive) setError("稿件列表加载失败,请检查服务后重试");
       } finally {
         if (alive) setLoading(false);
       }
@@ -136,6 +121,18 @@ export default function Dashboard() {
         <div className="rounded-2xl border border-amber-200/60 bg-amber-50 px-4 py-2.5 text-[13px] text-amber-800">
           当前处于<b>演示模式</b>(未配置 <code>LLM_API_KEY</code>):流水线可完整走通,但内容由占位示例生成。
           在 <code>.env.local</code> 中配置后重启即可获得真实分析。
+        </div>
+      )}
+
+      {error && (
+        <div className="rise-in flex items-center justify-between gap-3 rounded-2xl border border-red-200/60 bg-red-50 px-4 py-2.5 text-[13px] text-red-700">
+          <span>{error}</span>
+          <button
+            onClick={() => void load()}
+            className="shrink-0 rounded-full border border-red-200 px-3 py-1 text-xs font-medium transition hover:bg-red-100"
+          >
+            重试
+          </button>
         </div>
       )}
 
@@ -191,13 +188,15 @@ export default function Dashboard() {
             ))}
           </ul>
         ) : projects.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-line py-12 text-center">
-            <EmptyArt />
-            <p className="text-sm text-ink-soft">还没有稿件</p>
-            <p className="mt-1 text-xs text-ink-faint">
-              上传 PDF / DOCX,或直接粘贴文本,一条流水线跑到底。
-            </p>
-          </div>
+          error ? null : (
+            <div className="rounded-2xl border border-dashed border-line py-12 text-center">
+              <EmptyArt />
+              <p className="text-sm text-ink-soft">还没有稿件</p>
+              <p className="mt-1 text-xs text-ink-faint">
+                上传 PDF / DOCX,或直接粘贴文本,一条流水线跑到底。
+              </p>
+            </div>
+          )
         ) : (
           <ul className="grid gap-3 sm:grid-cols-2">
             {projects.map((p, i) => (
