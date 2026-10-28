@@ -1,8 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import {
+  ArrowLeft,
+  Check,
+  ChevronRight,
+  Copy,
+  Download,
+  Lightbulb,
+  X,
+} from "lucide-react";
 import type { CritiqueItem, Project, ResponseThread, Severity } from "@/lib/types";
 import RevisionPanel from "./RevisionPanel";
 
@@ -20,9 +29,9 @@ const TABS: Array<{ key: Tab; label: string }> = [
 
 const SEVERITY_LABEL: Record<Severity, string> = { major: "Major", minor: "Minor", suggestion: "建议" };
 const SEVERITY_STYLE: Record<Severity, string> = {
-  major: "bg-red-100 text-red-700",
-  minor: "bg-amber-100 text-amber-700",
-  suggestion: "bg-band text-ink-soft",
+  major: "border border-red-200 bg-red-50 text-red-700",
+  minor: "border border-amber-200 bg-amber-50 text-amber-700",
+  suggestion: "border border-line bg-band text-ink-soft",
 };
 const CATEGORY_LABEL: Record<string, string> = {
   logic: "逻辑",
@@ -37,10 +46,15 @@ const REC_LABEL: Record<string, string> = {
   reject: "Reject",
 };
 const REC_STYLE: Record<string, string> = {
-  accept: "bg-emerald-100 text-emerald-700",
-  minor_revision: "bg-lime-100 text-lime-700",
-  major_revision: "bg-amber-100 text-amber-700",
-  reject: "bg-red-100 text-red-700",
+  accept: "border border-emerald-200 bg-emerald-50 text-emerald-700",
+  minor_revision: "border border-lime-200 bg-lime-50 text-lime-700",
+  major_revision: "border border-amber-200 bg-amber-50 text-amber-700",
+  reject: "border border-red-200 bg-red-50 text-red-700",
+};
+const STATUS_LABEL: Record<Project["status"], string> = {
+  uploaded: "已解析",
+  critiqued: "Critique 完成",
+  reviewed: "审稿完成",
 };
 
 function CopyButton({ text, label = "复制" }: { text: string; label?: string }) {
@@ -56,9 +70,18 @@ function CopyButton({ text, label = "复制" }: { text: string; label?: string }
           setCopied(false);
         }
       }}
-      className="rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft transition hover:border-accent/40 hover:text-accent"
+      className={`press inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition ${
+        copied
+          ? "border-accent/40 bg-accent-soft text-accent"
+          : "border-line text-ink-soft hover:border-accent/40 hover:text-accent"
+      }`}
     >
-      {copied ? "已复制 ✓" : label}
+      {copied ? (
+        <Check key="copied" className="icon-pop h-3 w-3" strokeWidth={2.5} />
+      ) : (
+        <Copy className="h-3 w-3" strokeWidth={1.75} />
+      )}
+      {copied ? "已复制" : label}
     </button>
   );
 }
@@ -66,12 +89,69 @@ function CopyButton({ text, label = "复制" }: { text: string; label?: string }
 function StepBadge({ done, label }: { done: boolean; label: string }) {
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium ${
-        done ? "bg-accent-soft text-accent" : "bg-band text-ink-faint"
+      className={`inline-flex items-center gap-1.5 text-xs ${
+        done ? "text-accent" : "text-ink-faint"
       }`}
     >
-      {done ? "✓" : "○"} {label}
+      {done ? (
+        <Check className="h-3.5 w-3.5" strokeWidth={2} />
+      ) : (
+        <span className="h-3.5 w-3.5 rounded-full border border-line" aria-hidden />
+      )}
+      {label}
     </span>
+  );
+}
+
+/** 空态插画:品牌母题「稿件 × 判定勾」的静音版,仅用令牌色 */
+function EmptyArt() {
+  return (
+    <svg width="112" height="84" viewBox="0 0 112 84" fill="none" aria-hidden className="mx-auto mb-4">
+      <rect x="42" y="6" width="40" height="52" rx="5" fill="#eeeefc" transform="rotate(6 62 32)" />
+      <g transform="rotate(-5 44 42)">
+        <rect x="24" y="16" width="42" height="54" rx="5" fill="#fff" stroke="#ececf0" strokeWidth="1.5" />
+        <g stroke="#d9d5f8" strokeWidth="3.2" strokeLinecap="round">
+          <path d="M31 27 H50" />
+          <path d="M31 35 H59" />
+          <path d="M31 43 H46" />
+        </g>
+        <path d="M33 53 L41 61 L57 42" stroke="#5147E5" strokeWidth="4.4" strokeLinecap="round" strokeLinejoin="round" />
+      </g>
+      <circle cx="18" cy="20" r="3" fill="#eeeefc" />
+      <circle cx="96" cy="62" r="4" fill="#eeeefc" />
+      <path d="M92 16 L96 10 M98 18 L104 14" stroke="#d9d5f8" strokeWidth="2.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function EmptyState({
+  hint,
+  action,
+  actionLabel,
+  onAction,
+  disabled,
+}: {
+  hint: string;
+  action?: string;
+  actionLabel?: string;
+  onAction?: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <div className="rounded-2xl border border-dashed border-line py-10 text-center">
+      <EmptyArt />
+      <p className="text-sm text-ink-soft">{hint}</p>
+      {action && <p className="mt-1 text-xs text-ink-faint">{action}</p>}
+      {actionLabel && onAction && (
+        <button
+          onClick={onAction}
+          disabled={disabled}
+          className="press mt-4 rounded-full bg-accent px-5 py-2 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
+        >
+          {actionLabel}
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -86,6 +166,12 @@ export default function Workspace() {
   const [seminarDuration, setSeminarDuration] = useState<5 | 10 | 15>(10);
   const [seminarLang, setSeminarLang] = useState<"zh" | "en">("zh");
   const [batch, setBatch] = useState<{ total: number; done: number } | null>(null);
+  /** 聚焦时的标题快照:失焦时对比,避免 onChange 已改 state 导致误判「未变化」 */
+  const titleOnFocus = useRef("");
+  /** 最近一次自动保存成功的线程(1.6s 后淡出) */
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  /** 组会 Q&A 已展开参考要点的题号(默认隐藏,先自己答) */
+  const [revealedQA, setRevealedQA] = useState<Set<number>>(new Set());
 
   const load = useCallback(async () => {
     try {
@@ -125,6 +211,28 @@ export default function Workspace() {
       alive = false;
     };
   }, [id]);
+
+  // 数字键 1-7 直跳页签;输入类控件聚焦或带修饰键时忽略
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const n = Number(e.key);
+      if (Number.isInteger(n) && n >= 1 && n <= TABS.length) setTab(TABS[n - 1].key);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // 浏览器标签页标题跟随稿件名
+  const projectTitle = project?.title;
+  useEffect(() => {
+    document.title = projectTitle ? `${projectTitle} · R&R Studio` : "R&R Studio — 投稿加速流水线";
+    return () => {
+      document.title = "R&R Studio — 投稿加速流水线";
+    };
+  }, [projectTitle]);
 
   const runPipeline = async (
     step: "critique" | "review" | "cover-letter" | "seminar" | "literature",
@@ -190,6 +298,14 @@ export default function Workspace() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ threads: [thread] }),
     });
+    setSavedIds((prev) => new Set(prev).add(thread.commentId));
+    setTimeout(() => {
+      setSavedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(thread.commentId);
+        return next;
+      });
+    }, 1600);
   };
 
   const polishThread = async (commentId: string) => {
@@ -254,10 +370,17 @@ export default function Workspace() {
     return <p className="py-20 text-center text-red-600">{error}</p>;
   }
   if (!project) {
-    return <p className="py-20 text-center text-ink-faint">加载中…</p>;
+    return (
+      <div className="space-y-4 py-6">
+        <div className="skeleton h-9 w-2/3 rounded-full bg-band" />
+        <div className="skeleton h-6 w-1/2 rounded-full bg-band" />
+        <div className="skeleton h-40 w-full rounded-2xl bg-band" />
+      </div>
+    );
   }
 
   const critiqueItems = project.critique?.items.filter((i) => severityFilter === "all" || i.severity === severityFilter) ?? [];
+  const maxSectionChars = Math.max(1, ...project.sections.map((s) => s.chars));
   const threads = project.responses ?? [];
   const allResponsesText = threads
     .filter((t) => t.polished.trim() || t.draft.trim())
@@ -270,19 +393,29 @@ export default function Workspace() {
   return (
     <div className="space-y-5">
       <div>
-        <Link href="/" className="text-sm text-ink-faint hover:text-accent">
-          ← 返回列表
+        <Link
+          href="/"
+          className="group inline-flex items-center gap-1 text-[13px] text-ink-faint transition hover:text-accent"
+        >
+          <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" strokeWidth={1.75} />
+          返回列表
         </Link>
         <div className="mt-2 flex flex-wrap items-center gap-3">
           <input
             value={project.title}
             onChange={(e) => setProject({ ...project, title: e.target.value })}
-            onBlur={(e) => {
-              if (e.target.value.trim() && e.target.value !== project.title) void patchProject({ title: e.target.value });
+            onFocus={(e) => {
+              titleOnFocus.current = e.target.value;
             }}
-            className="min-w-0 flex-1 rounded-2xl border border-transparent px-2 py-1 text-2xl font-black tracking-tight hover:border-line focus:border-accent/50 focus:outline-none"
+            onBlur={(e) => {
+              const v = e.target.value.trim();
+              if (v && v !== titleOnFocus.current) void patchProject({ title: v });
+            }}
+            className="min-w-0 flex-1 rounded-2xl border border-transparent px-2 py-1 text-xl font-semibold tracking-tight transition hover:border-line focus:border-accent/50 focus:outline-none"
           />
-          <span className="rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-accent">{project.status}</span>
+          <span className="rounded-full border border-line bg-band px-2.5 py-0.5 text-[11px] font-medium text-ink-soft">
+            {STATUS_LABEL[project.status] ?? project.status}
+          </span>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <StepBadge done label="上传解析" />
@@ -294,20 +427,21 @@ export default function Workspace() {
       </div>
 
       {!llmConfigured && (
-        <div className="rounded-2xl border border-amber-200/60 bg-amber-50 px-5 py-3.5 text-sm text-amber-800">
+        <div className="rounded-2xl border border-amber-200/60 bg-amber-50 px-4 py-2.5 text-[13px] text-amber-800">
           <b>演示模式</b>:未配置 <code>LLM_API_KEY</code>,以下内容由占位示例生成。配置后点击各步骤的「重新生成」即可获得真实结果。
         </div>
       )}
-      {error && <div className="rounded-2xl border border-red-200/60 bg-red-50 px-5 py-3.5 text-sm text-red-700">{error}</div>}
+      {error && <div className="rounded-2xl border border-red-200/60 bg-red-50 px-4 py-2.5 text-[13px] text-red-700">{error}</div>}
 
-      <nav className="inline-flex max-w-full flex-wrap gap-1 rounded-full bg-band p-1">
-        {TABS.map((t) => (
+      <nav className="no-scrollbar flex max-w-full gap-1 overflow-x-auto rounded-full bg-band p-1">
+        {TABS.map((t, i) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`rounded-full px-4 py-2 text-sm transition ${
+            title={`快捷键 ${i + 1}`}
+            className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-[13px] transition ${
               tab === t.key
-                ? "bg-white font-semibold text-ink shadow-sm"
+                ? "bg-white font-medium text-ink shadow-sm"
                 : "text-ink-soft hover:text-ink"
             }`}
           >
@@ -319,14 +453,18 @@ export default function Workspace() {
         ))}
       </nav>
 
+      {/* key 挂在页签上:切换时轻过渡,避免内容硬切 */}
+      <div key={tab} className="rise-in">
       {tab === "overview" && (
         <div className="space-y-5">
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-line bg-white p-5">
-              <h3 className="font-semibold">脱敏报告</h3>
-              <p className="mt-2 text-3xl font-bold text-emerald-600">{project.sanitize.redactions}</p>
-              <p className="text-xs text-ink-faint">处敏感信息已替换为占位符</p>
-              <ul className="mt-3 space-y-1 text-sm text-ink-soft">
+            <div className="rounded-xl border border-line bg-white p-5">
+              <h3 className="text-[13px] font-semibold">脱敏报告</h3>
+              <p className="mt-2 flex items-baseline gap-1.5">
+                <span className="text-3xl font-semibold text-emerald-600">{project.sanitize.redactions}</span>
+                <span className="text-[13px] text-ink-soft">处敏感信息已替换为占位符</span>
+              </p>
+              <ul className="mt-3 space-y-1 text-[13px] text-ink-soft">
                 {Object.entries(project.sanitize.details).length === 0 && <li className="text-ink-faint">未发现匹配的敏感信息</li>}
                 {Object.entries(project.sanitize.details).map(([k, v]) => (
                   <li key={k} className="flex justify-between">
@@ -336,45 +474,51 @@ export default function Workspace() {
                 ))}
               </ul>
               {project.sanitize.removedAuthorBlock && (
-                <p className="mt-3 rounded-xl bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
-                  ✓ 标题页(作者/单位区)已整体排除,未进入分析与存储
+                <p className="mt-3 rounded-md bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+                  标题页(作者/单位区)已整体排除,未进入分析与存储
                 </p>
               )}
             </div>
-            <div className="rounded-2xl border border-line bg-white p-5">
-              <h3 className="font-semibold">稿件信息</h3>
-              <dl className="mt-3 space-y-3 text-sm">
+            <div className="rounded-xl border border-line bg-white p-5">
+              <h3 className="text-[13px] font-semibold">稿件信息</h3>
+              <dl className="mt-3 space-y-3 text-[13px]">
                 <div>
-                  <dt className="text-ink-faint">源文件</dt>
+                  <dt className="text-xs text-ink-faint">源文件</dt>
                   <dd>{project.meta.fileName ?? "粘贴文本"}</dd>
                 </div>
                 <div>
-                  <dt className="text-ink-faint">目标期刊</dt>
+                  <dt className="text-xs text-ink-faint">目标期刊</dt>
                   <dd>
                     <input
                       value={project.meta.targetJournal ?? ""}
                       placeholder="如 IEEE Transactions on ITS"
                       onChange={(e) => setProject({ ...project, meta: { ...project.meta, targetJournal: e.target.value } })}
                       onBlur={(e) => void patchProject({ targetJournal: e.target.value })}
-                      className="w-full rounded-xl border border-line px-3 py-2 outline-none focus:border-accent"
+                      className="w-full rounded-full border border-line px-3.5 py-2 text-[13px] outline-none transition focus:border-accent"
                     />
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-ink-faint">上传时间</dt>
+                  <dt className="text-xs text-ink-faint">上传时间</dt>
                   <dd>{new Date(project.createdAt).toLocaleString("zh-CN")}</dd>
                 </div>
               </dl>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-line bg-white p-5">
-            <h3 className="font-semibold">章节结构({project.sections.length})</h3>
-            <ul className="mt-3 divide-y divide-line text-sm">
+          <div className="rounded-xl border border-line bg-white p-5">
+            <h3 className="text-[13px] font-semibold">章节结构({project.sections.length})</h3>
+            <ul className="mt-3 divide-y divide-line text-[13px]">
               {project.sections.map((s) => (
-                <li key={s.id} className="flex items-center justify-between py-2">
-                  <span className="font-medium text-ink">{s.heading}</span>
-                  <span className="text-xs text-ink-faint">{s.chars} 字符</span>
+                <li key={s.id} className="-mx-2 flex items-center gap-3 rounded-md px-2 py-2 transition hover:bg-band">
+                  <span className="w-24 shrink-0 truncate font-medium text-ink sm:w-36">{s.heading}</span>
+                  <span className="h-1 flex-1 overflow-hidden rounded-full bg-band" aria-hidden>
+                    <span
+                      className="bar-fill block h-full rounded-full bg-accent/60"
+                      style={{ width: `${Math.max(3, (s.chars / maxSectionChars) * 100)}%` }}
+                    />
+                  </span>
+                  <span className="w-14 shrink-0 text-right text-xs text-ink-faint">{s.chars} 字符</span>
                 </li>
               ))}
             </ul>
@@ -384,56 +528,99 @@ export default function Workspace() {
             <button
               onClick={() => void runPipeline("critique", "critique")}
               disabled={busy !== null}
-              className="press rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
+              className="press rounded-full bg-accent px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
             >
-              {busy === "critique" ? "逐段分析中…" : project.critique ? "重新生成 Critique 报告" : "① 生成 Critique 报告"}
+              {busy === "critique" ? (
+                <>
+                  <span className="spinner mr-1.5" aria-hidden />
+                  逐段分析中…
+                </>
+              ) : project.critique ? (
+                "重新生成 Critique 报告"
+              ) : (
+                "① 生成 Critique 报告"
+              )}
             </button>
             <button
               onClick={() => void runPipeline("review", "review")}
               disabled={busy !== null}
-              className="press rounded-full bg-ink px-6 py-2.5 text-sm font-medium text-white transition hover:bg-ink/90 disabled:opacity-50"
+              className="press rounded-full bg-ink px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-ink/90 disabled:opacity-50"
             >
-              {busy === "review" ? "三位审稿人审稿中…" : project.reviews?.length ? "重新模拟审稿" : "② 模拟审稿(3 位审稿人)"}
+              {busy === "review" ? (
+                <>
+                  <span className="spinner mr-1.5" aria-hidden />
+                  三位审稿人审稿中…
+                </>
+              ) : project.reviews?.length ? (
+                "重新模拟审稿"
+              ) : (
+                "② 模拟审稿(3 位审稿人)"
+              )}
             </button>
           </div>
         </div>
       )}
 
       {tab === "critique" && (
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex gap-1 rounded-xl bg-band p-0.5 text-sm">
-              {(["all", "major", "minor", "suggestion"] as const).map((f) => (
+        <div className="space-y-3">
+          {project.critique && (
+            <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-white px-4 py-3">
+              <div className="flex gap-1 rounded-full bg-band p-1 text-[13px]">
+                {(["all", "major", "minor", "suggestion"] as const).map((f) => {
+                  const count =
+                    f === "all"
+                      ? project.critique!.items.length
+                      : project.critique!.items.filter((i) => i.severity === f).length;
+                  return (
+                    <button
+                      key={f}
+                      onClick={() => setSeverityFilter(f)}
+                      className={`press rounded-full px-3.5 py-1.5 transition ${
+                        severityFilter === f
+                          ? "bg-white font-medium text-accent shadow-sm"
+                          : "text-ink-soft hover:text-ink"
+                      }`}
+                    >
+                      {f === "all" ? "全部" : SEVERITY_LABEL[f]}
+                      {count > 0 && <span className="ml-1 text-xs text-ink-faint">{count}</span>}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="ml-auto flex items-center gap-2">
                 <button
-                  key={f}
-                  onClick={() => setSeverityFilter(f)}
-                  className={`rounded-full px-3.5 py-1.5 ${severityFilter === f ? "bg-white font-medium text-accent shadow-sm" : "text-ink-soft"}`}
+                  onClick={() => void runPipeline("critique")}
+                  disabled={busy !== null}
+                  className="press rounded-full border border-accent/30 px-4 py-1.5 text-[13px] text-accent transition hover:bg-accent-soft disabled:opacity-50"
                 >
-                  {f === "all" ? "全部" : SEVERITY_LABEL[f]}
+                  {busy === "critique" ? (
+                    <>
+                      <span className="spinner mr-1.5" aria-hidden />
+                      分析中…
+                    </>
+                  ) : (
+                    "重新生成"
+                  )}
                 </button>
-              ))}
+                <a
+                  href={`/api/projects/${id}/export/critique`}
+                  className="press group inline-flex items-center gap-1 rounded-full border border-line px-3.5 py-1.5 text-xs text-ink-soft transition hover:border-accent/40 hover:text-accent"
+                >
+                  <Download className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-y-0.5" strokeWidth={1.75} />
+                  导出 Word 报告
+                </a>
+              </div>
             </div>
-            <button
-              onClick={() => void runPipeline("critique")}
-              disabled={busy !== null}
-              className="press rounded-full border border-accent/30 px-5 py-1.5 text-sm text-accent transition hover:bg-accent-soft disabled:opacity-50"
-            >
-              {busy === "critique" ? "分析中…" : "重新生成"}
-            </button>
-            {project.critique && (
-              <a
-                href={`/api/projects/${id}/export/critique`}
-                className="press rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100"
-              >
-                ⬇ 导出 Word 报告
-              </a>
-            )}
-          </div>
+          )}
 
           {!project.critique ? (
-            <p className="rounded-2xl border border-dashed border-line py-12 text-center text-sm text-ink-faint">
-              尚未生成 Critique 报告,点击上方「重新生成」开始。
-            </p>
+            <EmptyState
+              hint="尚未生成 Critique 报告。"
+              action="逐段从逻辑、表达、语法、风格四个维度给出可直接采纳的修改建议。"
+              actionLabel="生成 Critique 报告"
+              onAction={() => void runPipeline("critique", "critique")}
+              disabled={busy !== null}
+            />
           ) : (
             <>
               {project.critique.errors?.map((err) => (
@@ -441,18 +628,22 @@ export default function Workspace() {
                   部分章节分析失败:{err}
                 </p>
               ))}
-              <ul className="space-y-3">
-                {critiqueItems.map((item) => (
-                  <li key={item.id} className={`rounded-2xl border bg-white p-4 ${item.adopted ? "border-emerald-300" : "border-line"}`}>
+              <ul className="divide-y divide-line rounded-xl border border-line bg-white">
+                {critiqueItems.map((item, i) => (
+                  <li
+                    key={item.id}
+                    style={{ animationDelay: `${Math.min(i * 30, 240)}ms` }}
+                    className={`stagger p-4 transition hover:bg-band/40 ${item.adopted ? "bg-emerald-50/40" : ""}`}
+                  >
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${SEVERITY_STYLE[item.severity]}`}>
+                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${SEVERITY_STYLE[item.severity]}`}>
                         {SEVERITY_LABEL[item.severity]}
                       </span>
-                      <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent">
+                      <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[11px] text-accent">
                         {CATEGORY_LABEL[item.category] ?? item.category}
                       </span>
                       <span className="text-xs text-ink-faint">{item.section}</span>
-                      <label className="ml-auto flex cursor-pointer items-center gap-1.5 text-xs text-ink-soft">
+                      <label className="ml-auto flex cursor-pointer items-center gap-1.5 text-xs text-ink-soft transition hover:text-ink">
                         <input
                           type="checkbox"
                           checked={item.adopted}
@@ -462,24 +653,28 @@ export default function Workspace() {
                         已采纳
                       </label>
                     </div>
-                    {item.quote && <p className="mt-2 border-l-2 border-line pl-3 text-sm italic text-ink-soft">“{item.quote}”</p>}
-                    <p className="mt-2 text-sm text-ink">{item.comment}</p>
-                    <p className="mt-2 rounded-xl bg-accent-soft px-3 py-2 text-sm text-accent">✏️ {item.suggestion}</p>
+                    {item.quote && (
+                      <p className="mt-2.5 border-l-2 border-line pl-3 text-[13px] italic text-ink-soft">
+                        “{item.quote}”
+                      </p>
+                    )}
+                    <p className="mt-2 text-[13px] leading-relaxed text-ink">{item.comment}</p>
+                    <p className="mt-2 rounded-xl bg-accent-soft px-3 py-2 text-[13px] leading-relaxed text-accent">{item.suggestion}</p>
                   </li>
                 ))}
               </ul>
-              {critiqueItems.length === 0 && <p className="py-8 text-center text-sm text-ink-faint">该严重程度下暂无条目。</p>}
+              {critiqueItems.length === 0 && <p className="py-8 text-center text-[13px] text-ink-faint">该严重程度下暂无条目。</p>}
             </>
           )}
         </div>
       )}
 
       {tab === "review" && (
-        <div className="space-y-4">
-          <div className="rounded-2xl border border-line bg-white p-5">
+        <div className="space-y-3">
+          <div className="rounded-xl border border-line bg-white p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
-                <h3 className="font-semibold">文献对标(审稿依据)</h3>
+                <h3 className="text-[13px] font-semibold">文献对标(审稿依据)</h3>
                 <p className="mt-1 max-w-xl text-xs leading-relaxed text-ink-faint">
                   检索近三年真实文献作为审稿依据:审稿人讨论文献缺口时只引用这些真实论文,
                   杜绝编造引用。来源 OpenAlex / Semantic Scholar。
@@ -496,7 +691,7 @@ export default function Workspace() {
                 <button
                   onClick={() => void runPipeline("review")}
                   disabled={busy !== null}
-                  className="press rounded-full border border-line px-4 py-1.5 text-xs text-ink-soft transition hover:bg-band disabled:opacity-50"
+                  className="press rounded-full border border-line px-3.5 py-1.5 text-xs text-ink-soft transition hover:bg-band disabled:opacity-50"
                 >
                   {busy === "review" ? "审稿中…" : "重新模拟审稿"}
                 </button>
@@ -504,24 +699,29 @@ export default function Workspace() {
             </div>
             {project.literature && (
               <div className="mt-3 border-t border-line pt-3">
-                <ul className="space-y-1.5">
-                  {project.literature.papers.slice(0, 6).map((p) => (
-                    <li key={p.url} className="flex flex-wrap items-baseline gap-2 text-xs">
+                <ul className="space-y-0.5">
+                  {project.literature.papers.slice(0, 6).map((p, i) => (
+                    <li key={p.url}>
                       <a
                         href={p.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="font-medium text-ink transition hover:text-accent"
+                        className="group flex flex-wrap items-baseline gap-2 rounded-full px-2.5 py-1.5 text-xs transition hover:bg-band"
                       >
-                        {p.title}
+                        <span className="w-4 shrink-0 text-right font-medium text-ink-faint transition group-hover:text-accent">
+                          {i + 1}
+                        </span>
+                        <span className="font-medium text-ink transition group-hover:text-accent">
+                          {p.title}
+                        </span>
+                        <span className="text-ink-faint">
+                          {p.venue || "venue n/a"} · {p.year ?? "n/a"} · 被引 {p.citedBy}
+                        </span>
                       </a>
-                      <span className="text-ink-faint">
-                        {p.venue || "venue n/a"} · {p.year ?? "n/a"} · 被引 {p.citedBy}
-                      </span>
                     </li>
                   ))}
                 </ul>
-                <p className="mt-2 text-[11px] text-ink-faint">
+                <p className="mt-2 px-2 text-[11px] text-ink-faint">
                   来源 {project.literature.source} · 共 {project.literature.papers.length} 篇
                   (检索词:{project.literature.queries.join(" / ").slice(0, 90)})
                 </p>
@@ -529,29 +729,36 @@ export default function Workspace() {
             )}
           </div>
           {!project.reviews?.length ? (
-            <p className="rounded-2xl border border-dashed border-line py-12 text-center text-sm text-ink-faint">
-              尚未模拟审稿。在「解析概览」或此处点击开始,三位 AI 审稿人将分别给出意见。
-            </p>
+            <EmptyState
+              hint="尚未模拟审稿。"
+              action="点击「重新模拟审稿」,三位 AI 审稿人将分别给出意见。"
+            />
           ) : (
             <div className="grid gap-4 lg:grid-cols-3">
-              {project.reviews.map((r) => (
-                <div key={r.persona} className="flex flex-col rounded-2xl border border-line bg-white p-5">
-                  <h3 className="font-semibold">{r.label}</h3>
-                  <span className={`mt-2 w-fit rounded-full px-2 py-0.5 text-xs font-medium ${REC_STYLE[r.recommendation]}`}>
-                    {REC_LABEL[r.recommendation] ?? r.recommendation}
-                  </span>
-                  <p className="mt-3 text-sm leading-relaxed text-ink-soft">{r.overall}</p>
-                  <div className="mt-4 space-y-3 text-sm">
+              {project.reviews.map((r, i) => (
+                <div
+                  key={r.persona}
+                  style={{ animationDelay: `${i * 60}ms` }}
+                  className="stagger flex flex-col rounded-xl border border-line bg-white p-5"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="min-w-0 truncate text-[13px] font-semibold">{r.label}</h3>
+                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${REC_STYLE[r.recommendation]}`}>
+                      {REC_LABEL[r.recommendation] ?? r.recommendation}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-[13px] leading-relaxed text-ink-soft">{r.overall}</p>
+                  <div className="mt-4 space-y-2 text-[13px]">
                     {r.major.map((c) => (
-                      <div key={c.id} className="rounded-xl bg-red-50 p-3">
-                        <p className="text-xs font-medium text-red-600">Major</p>
-                        <p className="mt-1 text-ink">{c.text}</p>
+                      <div key={c.id} className="border-l-2 border-red-300 pl-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-red-600">Major</p>
+                        <p className="mt-0.5 leading-relaxed text-ink">{c.text}</p>
                       </div>
                     ))}
                     {r.minor.map((c) => (
-                      <div key={c.id} className="rounded-xl bg-amber-50 p-3">
-                        <p className="text-xs font-medium text-amber-600">Minor</p>
-                        <p className="mt-1 text-ink">{c.text}</p>
+                      <div key={c.id} className="border-l-2 border-amber-300 pl-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-amber-600">Minor</p>
+                        <p className="mt-0.5 leading-relaxed text-ink">{c.text}</p>
                       </div>
                     ))}
                   </div>
@@ -563,155 +770,193 @@ export default function Workspace() {
       )}
 
       {tab === "response" && (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {threads.length > 0 && (
-            <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-line bg-white px-4 py-3">
-              <span className="text-sm text-ink-soft">
-                已打磨 {threads.filter((t) => t.polished.trim()).length}/{threads.length} 条
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl border border-line bg-white px-4 py-3">
+              <span className="text-[13px] text-ink-soft">
+                已打磨 <b className="font-medium text-ink">{threads.filter((t) => t.polished.trim()).length}</b>/{threads.length} 条
               </span>
-              <button
-                onClick={() => void polishAllPending()}
-                disabled={busy !== null || batch !== null}
-                className="rounded-full bg-accent px-4 py-1.5 text-xs font-medium text-white hover:bg-accent/90 disabled:opacity-50"
-              >
-                {batch ? `批量打磨中 ${batch.done}/${batch.total}…` : `批量打磨未完成 (${threads.filter((t) => !t.polished.trim()).length})`}
-              </button>
-              <button
-                onClick={() => void extractCommitments()}
-                disabled={busy !== null || batch !== null}
-                className="press rounded-full border border-accent/30 px-4 py-1.5 text-xs font-medium text-accent transition hover:bg-accent-soft disabled:opacity-50"
-              >
-                {busy === "commitments" ? "提取中…" : "AI 提取修改承诺"}
-              </button>
-              <CopyButton text={allResponsesText} label="复制全部回复" />
-              <a
-                href={`/api/projects/${id}/export/response-letter`}
-                className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100"
-              >
-                ⬇ 导出 Word Response Letter
-              </a>
+              <div className="h-1 w-20 overflow-hidden rounded-full bg-band" aria-hidden>
+                <div
+                  className="bar-fill h-full rounded-full bg-accent"
+                  style={{
+                    width: `${Math.round((threads.filter((t) => t.polished.trim()).length / threads.length) * 100)}%`,
+                  }}
+                />
+              </div>
+              <div className="ml-auto flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => void polishAllPending()}
+                  disabled={busy !== null || batch !== null}
+                  className="press rounded-full bg-accent px-3.5 py-1.5 text-xs font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
+                >
+                  {batch ? `批量打磨中 ${batch.done}/${batch.total}…` : `批量打磨未完成 (${threads.filter((t) => !t.polished.trim()).length})`}
+                </button>
+                <button
+                  onClick={() => void extractCommitments()}
+                  disabled={busy !== null || batch !== null}
+                  className="press rounded-full border border-accent/30 px-3.5 py-1.5 text-xs font-medium text-accent transition hover:bg-accent-soft disabled:opacity-50"
+                >
+                  {busy === "commitments" ? "提取中…" : "AI 提取修改承诺"}
+                </button>
+                <CopyButton text={allResponsesText} label="复制全部回复" />
+                <a
+                  href={`/api/projects/${id}/export/response-letter`}
+                  className="press group inline-flex items-center gap-1 rounded-full border border-line px-3.5 py-1.5 text-xs text-ink-soft transition hover:border-accent/40 hover:text-accent"
+                >
+                  <Download className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-y-0.5" strokeWidth={1.75} />
+                  导出 Word Response Letter
+                </a>
+              </div>
             </div>
           )}
           {!project.reviews?.length ? (
-            <p className="rounded-2xl border border-dashed border-line py-12 text-center text-sm text-ink-faint">
-              请先完成「模拟审稿」,即可在此逐条撰写与打磨回复。
-            </p>
+            <EmptyState
+              hint="请先完成「模拟审稿」。"
+              action="三位审稿人的每条意见将在这里变成回复线程,可 AI 打磨成正式回复。"
+              actionLabel="去模拟审稿"
+              onAction={() => setTab("review")}
+            />
           ) : threads.length === 0 ? (
-            <p className="py-8 text-center text-sm text-ink-faint">暂无待回复意见。</p>
+            <p className="py-8 text-center text-[13px] text-ink-faint">暂无待回复意见。</p>
           ) : (
-            threads.map((t) => (
-              <div key={t.commentId} className="rounded-2xl border border-line bg-white p-5">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${t.type === "major" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>
-                    {t.type === "major" ? "Major" : "Minor"}
-                  </span>
-                  <span className="text-sm font-medium">{t.reviewer}</span>
-                  <div className="ml-auto flex gap-2">
-                    <CopyButton text={t.polished || t.draft} label={t.polished ? "复制打磨稿" : "复制草稿"} />
-                    <button
-                      onClick={() => void polishThread(t.commentId)}
-                      disabled={busy !== null}
-                      className="rounded-full bg-accent px-3.5 py-1 text-xs font-medium text-white hover:bg-accent/90 disabled:opacity-50"
-                    >
-                      {busy === `polish-${t.commentId}` ? "打磨中…" : t.polished ? "重新打磨" : "AI 打磨回复"}
-                    </button>
+            <div className="divide-y divide-line rounded-xl border border-line bg-white">
+              {threads.map((t, i) => (
+                <div
+                  key={t.commentId}
+                  style={{ animationDelay: `${Math.min(i * 30, 240)}ms` }}
+                  className="stagger p-4 sm:p-5"
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${t.type === "major" ? "border border-red-200 bg-red-50 text-red-700" : "border border-amber-200 bg-amber-50 text-amber-700"}`}>
+                      {t.type === "major" ? "Major" : "Minor"}
+                    </span>
+                    <span className="text-[13px] font-medium">{t.reviewer}</span>
+                    {savedIds.has(t.commentId) && (
+                      <span className="rise-in text-xs text-emerald-600">已保存</span>
+                    )}
+                    <div className="ml-auto flex gap-2">
+                      <CopyButton text={t.polished || t.draft} label={t.polished ? "复制打磨稿" : "复制草稿"} />
+                      <button
+                        onClick={() => void polishThread(t.commentId)}
+                        disabled={busy !== null}
+                        className="press rounded-full bg-accent px-3.5 py-1 text-xs font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
+                      >
+                        {busy === `polish-${t.commentId}` ? "打磨中…" : t.polished ? "重新打磨" : "AI 打磨回复"}
+                      </button>
+                    </div>
                   </div>
-                </div>
-                <p className="mt-3 rounded-xl bg-band p-3 text-sm text-ink-soft">
-                  <span className="font-medium text-ink-soft">审稿意见:</span> {t.commentText}
-                </p>
-                <textarea
-                  value={t.draft}
-                  onChange={(e) => updateThreadLocal(t.commentId, { draft: e.target.value })}
-                  onBlur={() => void saveThread(t)}
-                  placeholder="先写下你的回复要点(数据、论据、修改位置)…失焦自动保存,AI 打磨时会保留你的事实与数字"
-                  className="mt-3 min-h-24 w-full resize-y rounded-xl border border-line p-3 text-sm outline-none focus:border-accent"
-                />
-                {t.polished && (
-                  <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50/50 p-3">
-                    <p className="text-xs font-medium text-emerald-600">AI 打磨稿(可直接粘贴进 Response Letter)</p>
-                    <pre className="mt-1 whitespace-pre-wrap font-sans text-sm text-ink">{t.polished}</pre>
-                  </div>
-                )}
-                <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-line pt-3">
-                  <span className="text-xs text-ink-faint">意见裁决:</span>
-                  {([["valid", "有道理 ✓"], ["invalid", "不成立 ✗"]] as const).map(([v, label]) => (
-                    <button
-                      key={v}
-                      onClick={() => void setVerdict(t, t.verdict === v ? null : v)}
-                      className={`press rounded-full px-3 py-1 text-xs font-medium transition ${
-                        t.verdict === v
-                          ? v === "valid"
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-red-100 text-red-700"
-                          : "bg-band text-ink-soft hover:text-ink"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                  <input
-                    value={t.commitment ?? ""}
-                    onChange={(e) => updateThreadLocal(t.commentId, { commitment: e.target.value })}
+                  <blockquote className="mt-3 border-l-2 border-accent/25 pl-3 text-[13px] leading-relaxed text-ink-soft">
+                    {t.commentText}
+                  </blockquote>
+                  <textarea
+                    value={t.draft}
+                    onChange={(e) => updateThreadLocal(t.commentId, { draft: e.target.value })}
                     onBlur={() => void saveThread(t)}
-                    placeholder="修改承诺:答应修改稿件的哪里、改什么(供承诺核查用)"
-                    className="ml-auto min-w-56 flex-1 rounded-full border border-line bg-band/50 px-4 py-1.5 text-xs outline-none transition focus:border-accent focus:bg-white"
+                    placeholder="先写下你的回复要点(数据、论据、修改位置)…失焦自动保存,AI 打磨时会保留你的事实与数字"
+                    className="mt-3 min-h-20 w-full resize-y rounded-xl border border-line bg-band/40 p-3 text-[13px] outline-none transition focus:border-accent focus:bg-white"
                   />
+                  {t.polished && (
+                    <div className="mt-3 rounded-xl border border-emerald-200/70 bg-emerald-50/50 p-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-700">AI 打磨稿 · 可直接粘贴进 Response Letter</p>
+                      <pre className="mt-1.5 whitespace-pre-wrap font-sans text-[13px] leading-relaxed text-ink">{t.polished}</pre>
+                    </div>
+                  )}
+                  <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-line pt-3">
+                    <span className="text-xs text-ink-faint">意见裁决:</span>
+                    {([["valid", "有道理"], ["invalid", "不成立"]] as const).map(([v, label]) => (
+                      <button
+                        key={v}
+                        onClick={() => void setVerdict(t, t.verdict === v ? null : v)}
+                        className={`press inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-medium transition ${
+                          t.verdict === v
+                            ? v === "valid"
+                              ? "border-emerald-300 bg-emerald-50 text-emerald-700"
+                              : "border-red-300 bg-red-50 text-red-700"
+                            : "border-line text-ink-soft hover:text-ink"
+                        }`}
+                      >
+                        {v === "valid" ? <Check className="h-3 w-3" strokeWidth={2} /> : <X className="h-3 w-3" strokeWidth={2} />}
+                        {label}
+                      </button>
+                    ))}
+                    <input
+                      value={t.commitment ?? ""}
+                      onChange={(e) => updateThreadLocal(t.commentId, { commitment: e.target.value })}
+                      onBlur={() => void saveThread(t)}
+                      placeholder="修改承诺:答应修改稿件的哪里、改什么(供承诺核查用)"
+                      className="ml-auto min-w-56 flex-1 rounded-full border border-line bg-band/40 px-3.5 py-1.5 text-xs outline-none transition focus:border-accent focus:bg-white"
+                    />
+                  </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
         </div>
       )}
 
       {tab === "cover" && (
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div className="flex justify-end">
             <button
               onClick={() => void runPipeline("cover-letter")}
               disabled={busy !== null}
-              className="press rounded-full bg-accent px-5 py-1.5 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
+              className="press rounded-full bg-accent px-5 py-2 text-[13px] font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
             >
-              {busy === "cover-letter" ? "生成中…" : project.coverLetter ? "重新生成" : "生成 Cover Letter"}
+              {busy === "cover-letter" ? (
+                <>
+                  <span className="spinner mr-1.5" aria-hidden />
+                  生成中…
+                </>
+              ) : project.coverLetter ? (
+                "重新生成"
+              ) : (
+                "生成 Cover Letter"
+              )}
             </button>
           </div>
           {!project.coverLetter ? (
-            <p className="rounded-2xl border border-dashed border-line py-12 text-center text-sm text-ink-faint">
-              尚未生成。将基于标题、摘要与结论自动撰写投稿信。
-            </p>
+            <EmptyState
+              hint="尚未生成 Cover Letter。"
+              action="将基于标题、摘要与结论自动撰写投稿信。"
+              actionLabel="生成 Cover Letter"
+              onAction={() => void runPipeline("cover-letter")}
+              disabled={busy !== null}
+            />
           ) : (
-            <div className="rounded-2xl border border-line bg-white p-6">
-              <div className="mb-3 flex justify-end">
+            <div className="rounded-xl border border-line bg-white p-6 sm:p-8">
+              <div className="mb-4 flex items-center justify-between border-b border-line pb-3">
+                <p className="text-[13px] font-semibold tracking-tight">Cover Letter Draft</p>
                 <CopyButton text={project.coverLetter.content} label="复制全文" />
               </div>
-              <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-ink">{project.coverLetter.content}</pre>
-              <p className="mt-4 text-xs text-ink-faint">发送前请替换 [方括号] 中的占位信息,并核对期刊对 Cover Letter 的具体要求。</p>
+              <pre className="whitespace-pre-wrap font-sans text-sm leading-[1.9] text-ink">{project.coverLetter.content}</pre>
+              <p className="mt-5 border-t border-line pt-3 text-xs text-ink-faint">发送前请替换 [方括号] 中的占位信息,并核对期刊对 Cover Letter 的具体要求。</p>
             </div>
           )}
         </div>
       )}
 
       {tab === "seminar" && (
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-white p-4">
-            <label className="flex items-center gap-2 text-sm text-ink-soft">
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-3 rounded-xl border border-line bg-white p-4">
+            <label className="flex items-center gap-2 text-[13px] text-ink-soft">
               时长
               <select
                 value={seminarDuration}
                 onChange={(e) => setSeminarDuration(Number(e.target.value) as 5 | 10 | 15)}
-                className="rounded-xl border border-line px-2 py-1.5 text-sm outline-none focus:border-accent"
+                className="rounded-full border border-line px-3 py-1.5 text-[13px] outline-none transition focus:border-accent"
               >
                 <option value={5}>约 5 分钟</option>
                 <option value={10}>约 10 分钟</option>
                 <option value={15}>约 15 分钟</option>
               </select>
             </label>
-            <label className="flex items-center gap-2 text-sm text-ink-soft">
+            <label className="flex items-center gap-2 text-[13px] text-ink-soft">
               讲稿语言
               <select
                 value={seminarLang}
                 onChange={(e) => setSeminarLang(e.target.value as "zh" | "en")}
-                className="rounded-xl border border-line px-2 py-1.5 text-sm outline-none focus:border-accent"
+                className="rounded-full border border-line px-3 py-1.5 text-[13px] outline-none transition focus:border-accent"
               >
                 <option value="zh">中文(术语保留英文)</option>
                 <option value="en">English</option>
@@ -720,28 +965,39 @@ export default function Workspace() {
             <button
               onClick={() => void runPipeline("seminar", "seminar", { durationMin: seminarDuration, language: seminarLang })}
               disabled={busy !== null}
-              className="press rounded-full bg-accent px-5 py-2 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
+              className="press rounded-full bg-accent px-5 py-2 text-[13px] font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
             >
-              {busy === "seminar" ? "生成中…" : project.seminar ? "重新生成" : "生成组会汇报"}
+              {busy === "seminar" ? (
+                <>
+                  <span className="spinner mr-1.5" aria-hidden />
+                  生成中…
+                </>
+              ) : project.seminar ? (
+                "重新生成"
+              ) : (
+                "生成组会汇报"
+              )}
             </button>
             {project.seminar && (
               <a
                 href={`/api/projects/${id}/seminar/pptx`}
-                className="press rounded-full border border-emerald-200 bg-emerald-50 px-5 py-2 text-sm font-medium text-emerald-700 transition hover:bg-emerald-100"
+                className="press group inline-flex items-center gap-1 rounded-full border border-line px-5 py-2 text-[13px] text-ink-soft transition hover:border-accent/40 hover:text-accent"
               >
-                ⬇ 下载 PPTX(讲稿在演讲者备注)
+                <Download className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-y-0.5" strokeWidth={1.75} />
+                下载 PPTX(讲稿在演讲者备注)
               </a>
             )}
           </div>
 
           {!project.seminar ? (
-            <p className="rounded-2xl border border-dashed border-line py-12 text-center text-sm text-ink-faint">
-              尚未生成。选择时长与讲稿语言后点击「生成组会汇报」——大纲、逐页讲稿与导师 Q&amp;A 预演一次到位。
-            </p>
+            <EmptyState
+              hint="尚未生成组会汇报。"
+              action="选择时长与讲稿语言后点击「生成组会汇报」——大纲、逐页讲稿与导师 Q&A 预演一次到位。"
+            />
           ) : (
             <>
               <div className="flex items-center justify-between">
-                <p className="text-sm text-ink-soft">
+                <p className="text-[13px] text-ink-soft">
                   共 {project.seminar.slides.length} 页 · 预设 {project.seminar.questions.length} 个问题 ·{" "}
                   {project.seminar.durationMin} 分钟版
                 </p>
@@ -750,35 +1006,50 @@ export default function Workspace() {
                   label="复制全部讲稿"
                 />
               </div>
-              <ol className="space-y-3">
+              <ol className="divide-y divide-line rounded-xl border border-line bg-white">
                 {project.seminar.slides.map((s, i) => (
-                  <li key={i} className="rounded-2xl border border-line bg-white p-4">
+                  <li
+                    key={i}
+                    style={{ animationDelay: `${Math.min(i * 30, 240)}ms` }}
+                    className="stagger p-4 transition hover:bg-band/40"
+                  >
                     <div className="flex items-center gap-2">
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-soft text-xs font-bold text-accent">
-                        {i + 1}
-                      </span>
-                      <h4 className="font-medium">{s.title}</h4>
+                      <span className="w-5 shrink-0 text-right text-xs font-medium text-ink-faint">{i + 1}</span>
+                      <h4 className="min-w-0 flex-1 truncate text-[13px] font-medium">{s.title}</h4>
                       <CopyButton text={s.script} label="复制讲稿" />
                     </div>
                     {s.bullets.length > 0 && (
-                      <ul className="mt-2 list-disc space-y-1 pl-10 text-sm text-ink-soft">
+                      <ul className="mt-2 list-disc space-y-1 pl-9 text-[13px] text-ink-soft">
                         {s.bullets.map((b, j) => (
                           <li key={j}>{b}</li>
                         ))}
                       </ul>
                     )}
-                    <p className="mt-2 rounded-xl bg-band p-3 text-sm leading-relaxed text-ink">{s.script}</p>
+                    <p className="mt-2 border-l-2 border-line pl-3 text-[13px] leading-relaxed text-ink-soft">{s.script}</p>
                   </li>
                 ))}
               </ol>
               {project.seminar.questions.length > 0 && (
-                <div className="rounded-2xl border border-amber-200 bg-amber-50/50 p-5">
-                  <h3 className="font-semibold text-amber-800">导师 Q&amp;A 预演(先自己答,再看要点)</h3>
+                <div className="rounded-xl border border-amber-200/70 bg-amber-50/60 p-5">
+                  <h3 className="text-[13px] font-semibold text-amber-800">导师 Q&amp;A 预演 · 先自己答,再看要点</h3>
                   <ol className="mt-3 space-y-3">
                     {project.seminar.questions.map((q, i) => (
-                      <li key={i} className="text-sm">
+                      <li key={i} className="text-[13px]">
                         <p className="font-medium text-ink">{i + 1}. {q.question}</p>
-                        <p className="mt-1 pl-5 text-ink-soft">💡 {q.hint}</p>
+                        {revealedQA.has(i) ? (
+                          <p className="mt-1 flex items-start gap-1.5 pl-5 text-ink-soft">
+                            <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" strokeWidth={1.75} />
+                            {q.hint}
+                          </p>
+                        ) : (
+                          <button
+                            onClick={() => setRevealedQA((prev) => new Set(prev).add(i))}
+                            className="press ml-5 mt-1 inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs text-accent transition hover:bg-accent-soft"
+                          >
+                            先自己答,再看要点
+                            <ChevronRight className="h-3 w-3" strokeWidth={2} />
+                          </button>
+                        )}
                       </li>
                     ))}
                   </ol>
@@ -790,6 +1061,7 @@ export default function Workspace() {
       )}
 
       {tab === "revision" && <RevisionPanel project={project} setProject={setProject} />}
+      </div>
     </div>
   );
 }

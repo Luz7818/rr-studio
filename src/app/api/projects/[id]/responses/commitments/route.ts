@@ -3,6 +3,9 @@ import { chatJSON, isLlmConfigured } from "@/lib/llm";
 import { extractCommitmentsPrompt } from "@/lib/prompts";
 import { mockCommitments } from "@/lib/mocks";
 import { getApiContext } from "@/lib/auth";
+import { consumeLlmCalls, guardLlmQuota } from "@/lib/quota";
+
+export const maxDuration = 60;
 
 /**
  * AI 从回复草稿/打磨稿中提取「修改承诺」(在哪改什么),批量填充到线程。
@@ -11,6 +14,8 @@ import { getApiContext } from "@/lib/auth";
 export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const actx = await getApiContext();
   if (!actx.ok) return actx.res;
+  const quotaRes = await guardLlmQuota(actx.ctx);
+  if (quotaRes) return quotaRes;
   const { id } = await ctx.params;
   const project = await actx.ctx.store.get(actx.ctx.userId, id);
   if (!project) return NextResponse.json({ error: "项目不存在" }, { status: 404 });
@@ -39,15 +44,21 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
     extracted = Object.fromEntries(mockCommitments(targets.map((t) => t.commentId)).items.map((i) => [i.id, i.commitment]));
   }
 
+  // 字段级回写:重读最新数据,把承诺按 commentId 写回对应线程
+  const latest = (await actx.ctx.store.get(actx.ctx.userId, id)) ?? project;
+  if (!latest.responses) latest.responses = [];
+  const byId = new Map(latest.responses.map((t) => [t.commentId, t]));
   let filled = 0;
   for (const t of targets) {
     const c = (extracted[t.commentId] ?? "").trim();
-    if (c) {
-      t.commitment = c;
-      t.updatedAt = new Date().toISOString();
+    const target = byId.get(t.commentId);
+    if (c && target) {
+      target.commitment = c;
+      target.updatedAt = new Date().toISOString();
       filled += 1;
     }
   }
-  await actx.ctx.store.save(actx.ctx.userId, project);
-  return NextResponse.json({ project, filled });
+  await actx.ctx.store.save(actx.ctx.userId, latest);
+  void consumeLlmCalls(actx.ctx.userId, isLlmConfigured() ? 1 : 0);
+  return NextResponse.json({ project: latest, filled });
 }

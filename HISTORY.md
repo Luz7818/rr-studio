@@ -57,3 +57,184 @@
 - 文献对标(补齐最大短板):OpenAlex 优先、Semantic Scholar 兜底检索近三年真实文献,
   审稿提示词注入文献清单并禁止编造引用;检索结果按被引优先排序。真实模式 smoke 14/14 通过。
 - lint 清零(修 re-review 未传 literatureBlock 的真 bug 等),文档按工作区《项目整体规范》建齐。
+
+## 2026-10-17 · v0.7.0 全站视觉与交互打磨
+
+- 全局质感层(`globals.css`):统一缓动曲线 `cubic-bezier(0.23,1,0.32,1)`、新工具类
+  `card-lift`(hover 上浮)/`rise-in`(内容块进入)/`stagger`(列表交错,≤240ms)/`bar-fill`
+  (数据条过渡)/`skeleton`(加载脉冲),细化滚动条与 `card-shadow`。
+- 侧栏导航点指示与本地模式状态灯;仪表盘稿件卡加流水线进度点、骨架加载与新空态;
+  上传器拖放区悬停动效与文件选中胶囊。
+- 工作台:页签切换轻过渡(key 重挂载)、Critique 筛选胶囊带计数 + 工具栏卡片化、审稿人卡片
+  头像与文献行化(hover 高亮)、回复工具栏加打磨进度条、审稿意见改引用块、Cover Letter
+  信纸排版、组会页卡交错入场;全站按钮形状统一为胶囊(`rounded-xl` 残留清零)。
+- 修复两处真 bug:①洞察页 Critique 分布进度条用了无效类名 `bg-accent-soft0`,条形图一直
+  不显示;②工作台标题改名 onBlur 拿已更新的 state 判「未变化」,导致改名永不保存(改为
+  聚焦时快照对比)。另:工作台状态徽章英文名(project.status)中文化。
+- 登录/注册卡与输入风格对齐全站;落地页功能卡统一 `card-lift`。
+- 验证:lint 0 告警、生产构建通过(21 路由 + 6 页面不变)、演示模式 smoke 14/14、
+  浏览器截图逐页复查(仪表盘/Critique/回复/洞察/定价)。
+
+## 2026-10-17 · v0.8.0 体验与细节第二轮(异步反馈 + 交互组件)
+
+- 异步反馈:`.spinner` 圆环进入所有 busy 按钮(上传/Critique/审稿/Cover Letter/组会);
+  回复线程草稿与修改承诺失焦保存后显示「已保存 ✓」(1.6s 自动淡出)。
+- 交互组件:新增 `components/ConfirmDialog.tsx`(遮罩 blur + rise-in,Escape/遮罩取消,
+  危险操作红色确认),替换仪表盘删除项目与修改稿面板清除修改稿两处原生 `window.confirm`;
+  DESIGN.md 新增「交互组件」节,禁止再写 window.confirm。
+- 空态可行动:`EmptyState` 支持行动按钮——Critique 空态直接「生成」、回复空态「去模拟审稿」、
+  Cover Letter 空态直接「生成」。
+- 内容细节:解析概览章节结构加字数占比条(`bar-fill`,相对最长章节);组会 Q&A 改「先自己答,
+  再看要点 →」默认折叠,点击才展开 💡 提示;洞察页统计数字 count-up(600ms ease-out,
+  reduced-motion 直显终值);登录/注册卡加品牌 R 标识。
+- 移动端与效率:工作台页签条改横向滑动(`overflow-x-auto no-scrollbar`),窄屏不再折行;
+  数字键 1–7 直跳页签(输入控件聚焦时忽略),页签 title 提示快捷键。
+- 验证:lint 0 告警(修 react-hooks/set-state-in-effect 一处)、构建通过、演示模式 smoke 14/14、
+  桌面 + 390px 移动端截图复查(含确认弹窗打开态、Q&A 展开态)。
+
+## 2026-10-17 · v0.9.0 补齐大规模使用差距(代码可解部分)
+
+- **LLM 月度限额(堵成本敞口)**:SaaS 模式 Free 每月默认 60 次 LLM 分析(环境变量
+  `FREE_LLM_MONTHLY_LIMIT` 可调,Pro/Lab 不限)。`supabase/migration.sql` 追加 `llm_usage` 表
+  与 `increment_llm_usage` RPC(幂等,已建环境重跑即可);`lib/quota.ts` 新增
+  `guardLlmQuota`(入口 403)/`consumeLlmCalls`(成功后按实际次数原子累加,失败静默);
+  9 条 LLM 路由全部接入(critique 按实际段落数、review/re-review 3 次、其余 1-2 次);
+  本地/演示模式不计不挡。仪表盘横幅显示「LLM 分析 x/60 次」。
+- **写冲突保护**:8 条「get → 长时间 LLM → 整包 save」路由改为完成后重读最新数据、只回写本路由
+  拥有的字段(critique/reviews+responses/seminar/coverLetter/revision.*/单条线程 polished),
+  竞态窗口从分钟级缩到毫秒级;修改稿类路由在修改稿被清除时返回 409 放弃结果。
+- **Serverless 时长声明**:9 条 LLM 路由加 `export const maxDuration = 60`(Vercel 函数上限)。
+- **单元测试层(P4 补齐)**:vitest 3(兼容 @types/node@20,选 3 而非 5 是 peer 依赖冲突最小解),
+  parse 10 用例 + sanitize 7 用例,全绿。测试揪出一个认知偏差:FUNDING 规则会吞并 GRANT 占位符
+  (隐私结果等价,断言按行为修正而非改代码)。
+- **CI**:GitHub Actions(lint + test + build + 启动后演示模式 smoke),push/PR 触发。
+- **隐私说明页** `/privacy`:脱敏承诺的准确边界(自动打码范围、正则覆盖不到的形态、SaaS 下
+  脱敏后送 LLM 供应商),proxy 放行,落地页页脚入口。
+- **signup 路由**复用新抽出的 `createSupabaseAdminClient()`(原内联实现删除)。
+- 验证:lint 0 告警、`npm test` 17/17、构建通过(6→7 页面)、演示模式 smoke 14/14、
+  /privacy 200。部署清单(Supabase 重跑迁移/公共供应商/Pro 时长/SMTP/Sentry)见
+  docs/DEPLOYMENT.md「上线前检查清单」。
+
+## 2026-10-18 · v0.10.0 去AI感:设计语言转向中性密度工具风
+
+诊断:胶囊几何(全站 102 处 rounded-full)+ 粉彩徽章(35 处 100 底色块)+ emoji 图标(21 处)
++ 满屏浮岛卡,是「精修过的 AI 感」的来源。本轮重写设计语言(DESIGN.md 同步重写),
+参照 Linear / Vercel Dashboard 的纪律。
+
+- **图标系统(P0)**:引入 `lucide-react`(运行时依赖 10→11),替换全部 emoji/字符图标;
+  16px/1.75 线宽规范;chrome 内禁 emoji 写进 DESIGN.md。
+- **形状系统(P0)**:按钮/输入框/分段控件 → `rounded-lg`,内嵌块 `rounded-md`,面板
+  `rounded-xl`;胶囊收敛为**只给状态徽章**(剩余 ~30 处全部合法:徽章/进度条几何);
+  分段控件改 `bg-band p-0.5` 槽 + `rounded-md` 活动块。
+- **状态色降饱和(P0)**:100 底色块全部改「50 底 + 200 描边 + 700 字」;审稿意见改 4px
+  左色条形态;采纳态行用 `bg-emerald-50/40` 弱化。
+- **密度(P1)**:Critique 条目、回复线程、组会讲稿从卡片流改为 `divide-y` 行列表(单容器,
+  行 hover 灰底);审稿人卡去投影与头像徽标,Overall/Major/Minor 用左色条排版。
+- **字阶(P1)**:产品内字重 600 封顶(工作台标题 text-2xl semibold,原 text-3xl black);
+  正文收敛 text-[13px];微标签(micro-label)用于侧栏分组与元信息;侧栏改分组
+  (工作区/方案)+ 导航图标。
+- **投影纪律(P0/P2)**:静态面板全部去投影(边框优先),`card-shadow` 只留给弹窗;
+  `card-lift` 只留仪表盘可点稿件卡。
+- **落地页(P2)**:删点阵背景、浮岛 mockup 装饰与漂浮胶囊标签;hero 改左文右图 split 布局,
+  产品示意改三栏 grid + gap-px 分隔线的静态结构;功能带同构;按钮 rounded-lg。
+- **认证/定价/隐私/弹窗同步**:输入框与按钮统一 rounded-lg;定价卡去 ring 与 emerald ✓ 字符
+  (改 Lucide Check),Free 档注明 60 次 LLM 分析;ConfirmDialog 面板 shadow-xl 代替 card-shadow。
+- 验证:lint 0 告警、`npm test` 17/17、构建通过(17 页面)、演示模式 smoke 14/14、
+  截图复查(仪表盘/工作台概览/Critique 行列表/定价);落地页 SaaS 未登录态待部署后目检。
+
+## 2026-10-18 · v0.10.1 功能实测 + 细节补齐
+
+- **浏览器功能实测(演示数据全流程)**:数字键 1–7 切页签、Critique 采纳勾选(行高亮)、
+  草稿失焦自动保存(「已保存」出现 → 1.6s 消失 → 刷新后持久)、删除确认弹窗(Escape 取消、
+  不误删)、Q&A 折叠展开、移动端 390px 页签横滑——全部通过。测试方法备注:React onBlur
+  需合成 focusout 而非 blur 事件才能在自动化里触发。
+- **修复**:仪表盘删除按钮图标化时丢失的无障碍标注与加载反馈(补 aria-label/title/spinner);
+  privacy 页与确认弹窗残留 font-bold(600 封顶纪律)。
+- **升级**:洞察页加载态改骨架脉冲(原一行「加载中…」);工作台/洞察页 document.title
+  跟随内容(「稿件名 · R&R Studio」),离开自动还原;仪表盘稿件卡改相对时间
+  (刚刚/x 分钟前/x 天前,30 天以上回退日期)。
+- lint 过程修正两处新引入问题:title effect 依赖收窄为 projectTitle 局部变量;
+  Dashboard 挂载 effect 保持内联 async IIFE(react-hooks/set-state-in-effect 不穿透函数边界,
+  `void load()` 形态会误报)。
+- 验证:lint 0 告警、`npm test` 17/17、构建通过、smoke 14/14、洞察页截图 + document.title 复查。
+- **品牌图标重绘**:原 icon.svg 用 `<text>`+Arial(favicon 跨平台渲染不一致)。两轮被否:
+  「R.」句点方案(字母组合与工作性质无关)→ 平涂「稿件行+对勾」(无光影层次,与全站
+  反 AI 平面感的方向自相矛盾)。第三版换立体路线:靛蓝渐变底 + -4° 微旋白纸页
+  (渐变+feDropShadow 投影)+ 三行浅紫稿件行 + 主色判定对勾——「被审过的稿件」。
+  立体/层叠双案对比,E2 徽章在 16px 缩成一点被否,E1 定稿。DESIGN.md 品牌节同步
+  (禁 <text>、四档尺寸实测、质感来自渐变+层叠+投影而非平涂)。
+- **按钮图标微动效统一**:导出 Download hover 下探、返回 ArrowLeft hover 左移、拖放区 Upload
+  hover 上浮变色、仪表盘 RefreshCw 加载时自旋、复制成功 Check 以新 `.icon-pop` 弹入
+  (0.6 起跳,避免 scale(0) 违例);全部 200ms 级、只动 transform,reduced-motion 自动降级。
+
+## 2026-10-19 · v0.11.0 一切对齐 flolab.cn(用户拍板唯一设计锚点)
+
+- **决策**:连续三版品牌图标被否后,用户给出唯一参照 https://flolab.cn——「一切像这个网站
+  对齐」。浏览器实测提取语言:白底浮岛、白胶囊容器承载彩色图形(白底蓝鲸 favicon)、
+  点阵装饰、居中大标题带主色强调、悬浮胶囊标签、全胶囊控件、粘性白胶囊导航。
+  中途偏移到 Linear/Vercel 风的几何系统(v0.10)整体回退,DESIGN.md 重写并固化锚点。
+- **图标 v4(第四版,定稿)**:白底圆角方块 + 单色靛蓝实体稿件图形(-5° 微旋,白色行与
+  判定勾镂空)——与 flolab「白底蓝鲸」同构:白底承载单色实体形。三案对比(实体纸/纯勾/
+  审稿双气泡),F5 双气泡在 16px 糊掉、F4b 丢稿件语义,F4a 精修(勾加粗至 5、延长至
+  45px)后定稿。副本 public/logo.svg 供界面引用。
+- **Logo 对齐**:侧栏/移动顶栏/登录注册卡的 Logo 改为**白胶囊容器(card-shadow)+
+  logo.svg**——直接复刻 flolab 顶栏的 Logo 处理。
+- **落地页**:恢复点阵 hero、悬浮胶囊标签(三位 AI 审稿人/讲稿在演讲者备注)、居中主色
+  强调标题、胶囊 CTA;功能带/对比/CTA 带同步胶囊化。
+- **控件几何回退**:按钮/页签/筛选/输入框/导航项全站回归 `rounded-full`(v0.10 的
+  rounded-lg 体系撤销);提示横幅 rounded-2xl;工具页保留行列表密度与 Lucide 图标纪律
+  (这两项与 flolab 不冲突,是 AI 感治理的正确部分)。
+- 验证:lint 0 告警(新增两处 img 豁免注释)、构建通过、smoke 14/14、仪表盘截图复查
+  (白胶囊 Logo/胶囊控件/相对时间);落地页 SaaS 未登录态待部署后目检。
+
+## 2026-10-19 · v0.11.1 营销壳 + 滚动动效系统(对齐 flolab 第二阶段)
+
+- **双壳布局**:根布局按会话分壳——SaaS 未登录走**营销壳**(body[data-bare],无侧栏),
+  落地页/定价/隐私/登录/注册自备 `MarketingNav` 浮岛胶囊导航(白胶囊 Logo + 居中链接 +
+  CTA,sticky);应用壳内 `bare-only` 元素由 CSS 隐藏。本地模式维持应用壳。
+- **动效系统**:`Reveal` 组件(IntersectionObserver + CSS 过渡,transform/opacity 专用,
+  reduced-motion 直显)用于落地页各区滚动交错显现;`float-soft`/`float-soft-slow` 长周期
+  漂浮用于 mockup 与悬浮标签;hero 用 `.stagger` 入场编排(60ms 步进)。
+- **落地页内容扩充**:新增数据带(40+ 意见/篇 · 3 审稿人 · 100% 文献可溯 · 4 类交付物)、
+  特性卡 Lucide 图标徽章、FAQ 手风琴(原生 details,5 问)、三栏页脚。
+- **修复三处带 Supabase 构建的阻塞 bug**(哑环境预览时暴露):①proxy 把带扩展名路径
+  (logo.svg/icon.svg 等静态资源)重定向到登录页导致裂图——静态路径直接放行;
+  ②getSessionUser 网络失败时抛错全站 500——按 proxy 口径容错返回未登录;
+  ③根布局读会话的 cookies() 与 cacheComponents(PPR)静态预渲染冲突——关闭 PPR,
+  全站 force-dynamic(登录工具,代价可接受)。
+- **验证方式突破**:以自指哑 Supabase 变量构建,首次在本机完整预览 SaaS 落地页
+  (首屏/功能区/FAQ/页脚逐屏截图确认);正式构建后 smoke 14/14。
+- 下一步追差距方向:产品截图替换 mockup 示意、OG 卡片图、移动端落地页细查。
+
+## 2026-10-20 · v0.11.2 真实产品截图 + OG 卡 + 移动端细查(对齐第三阶段)
+
+- **真实截图进落地页**:手工构造逼真演示项目(直接写入 .data JSON,零 API 消耗——含真实
+  论文标题、5 条中英 Critique、3 份审稿报告、3 条已打磨回复线程与修改承诺),浏览器截取
+  Critique / 审稿 / 回复三页存入 public/showcase-*.png;落地页 mockup 从结构示意替换为
+  **真实界面截图**(回复线程主图 + 审稿卡后景层叠 + 漂浮标签),营销说服力质变。
+  截图前按类名隐藏演示模式横幅与本地模式提示框(策划过的呈现)。
+- **OG 分享卡**:`src/app/opengraph-image.tsx`(next/og,1200×630):品牌行 + 主标语 +
+  流水线副标 + 三枚胶囊标签,社交分享不再裸链接。
+- **移动端 390px 细查**:仪表盘/落地页首屏/截图区/FAQ 逐屏通过;浮动标签移动端隐藏、
+  层叠图降为单图,无需修复。
+- **测试方法教训**:截图管道对动画敏感——无限 float 动画会让截图等不到空闲帧(需暂停注入,
+  但暂停也会冻结 rise-in 的 opacity:0 起点导致"空面板"假象);正确做法是等有限动画完成
+  (workbench 300ms)再截。页签切换用按钮 click 而非键盘合成事件(后者本会话不稳定)。
+- 验证:lint 0 告警、构建通过(/opengraph-image 路由生成)、smoke 14/14、移动端 390px 与
+  桌面端截图复查;showcase 演示项目保留在 .data(本地模式可见,作为活样例)。
+
+## 2026-10-20 · v0.11.3 内容层补齐(对齐第四阶段)
+
+- **使用指南 `/guide`**:七步流水线步骤卡(编号 + 正文 + 场景提示),SaaS 营销壳/本地应用壳
+  双态可用,尾部 CTA。
+- **更新日志 `/changelog`**:用户视角的版本亮点(v0.6→v0.11 六个版本),开发者细节仍以
+  仓库 HISTORY.md 为准。
+- **导航/页脚接线**:MarketingNav 加入使用指南与更新日志(lg 起 5 项),落地页页脚资源区
+  补全;proxy 对未登录放行两页。
+- **OG 卡 v2**:背景换真实产品截图(回复线程页),深色渐变压暗后叠品牌行与英文胶囊标签;
+  中文不进 satori(satori 无内置 CJK 字体,中文会渲染为空)——中文语义由截图像素承载,
+  这也是选截图背景的技术原因。渐变从「压死」调浅为「上亮下沉」,产品 UI 清晰透出。
+- **空态插画**:工作台与仪表盘空状态加品牌母题内联 SVG(双纸叠 + 判定勾,仅令牌色),
+  替代纯文字。
+- 验证:lint 0 告警、构建通过、smoke 14/14、/guide /changelog 200、OG 图形目检
+  (截图透出度达标)。

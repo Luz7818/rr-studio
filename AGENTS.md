@@ -114,12 +114,13 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 | 项 | 值 | 复核命令 |
 |---|---|---|
-| 冒烟自检 | 14/14 项通过（演示模式与真实 LLM 模式同套件） | `LLM_API_KEY= npm run smoke` |
+| 冒烟自检 | 14/14 项通过(演示模式与真实 LLM 模式同套件) | `LLM_API_KEY= npm run smoke` |
 | 静态检查 | eslint 0 告警 0 错误 | `npm run lint` |
-| 生产构建 | 通过，21 个 API 路由 + 6 个页面 | `npm run build`（路由数：`find src/app -name route.ts` 输出 21 行） |
-| CI | 无（未配置远端与工作流） | 查看 `.github/workflows/`（不存在） |
-| 远端 | 未配置 | `git remote -v` |
-| 运行时依赖 | 10 个，清单在 `package.json` | `node -e "console.log(require('./package.json').dependencies)"` |
+| 单元测试 | parse/sanitize 17 个用例全绿 | `npm test` |
+| 生产构建 | 通过,21 个 API 路由 + 7 个页面 | `npm run build`(`find src/app -name route.ts` 输出 21 行) |
+| CI | GitHub Actions:lint + test + build + 演示模式 smoke | `.github/workflows/ci.yml` |
+| 远端 | `Luz7818/rr-studio`(推送后 CI 自动跑) | `git remote -v` |
+| 运行时依赖 | 10 个,开发依赖含 vitest,清单在 `package.json` | `node -e "console.log(require('./package.json').dependencies)"` |
 
 ## 已知坑（省下一次的调查时间）
 

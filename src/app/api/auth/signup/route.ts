@@ -1,15 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server";
-
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
-
-/** 服务端专用 admin 客户端(绕过 RLS,用于邀请码校验),不配置则跳过邀请码强制 */
-function adminClient() {
-  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, SERVICE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
-}
+import {
+  createSupabaseAdminClient,
+  createSupabaseServerClient,
+  isSupabaseConfigured,
+} from "@/lib/supabase/server";
 
 export async function POST(req: NextRequest) {
   if (!isSupabaseConfigured()) {
@@ -32,7 +26,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "密码至少 8 位" }, { status: 400 });
   }
 
-  const admin = SERVICE_KEY ? adminClient() : null;
+  // 内测期邀请码校验(service role 绕过 RLS;未配置 service key 时不强制)
+  const admin = createSupabaseAdminClient();
 
   // 内测期邀请码校验(service role 绕过 RLS;未配置 service key 时不强制)
   if (admin) {

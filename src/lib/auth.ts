@@ -13,10 +13,15 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   if (!isSupabaseConfigured()) return null;
   const supabase = await createSupabaseServerClient();
   if (!supabase) return null;
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user ? { id: user.id, email: user.email ?? undefined } : null;
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    return user ? { id: user.id, email: user.email ?? undefined } : null;
+  } catch {
+    // Supabase 不可达(网络抖动/构建期预渲染)按未登录处理,与 proxy.ts 容错口径一致
+    return null;
+  }
 }
 
 export interface ApiContext {

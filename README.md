@@ -7,7 +7,7 @@
 组会 PPTX 导出 → 大修后上传修改稿做逐节对照与承诺兑现核查。例:一篇 8 章节稿件 + 1 次点击,
 得到 40 余条带英文改写建议的 Critique 与 3 份 Major/Minor 审稿意见,全程作者信息不出本机脱敏层。
 
-**规模:21 个 API 路由、6 个页面(复核:`npm run build` 输出路由表;或 `find src/app -name route.ts` 应输出 21 行)**
+**规模:21 个 API 路由、7 个页面(复核:`npm run build` 输出路由表;或 `find src/app -name route.ts` 应输出 21 行)**
 
 ## 30 秒跑通
 
@@ -56,9 +56,11 @@ npm run dev
 - **校外访问高校 LLM 端点被 WAF 拦截**(HTTP 420):换公共供应商或连校园网,应用会给出明确报错。
 - **文献对标依赖开放检索 API**:OpenAlex/Semantic Scholar 不可达时审稿退回无文献依据模式
   (不联网也能跑,但审稿人不再引用真实论文)。
-- **无单元测试层**:当前门禁是 lint + build + 14 步端到端 smoke,函数级回归靠 smoke 覆盖
-  (见 [docs/TESTING.md](docs/TESTING.md) 的已知局限)。
+- **单元测试只覆盖纯函数**:parse/sanitize 有 vitest 用例(`npm test`);LLM 调用链的函数级回归
+  仍靠 14 步端到端 smoke(见 [docs/TESTING.md](docs/TESTING.md))。
 - **双栏 PDF 公式密集稿解析质量有限**:unpdf 按文本流抽取,复杂排版可能切节不准,建议粘贴文本兜底。
+- **SaaS 模式 LLM 次数限额**:Free 每月默认 60 次(`FREE_LLM_MONTHLY_LIMIT`),需在 Supabase
+  重跑 `supabase/migration.sql` 建 `llm_usage` 表后生效;本地/演示模式不限额。
 
 ## 环境要求
 

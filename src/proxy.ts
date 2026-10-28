@@ -31,9 +31,21 @@ export async function proxy(request: NextRequest) {
   }
 
   const { pathname } = request.nextUrl;
+
+  // 静态资源(带扩展名的路径,如 /logo.svg /icon.svg)直接放行,
+  // 否则未登录时 favicon/logo 会被重定向到登录页而裂图
+  if (/\.[\w]+$/.test(pathname)) {
+    return NextResponse.next();
+  }
+
   const isAuthPage = pathname === "/login" || pathname === "/signup";
-  // 落地页与定价页对未登录访客开放
-  const isPublicPage = pathname === "/" || pathname === "/pricing";
+  // 落地页、定价页、隐私说明、使用指南与更新日志对未登录访客开放
+  const isPublicPage =
+    pathname === "/" ||
+    pathname === "/pricing" ||
+    pathname === "/privacy" ||
+    pathname === "/guide" ||
+    pathname === "/changelog";
 
   if (!user && !isAuthPage && !isPublicPage) {
     return NextResponse.redirect(new URL("/login", request.url));

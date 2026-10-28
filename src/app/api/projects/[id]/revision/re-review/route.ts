@@ -4,11 +4,14 @@ import { chatJSON, isLlmConfigured } from "@/lib/llm";
 import { PERSONAS, reviewerPrompt } from "@/lib/prompts";
 import { mockReview } from "@/lib/mocks";
 import { getApiContext } from "@/lib/auth";
+import { consumeLlmCalls, guardLlmQuota } from "@/lib/quota";
 import type {
   Recommendation,
   ReviewComment,
   ReviewerReport,
 } from "@/lib/types";
+
+export const maxDuration = 60;
 
 const SKIP_HEADINGS = new Set(["References", "Appendix", "Acknowledgments", "Keywords"]);
 const MAX_CHARS = 16000;
@@ -33,6 +36,8 @@ const toComments = (list: string[] | undefined, prefix: string, type: "major" | 
 export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const actx = await getApiContext();
   if (!actx.ok) return actx.res;
+  const quotaRes = await guardLlmQuota(actx.ctx);
+  if (quotaRes) return quotaRes;
   const { id } = await ctx.params;
   const project = await actx.ctx.store.get(actx.ctx.userId, id);
   if (!project) return NextResponse.json({ error: "项目不存在" }, { status: 404 });
@@ -94,7 +99,16 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
     }),
   );
 
-  project.revision.reviews = reviews;
-  await actx.ctx.store.save(actx.ctx.userId, project);
-  return NextResponse.json({ project });
+  // 字段级回写:只写 revision.reviews;若运行期间修改稿被清除则放弃结果
+  const latest = await actx.ctx.store.get(actx.ctx.userId, id);
+  if (!latest?.revision) {
+    return NextResponse.json({ error: "修改稿已变更(可能已被清除),请重新上传后再试" }, { status: 409 });
+  }
+  latest.revision.reviews = reviews;
+  await actx.ctx.store.save(actx.ctx.userId, latest);
+  void consumeLlmCalls(
+    actx.ctx.userId,
+    isLlmConfigured() ? reviews.filter((r) => !r.label.includes("生成失败")).length : 0,
+  );
+  return NextResponse.json({ project: latest });
 }

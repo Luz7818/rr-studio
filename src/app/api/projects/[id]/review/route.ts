@@ -3,6 +3,7 @@ import { chatJSON, isLlmConfigured } from "@/lib/llm";
 import { PERSONAS, reviewerPrompt } from "@/lib/prompts";
 import { mockReview } from "@/lib/mocks";
 import { getApiContext } from "@/lib/auth";
+import { consumeLlmCalls, guardLlmQuota } from "@/lib/quota";
 import type {
   Recommendation,
   ResponseThread,
@@ -10,6 +11,8 @@ import type {
   ReviewerReport,
 } from "@/lib/types";
 
+// Vercel 函数时长上限声明(Hobby 封顶 60s)
+export const maxDuration = 60;
 
 const SKIP_HEADINGS = new Set(["References", "Appendix", "Acknowledgments", "Keywords"]);
 const MAX_CHARS = 16000;
@@ -33,6 +36,8 @@ const toComments = (list: string[] | undefined, prefix: string, type: "major" | 
 export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const actx = await getApiContext();
   if (!actx.ok) return actx.res;
+  const quotaRes = await guardLlmQuota(actx.ctx);
+  if (quotaRes) return quotaRes;
   const { id } = await ctx.params;
   const project = await actx.ctx.store.get(actx.ctx.userId, id);
   if (!project) return NextResponse.json({ error: "项目不存在" }, { status: 404 });
@@ -91,11 +96,13 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
     }),
   );
 
-  project.reviews = reviews;
-  project.status = "reviewed";
+  // 长流程字段级回写:重读最新数据,线程重建基于最新的 responses,保留 LLM 运行期间保存的草稿
+  const latest = (await actx.ctx.store.get(actx.ctx.userId, id)) ?? project;
+  latest.reviews = reviews;
+  latest.status = "reviewed";
 
   // 每次审稿都重建回复线程;用户已写的草稿/打磨稿按 commentId 保留
-  const prevThreads = new Map((project.responses ?? []).map((t) => [t.commentId, t]));
+  const prevThreads = new Map((latest.responses ?? []).map((t) => [t.commentId, t]));
   const threads: ResponseThread[] = [];
   for (const r of reviews) {
     for (const c of [...r.major, ...r.minor]) {
@@ -114,8 +121,12 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
       });
     }
   }
-  project.responses = threads;
+  latest.responses = threads;
 
-  await actx.ctx.store.save(actx.ctx.userId, project);
-  return NextResponse.json({ project });
+  await actx.ctx.store.save(actx.ctx.userId, latest);
+  void consumeLlmCalls(
+    actx.ctx.userId,
+    isLlmConfigured() ? reviews.filter((r) => !r.label.includes("生成失败")).length : 0,
+  );
+  return NextResponse.json({ project: latest });
 }

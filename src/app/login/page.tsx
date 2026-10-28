@@ -34,15 +34,19 @@ function LoginForm() {
   };
 
   return (
-    <form onSubmit={submit} className="w-full max-w-sm space-y-4 rounded-2xl border border-line bg-white p-8 shadow-sm">
-      <h1 className="text-xl font-bold">登录 R&amp;R Studio</h1>
+    <form onSubmit={submit} className="rise-in w-full max-w-sm space-y-4 rounded-xl border border-line bg-white p-8">
+      <div className="flex items-center gap-3">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo.svg" alt="" className="h-10 w-10 rounded-full" />
+        <h1 className="text-lg font-semibold tracking-tight">登录 R&amp;R Studio</h1>
+      </div>
       <input
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="邮箱"
         required
-        className="w-full rounded-xl border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+        className="w-full rounded-full border border-line bg-band/50 px-4 py-2.5 text-sm outline-none transition focus:border-accent focus:bg-white"
       />
       <input
         type="password"
@@ -50,13 +54,13 @@ function LoginForm() {
         onChange={(e) => setPassword(e.target.value)}
         placeholder="密码"
         required
-        className="w-full rounded-xl border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+        className="w-full rounded-full border border-line bg-band/50 px-4 py-2.5 text-sm outline-none transition focus:border-accent focus:bg-white"
       />
       {error && <p className="text-sm text-red-600">{error}</p>}
       <button
         type="submit"
         disabled={busy}
-        className="w-full rounded-xl bg-accent py-2.5 text-sm font-medium text-white hover:bg-accent/90 disabled:opacity-50"
+        className="press w-full rounded-full bg-accent py-2.5 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
       >
         {busy ? "登录中…" : "登录"}
       </button>
@@ -72,7 +76,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-[60vh] items-center justify-center">
+    <div className="flex min-h-dvh items-center justify-center px-4">
       <Suspense fallback={null}>
         <LoginForm />
       </Suspense>

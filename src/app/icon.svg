@@ -1,5 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="16" fill="#5147E5"/>
-  <text x="32" y="42" font-family="Arial, sans-serif" font-size="26" font-weight="900" fill="#fff" text-anchor="middle">R</text>
-  <circle cx="47" cy="40" r="3.5" fill="#fff"/>
+  <rect width="64" height="64" rx="14" fill="#FFFFFF"/>
+  <g transform="rotate(-5 32 32)">
+    <path fill="#5147E5" d="M18 10 H40 A5 5 0 0 1 45 15 V49 A5 5 0 0 1 40 54 H18 A5 5 0 0 1 13 49 V15 A5 5 0 0 1 18 10 Z"/>
+    <g stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round">
+      <path d="M19.5 19 H33"/>
+      <path d="M19.5 25.5 H38.5"/>
+      <path d="M19.5 32 H28"/>
+    </g>
+    <path d="M24 38 L31.5 45.5 L45 27.5" stroke="#FFFFFF" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
 </svg>

@@ -74,3 +74,27 @@ create policy "users read own profile"
 
 -- invite_codes 不开任何 client 策略:仅 service role 可读写(邀请码校验在服务端完成)
 alter table public.invite_codes enable row level security;
+
+-- ============ 5. LLM 月度用量(成本限额)============
+-- Free 方案每月有 LLM 分析次数上限(默认 60,可由环境变量 FREE_LLM_MONTHLY_LIMIT 调整),
+-- Pro/Lab 不限。计数走服务端 service role(rpc 原子累加),不开放 client 策略。
+-- 已建环境的用户:重新完整执行本文件即可(全部语句幂等)。
+create table if not exists public.llm_usage (
+  user_id uuid not null references auth.users (id) on delete cascade,
+  month text not null,
+  calls int not null default 0,
+  primary key (user_id, month)
+);
+
+alter table public.llm_usage enable row level security;
+
+-- 原子累加:service role 在每次成功调用 LLM 后执行
+create or replace function public.increment_llm_usage(p_user uuid, p_month text, p_amount int)
+returns void
+language sql
+as $$
+  insert into public.llm_usage (user_id, month, calls)
+  values (p_user, p_month, greatest(p_amount, 0))
+  on conflict (user_id, month) do update
+    set calls = public.llm_usage.calls + greatest(excluded.calls, 0);
+$$;

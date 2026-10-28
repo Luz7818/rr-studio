@@ -29,6 +29,6 @@ M1/M2/M3 全部完成并通过 14 步端到端自检(复核:`LLM_API_KEY= npm ru
 
 ## P4 · 工程补强
 
-- [ ] 单元测试层:为 `parse`/`sanitize`/`quota` 补 vitest 用例(见 docs/TESTING.md 已知局限)。
-- [ ] 配置 CI(GitHub Actions:lint + build + 演示模式 smoke)。
+- [x] 单元测试层:parse/sanitize 已有 17 个 vitest 用例(`npm test`;LLM 相关模块仍靠 smoke 覆盖)。
+- [x] 配置 CI(GitHub Actions:lint + test + build + 演示模式 smoke)。
 - [ ] 文献检索词质量回看:真实论文场景下核对检索命中率,必要时换 PubMed/Europe PMC 做医口。

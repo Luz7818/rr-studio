@@ -3,7 +3,10 @@ import { chatJSON, isLlmConfigured } from "@/lib/llm";
 import { seminarQuestionsPrompt, seminarSlidesPrompt } from "@/lib/prompts";
 import { mockSeminarQuestions, mockSeminarSlides } from "@/lib/mocks";
 import { getApiContext } from "@/lib/auth";
+import { consumeLlmCalls, guardLlmQuota } from "@/lib/quota";
 import type { Seminar, SeminarQuestion, SeminarSlide } from "@/lib/types";
+
+export const maxDuration = 60;
 
 const SKIP_HEADINGS = new Set(["References", "Appendix", "Acknowledgments", "Keywords"]);
 const MAX_CHARS = 16000;
@@ -12,6 +15,8 @@ const DURATIONS = [5, 10, 15];
 export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const actx = await getApiContext();
   if (!actx.ok) return actx.res;
+  const quotaRes = await guardLlmQuota(actx.ctx);
+  if (quotaRes) return quotaRes;
   const { id } = await ctx.params;
   const project = await actx.ctx.store.get(actx.ctx.userId, id);
   if (!project) return NextResponse.json({ error: "项目不存在" }, { status: 404 });
@@ -69,7 +74,13 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     questions: questionsRes.status === "fulfilled" ? questionsRes.value : [],
     createdAt: new Date().toISOString(),
   };
-  project.seminar = seminar;
-  await actx.ctx.store.save(actx.ctx.userId, project);
-  return NextResponse.json({ project });
+  // 字段级回写:只写 seminar;两次 LLM 调用(大纲 + Q&A)按成功次数计
+  const latest = (await actx.ctx.store.get(actx.ctx.userId, id)) ?? project;
+  latest.seminar = seminar;
+  await actx.ctx.store.save(actx.ctx.userId, latest);
+  void consumeLlmCalls(
+    actx.ctx.userId,
+    isLlmConfigured() ? (questionsRes.status === "fulfilled" ? 2 : 1) : 0,
+  );
+  return NextResponse.json({ project: latest });
 }

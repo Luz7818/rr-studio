@@ -4,7 +4,7 @@ import { extractTextFromFile, sectionize } from "@/lib/parse";
 import { sanitizeText } from "@/lib/sanitize";
 import { isLlmConfigured } from "@/lib/llm";
 import { getApiContext } from "@/lib/auth";
-import { getPlanInfo } from "@/lib/quota";
+import { getPlanInfo, getLlmUsed, FREE_LLM_MONTHLY_LIMIT } from "@/lib/quota";
 import type { Project, Section } from "@/lib/types";
 
 export async function GET() {
@@ -15,11 +15,14 @@ export async function GET() {
   const plan = actx.ctx.saas
     ? await getPlanInfo(actx.ctx.userId)
     : { tier: "local" as const, used: projects.length, limit: null, planExpiresAt: null };
+  const llmUsed = actx.ctx.saas ? await getLlmUsed(actx.ctx.userId) : 0;
 
   return NextResponse.json({
     llmConfigured: isLlmConfigured(),
     saas: actx.ctx.saas,
     plan,
+    llmUsed,
+    llmLimit: plan.limit === null ? null : FREE_LLM_MONTHLY_LIMIT,
     projects: projects.map((p) => ({
       id: p.id,
       title: p.title,

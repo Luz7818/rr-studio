@@ -23,16 +23,29 @@ export const metadata: Metadata = {
   },
 };
 
+// 布局需读会话(SaaS 模式区分营销壳/应用壳):全部路由按请求渲染,
+// 避免 cookies() 动态数据与静态预渲染冲突(带 Supabase 构建时的阻塞 bug)
+export const dynamic = "force-dynamic";
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const saas = isSaasMode();
   const user = saas ? await getSessionUser() : null;
 
+  // SaaS 未登录 = 营销壳:页面自备浮岛导航,脱离应用侧栏
+  const bare = saas && !user;
+
   return (
     <html lang="zh-CN">
-      <body className="antialiased">
-        <Suspense fallback={<div className="min-h-dvh" />}>
-          <AppShell saas={saas} email={user?.email}>{children}</AppShell>
-        </Suspense>
+      <body className="antialiased" data-bare={bare ? "true" : undefined}>
+        {bare ? (
+          children
+        ) : (
+          <Suspense fallback={<div className="min-h-dvh" />}>
+            <AppShell saas={saas} email={user?.email}>
+              {children}
+            </AppShell>
+          </Suspense>
+        )}
       </body>
     </html>
   );
