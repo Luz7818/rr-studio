@@ -31,7 +31,9 @@
 | `accent` | `#5147e5` | 唯一主色:主按钮、链接、活动态、数据条 |
 | `accent-soft` | `#eeeefc` | 主色浅底:活动导航、AI 产出块 |
 
-实际取值以 `globals.css` 为准。页面底色 `#fafafb`。
+实际取值以 `globals.css` 为准。页面底色 `#fafafb`,其上叠两层质感底图(globals body
+多层背景,纯 CSS/SVG 零请求):顶部 `rgba(81,71,229,0.07)` 径向微光让白色浮岛浮起,
+180px 平铺 `feTurbulence` 细颗粒噪声(rect opacity 0.05)提供纸面触感。改底色时三层一起动。
 
 **状态色纪律**(Major/Minor/裁决/核查结论专用,不得当装饰):
 

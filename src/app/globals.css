@@ -21,7 +21,13 @@ body {
     system-ui,
     -apple-system,
     sans-serif;
-  background: #fafafb;
+  /* 底图质感:顶部靛蓝微光让白岛浮起 + 细颗粒噪声提供纸面触感(纯 CSS/SVG,零请求) */
+  background:
+    radial-gradient(1100px 420px at 50% -120px, rgba(81, 71, 229, 0.07), transparent 70%)
+      no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")
+      repeat,
+    #fafafb;
   color: var(--color-ink);
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
