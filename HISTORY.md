@@ -298,3 +298,20 @@
   guide/更新日志文案同步。
 - 验证:lint 0 告警、vitest 17/17、生产构建通过、演示模式 smoke 15/15、浏览器实测
   口径选择器与报告回显。
+
+## 2026-10-30 · v0.14.1 细节清扫(几何语言合规 + 390px 溢出清零)
+
+- **DESIGN 合规**:chrome 内几何字符箭头(「查看方案 →」「Reviewer #1 → Minor」)全部换成
+  Lucide 内联图标;insights 承诺三色徽章与定价「推荐」角标从 rounded-md 归位为胶囊。
+- **390px 溢出清零**:根因是响应式网格小于断点时落入隐式 auto 轨道,按内容最宽处撑破容器
+  (insights 命中率卡 +74px、Critique 工具栏 +74px)。全站网格补 `grid-cols-1` 显式基线;
+  Critique 工具栏两个分段控件包进滚动容器(min-w-0),按钮行开 flex-wrap;七个路由复扫
+  全部为 0。规范写入 CODE-STYLE。
+- **仪表盘删除按钮与状态徽章重叠修复**:悬停时徽章 transform 左移让位、删除按钮淡入
+  (触屏常显路径同步),不再互相压盖。
+- **其他**:落地页截图补 width/height 消 CLS、后景图懒加载;登录/注册表单补 autocomplete
+  (email/current-password/new-password)与「返回首页」链接;登录邮箱自动聚焦;工作台
+  无占位符输入补 aria-label;侧栏与移动导航加 aria-current;服务端双路由补 30MB 上传兜底;
+  CopyButton 定时器卸载清理;演示模式下 gentle 口径裁减示例条数,口径切换在演示模式也体感。
+- 验证:lint 0 告警、vitest 17/17、生产构建通过、演示模式 smoke 15/15、
+  390px 七路由溢出扫描全零。

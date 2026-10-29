@@ -7,6 +7,16 @@ import Reveal from "@/components/Reveal";
 /** 用户视角的版本亮点(开发者细节见仓库 HISTORY.md) */
 const RELEASES: Array<{ version: string; date: string; title: string; items: string[] }> = [
   {
+    version: "v0.14",
+    date: "2026-10",
+    title: "审稿口径与数据洞察",
+    items: [
+      "Critique 口径三档可调:苛刻(顶刊级)/均衡/温和,按投稿阶段自由切换",
+      "洞察页承诺兑现堆叠条与时间线动效,薄弱环节一眼可读",
+      "流水线步骤徽章可点击直跳,全站小屏布局与无障碍细节修缮",
+    ],
+  },
+  {
     version: "v0.13",
     date: "2026-10",
     title: "交付链补全",
