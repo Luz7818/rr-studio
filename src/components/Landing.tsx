@@ -271,7 +271,8 @@ export default function Landing() {
       {/* CTA */}
       <section className="mx-auto max-w-5xl px-4 pb-24">
         <Reveal>
-          <div className="rounded-[2.5rem] bg-ink px-8 py-16 text-center text-white">
+          <div className="relative overflow-hidden rounded-[2.5rem] bg-ink px-8 py-16 text-center text-white">
+            <div aria-hidden className="bg-dots-light absolute inset-x-0 top-0 h-24 opacity-70" />
             <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
               一篇论文的润色报价 ¥3000+,
               <br className="sm:hidden" />

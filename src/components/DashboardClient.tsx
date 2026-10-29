@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, BarChart3, RefreshCw, Trash2 } from "lucide-react";
+import { ArrowRight, BarChart3, FolderOpen, RefreshCw, Trash2 } from "lucide-react";
+import IconChip from "@/components/IconChip";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import EmptyArt from "@/components/EmptyArt";
 import Uploader from "@/components/Uploader";
@@ -162,7 +163,10 @@ export default function Dashboard() {
 
       <section>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-[15px] font-semibold">我的稿件</h2>
+          <h2 className="flex items-center gap-2 text-[15px] font-semibold">
+          <IconChip icon={FolderOpen} tone="ink" />
+          我的稿件
+        </h2>
           <div className="flex items-center gap-4 text-[13px]">
             <Link href="/insights" className="flex items-center gap-1 text-ink-soft transition hover:text-accent">
               <BarChart3 className="h-3.5 w-3.5" strokeWidth={1.75} />

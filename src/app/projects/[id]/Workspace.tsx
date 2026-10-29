@@ -1,17 +1,34 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import {
+  AlertCircle,
   ArrowLeft,
+  BookOpen,
+  Brain,
   Check,
+  Crown,
   ChevronRight,
   Copy,
   Download,
+  Files,
+  FlaskConical,
   Lightbulb,
+  ListChecks,
+  Mail,
+  MinusCircle,
+  PenLine,
+  Presentation,
+  ShieldCheck,
+  Sigma,
+  SpellCheck,
+  Type,
   X,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import IconChip from "@/components/IconChip";
 import type { CritiqueIntensity, CritiqueItem, Project, ResponseThread, Severity } from "@/lib/types";
 import EmptyArt from "@/components/EmptyArt";
 import FillBar from "@/components/FillBar";
@@ -36,11 +53,28 @@ const SEVERITY_STYLE: Record<Severity, string> = {
   minor: "border border-amber-200 bg-amber-50 text-amber-700",
   suggestion: "border border-line bg-band text-ink-soft",
 };
+const SEVERITY_ICON: Record<Severity, LucideIcon> = {
+  major: AlertCircle,
+  minor: MinusCircle,
+  suggestion: Lightbulb,
+};
 const CATEGORY_LABEL: Record<string, string> = {
   logic: "逻辑",
   expression: "表达",
   grammar: "语法",
   style: "风格",
+};
+const CATEGORY_ICON: Record<string, LucideIcon> = {
+  logic: Brain,
+  expression: Type,
+  grammar: SpellCheck,
+  style: PenLine,
+};
+/** 三位审稿人的形象图标(与 personaLabel 对应) */
+const PERSONA_ICON: Record<string, LucideIcon> = {
+  methodologist: FlaskConical,
+  statistician: Sigma,
+  "domain-expert": Crown,
 };
 const REC_LABEL: Record<string, string> = {
   accept: "Accept",
@@ -242,46 +276,36 @@ export default function Workspace() {
     }
   }, [project?.literature]);
 
+  // 载入结果统一应用(load 与首挂载共用;deps 全为稳定 setState,满足 React Compiler 推断)
+  const applyLoaded = useCallback(
+    (data: { project?: Project | null; llmConfigured?: boolean }) => {
+      setProject(data.project ?? null);
+      setLlmConfigured(Boolean(data.llmConfigured));
+      setIntensity(data.project?.critique?.intensity ?? "balanced");
+      if (data.project?.seminar) {
+        setSeminarDuration(data.project.seminar.durationMin as 5 | 10 | 15);
+        setSeminarLang(data.project.seminar.language);
+      }
+    },
+    [setProject, setLlmConfigured, setIntensity, setSeminarDuration, setSeminarLang],
+  );
+
   const load = useCallback(async () => {
     try {
       const res = await fetch(`/api/projects/${id}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "加载失败");
-      setProject(data.project);
-      setLlmConfigured(Boolean(data.llmConfigured));
-      setIntensity(data.project?.critique?.intensity ?? "balanced");
-      if (data.project?.seminar) {
-        setSeminarDuration(data.project.seminar.durationMin);
-        setSeminarLang(data.project.seminar.language);
-      }
+      applyLoaded(data);
     } catch (e) {
       setError(e instanceof Error ? e.message : "加载失败");
     }
-  }, [id]);
+  }, [id, applyLoaded]);
 
   useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const res = await fetch(`/api/projects/${id}`);
-        const data = await res.json();
-        if (!alive) return;
-        if (!res.ok) throw new Error(data.error ?? "加载失败");
-        setProject(data.project);
-        setLlmConfigured(Boolean(data.llmConfigured));
-        setIntensity(data.project?.critique?.intensity ?? "balanced");
-        if (data.project?.seminar) {
-          setSeminarDuration(data.project.seminar.durationMin);
-          setSeminarLang(data.project.seminar.language);
-        }
-      } catch (e) {
-        if (alive) setError(e instanceof Error ? e.message : "加载失败");
-      }
+    void (async () => {
+      await load();
     })();
-    return () => {
-      alive = false;
-    };
-  }, [id]);
+  }, [load]);
 
   // 数字键 1-7 直跳页签;输入类控件聚焦或带修饰键时忽略
   useEffect(() => {
@@ -518,11 +542,30 @@ export default function Workspace() {
           </span>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <StepBadge done label="上传解析" current={tab === "overview"} onClick={() => switchTab("overview", true)} />
-          <StepBadge done={Boolean(project.critique)} label="Critique" current={tab === "critique"} onClick={() => switchTab("critique", true)} />
-          <StepBadge done={Boolean(project.reviews?.length)} label="模拟审稿" current={tab === "review"} onClick={() => switchTab("review", true)} />
-          <StepBadge done={threads.some((t) => t.draft || t.polished)} label="回复审稿人" current={tab === "response"} onClick={() => switchTab("response", true)} />
-          <StepBadge done={Boolean(project.coverLetter)} label="Cover Letter" current={tab === "cover"} onClick={() => switchTab("cover", true)} />
+          {(
+            [
+              { key: "overview", label: "上传解析", done: true },
+              { key: "critique", label: "Critique", done: Boolean(project.critique) },
+              { key: "review", label: "模拟审稿", done: Boolean(project.reviews?.length) },
+              { key: "response", label: "回复审稿人", done: threads.some((t) => t.draft || t.polished) },
+              { key: "cover", label: "Cover Letter", done: Boolean(project.coverLetter) },
+            ] as Array<{ key: Tab; label: string; done: boolean }>
+          ).map((st, i) => (
+            <Fragment key={st.key}>
+              {i > 0 && (
+                <span
+                  aria-hidden
+                  className={`mx-0.5 h-px w-4 ${st.done ? "bg-accent/40" : "bg-line"}`}
+                />
+              )}
+              <StepBadge
+                done={st.done}
+                label={st.label}
+                current={tab === st.key}
+                onClick={() => switchTab(st.key, true)}
+              />
+            </Fragment>
+          ))}
         </div>
       </div>
 
@@ -565,7 +608,10 @@ export default function Workspace() {
         <div className="space-y-5">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="panel rounded-xl border border-line bg-white p-5">
-              <h3 className="text-[13px] font-semibold">脱敏报告</h3>
+              <h3 className="flex items-center gap-2 text-[13px] font-semibold">
+                <IconChip icon={ShieldCheck} tone="emerald" size="sm" />
+                脱敏报告
+              </h3>
               <p className="mt-2 flex items-baseline gap-1.5">
                 <span className="text-3xl font-semibold text-emerald-600">{project.sanitize.redactions}</span>
                 <span className="text-[13px] text-ink-soft">处敏感信息已替换为占位符</span>
@@ -586,7 +632,10 @@ export default function Workspace() {
               )}
             </div>
             <div className="panel rounded-xl border border-line bg-white p-5">
-              <h3 className="text-[13px] font-semibold">稿件信息</h3>
+              <h3 className="flex items-center gap-2 text-[13px] font-semibold">
+                <IconChip icon={Files} tone="ink" size="sm" />
+                稿件信息
+              </h3>
               <dl className="mt-3 space-y-3 text-[13px]">
                 <div>
                   <dt className="text-xs text-ink-faint">源文件</dt>
@@ -614,7 +663,10 @@ export default function Workspace() {
           </div>
 
           <div className="panel rounded-xl border border-line bg-white p-5">
-            <h3 className="text-[13px] font-semibold">章节结构({project.sections.length})</h3>
+            <h3 className="flex items-center gap-2 text-[13px] font-semibold">
+              <IconChip icon={ListChecks} size="sm" />
+              章节结构({project.sections.length})
+            </h3>
             <ul className="mt-3 divide-y divide-line text-[13px]">
               {project.sections.map((s) => (
                 <li key={s.id} className="-mx-2 flex items-center gap-3 rounded-md px-2 py-2 transition hover:bg-band">
@@ -759,17 +811,25 @@ export default function Workspace() {
                 </p>
               ))}
               <ul className="panel divide-y divide-line rounded-xl border border-line bg-white">
-                {critiqueItems.map((item, i) => (
+                {critiqueItems.map((item, i) => {
+                  const SevIcon = SEVERITY_ICON[item.severity];
+                  const CatIcon = CATEGORY_ICON[item.category] ?? Brain;
+                  return (
                   <li
                     key={item.id}
                     style={{ animationDelay: `${Math.min(i * 30, 240)}ms` }}
                     className={`stagger p-4 transition hover:bg-band/40 ${item.adopted ? "bg-emerald-50/40" : ""}`}
                   >
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${SEVERITY_STYLE[item.severity]}`}>
+                      <span className="w-6 shrink-0 text-xs font-medium tabular-nums text-ink-faint">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${SEVERITY_STYLE[item.severity]}`}>
+                        <SevIcon className="h-3 w-3" strokeWidth={2} aria-hidden />
                         {SEVERITY_LABEL[item.severity]}
                       </span>
-                      <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[11px] text-accent">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 text-[11px] text-accent">
+                        <CatIcon className="h-3 w-3" strokeWidth={1.75} aria-hidden />
                         {CATEGORY_LABEL[item.category] ?? item.category}
                       </span>
                       <span className="text-xs text-ink-faint">{item.section}</span>
@@ -791,7 +851,8 @@ export default function Workspace() {
                     <p className="mt-2 text-[13px] leading-relaxed text-ink">{item.comment}</p>
                     <p className="mt-2 rounded-xl bg-accent-soft px-3 py-2 text-[13px] leading-relaxed text-accent">{item.suggestion}</p>
                   </li>
-                ))}
+                  );
+                })}
               </ul>
               {critiqueItems.length === 0 && <p className="py-8 text-center text-[13px] text-ink-faint">该严重程度下暂无条目。</p>}
             </>
@@ -803,12 +864,15 @@ export default function Workspace() {
         <div className="space-y-3">
           <div className="panel rounded-xl border border-line bg-white p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="min-w-0">
+              <div className="flex min-w-0 items-start gap-2">
+                <IconChip icon={BookOpen} size="sm" />
+                <div className="min-w-0">
                 <h3 className="text-[13px] font-semibold">文献对标(审稿依据)</h3>
                 <p className="mt-1 max-w-xl text-xs leading-relaxed text-ink-faint">
                   检索近三年真实文献作为审稿依据:审稿人讨论文献缺口时只引用这些真实论文,
                   杜绝编造引用。来源 OpenAlex / Semantic Scholar。
                 </p>
+                </div>
               </div>
               <div className="flex shrink-0 gap-2">
                 <button
@@ -891,7 +955,10 @@ export default function Workspace() {
                   className="stagger flex flex-col panel rounded-xl border border-line bg-white p-5"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <h3 className="min-w-0 truncate text-[13px] font-semibold">{r.label}</h3>
+                    <div className="flex min-w-0 items-center gap-2">
+                      <IconChip icon={PERSONA_ICON[r.persona] ?? FlaskConical} size="sm" />
+                      <h3 className="min-w-0 truncate text-[13px] font-semibold">{r.label}</h3>
+                    </div>
                     <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${REC_STYLE[r.recommendation]}`}>
                       {REC_LABEL[r.recommendation] ?? r.recommendation}
                     </span>
@@ -979,14 +1046,27 @@ export default function Workspace() {
             </p>
           ) : (
             <div className="panel divide-y divide-line rounded-xl border border-line bg-white">
-              {visibleThreads.map((t, i) => (
+              {visibleThreads.map((t, i) => {
+                const rid = /#(\d+)/.exec(t.reviewer)?.[1];
+                return (
                 <div
                   key={t.commentId}
                   style={{ animationDelay: `${Math.min(i * 30, 240)}ms` }}
                   className="stagger p-4 sm:p-5"
                 >
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${t.type === "major" ? "border border-red-200 bg-red-50 text-red-700" : "border border-amber-200 bg-amber-50 text-amber-700"}`}>
+                    <span
+                      aria-hidden
+                      className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-accent-soft text-[10px] font-semibold text-accent"
+                    >
+                      {rid ? `R${rid}` : "R"}
+                    </span>
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${t.type === "major" ? "border border-red-200 bg-red-50 text-red-700" : "border border-amber-200 bg-amber-50 text-amber-700"}`}>
+                      {t.type === "major" ? (
+                        <AlertCircle className="h-3 w-3" strokeWidth={2} aria-hidden />
+                      ) : (
+                        <MinusCircle className="h-3 w-3" strokeWidth={2} aria-hidden />
+                      )}
                       {t.type === "major" ? "Major" : "Minor"}
                     </span>
                     <span className="text-[13px] font-medium">{t.reviewer}</span>
@@ -1045,7 +1125,8 @@ export default function Workspace() {
                     />
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -1082,7 +1163,10 @@ export default function Workspace() {
           ) : (
             <div className="panel rounded-xl border border-line bg-white p-6 sm:p-8">
               <div className="mb-4 flex items-center justify-between border-b border-line pb-3">
-                <p className="text-[13px] font-semibold tracking-tight">Cover Letter Draft</p>
+                <p className="flex items-center gap-2 text-[13px] font-semibold tracking-tight">
+                  <IconChip icon={Mail} size="sm" />
+                  Cover Letter Draft
+                </p>
                 <div className="flex items-center gap-2">
                   <CopyButton text={project.coverLetter.content} label="复制全文" />
                   <a
@@ -1104,6 +1188,7 @@ export default function Workspace() {
       {tab === "seminar" && (
         <div className="space-y-3">
           <div className="panel flex flex-wrap items-center gap-3 rounded-xl border border-line bg-white p-4">
+            <IconChip icon={Presentation} size="sm" />
             <label className="flex items-center gap-2 text-[13px] text-ink-soft">
               时长
               <select

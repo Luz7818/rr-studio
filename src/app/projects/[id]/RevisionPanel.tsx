@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Upload } from "lucide-react";
+import { CalendarCheck, GitCompareArrows, Sparkles, Upload } from "lucide-react";
+import IconChip from "@/components/IconChip";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import SegmentedControl from "@/components/SegmentedControl";
 import type { Project, RevisionDiffItem } from "@/lib/types";
@@ -127,7 +128,10 @@ export default function RevisionPanel({
     <div className="space-y-3">
       <div className="panel rounded-xl border border-line bg-white p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-[13px] font-semibold">修改稿对照</h3>
+          <h3 className="flex items-center gap-2 text-[13px] font-semibold">
+            <IconChip icon={GitCompareArrows} size="sm" />
+            修改稿对照
+          </h3>
           {rev && (
             <button
               onClick={() => setConfirmClear(true)}
@@ -231,7 +235,10 @@ export default function RevisionPanel({
 
       {rev?.summaryReady && (
         <div className="panel rounded-xl border border-line bg-white p-5">
-          <h3 className="font-semibold">AI 总评</h3>
+          <h3 className="flex items-center gap-2 font-semibold">
+            <IconChip icon={Sparkles} size="sm" />
+            AI 总评
+          </h3>
           <p className="mt-2 text-sm leading-relaxed text-ink">{rev.overall}</p>
           <h4 className="mt-4 text-sm font-medium text-ink-soft">逐节差异({rev.diff.length})</h4>
           <ul className="mt-2 space-y-2">
@@ -251,7 +258,10 @@ export default function RevisionPanel({
       {rev && committedThreads.length > 0 && (
         <div className="panel rounded-xl border border-line bg-white p-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h3 className="font-semibold">承诺兑现核查</h3>
+            <h3 className="flex items-center gap-2 font-semibold">
+            <IconChip icon={CalendarCheck} size="sm" />
+            承诺兑现核查
+          </h3>
             <button
               onClick={() => void runPromiseCheck()}
               disabled={busy !== null}

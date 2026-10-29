@@ -62,6 +62,26 @@
   白色活动块**滑动过渡**(220ms 统一缓动,只动 transform/width;键盘/reduced-motion 直跳)。
 - 列表优先于卡片:同质内容(Critique 条目、回复线程、讲稿页)用 `divide-y` 行列表装进
   一个容器,行 hover 用 `bg-band/40`,不用逐行卡片。
+
+## 装饰词汇(v0.15,对齐 flolab「白底承载彩色图形」)
+
+- **面板标题图标芯片** `components/IconChip.tsx`:卡片头部统一装饰位——圆形浅底座
+  (accent-soft / band / emerald-50 / amber-50)+ 14px Lucide 线性图标。所有内容卡标题
+  都应带一枚;新卡照抄,不再手写。
+- **几何装饰角件** `components/DecoCluster.tsx`:圆环 + 十字 + 实心点组合 SVG,仅令牌色
+  低饱和(#ececf0/#eeeefc/#d9d5f8),用于登录/注册卡等静态角落;父容器 `relative
+  overflow-hidden`,元素 `aria-hidden`。
+- **点阵变体**:`bg-dots`(hero 专用)/ `bg-dots-faint`(卡内铺底,如上传拖放区、定价标题)/
+  `bg-dots-light`(深色 CTA 白点阵)。
+- **语义图形**:严重度徽章带 AlertCircle/MinusCircle/Lightbulb 微图标;Critique 类别徽章
+  按 逻辑=Brain / 表达=Type / 语法=SpellCheck / 风格=PenLine 配图;三位审稿人有固定形象
+  图标(方法=FlaskConical / 统计=Sigma / 领域=Crown)并出现在审稿卡与回复线程头像(R1/R2/R3)
+  中;使用指南七步各配一枚图标芯片。
+- **管线轨**:工作台顶部步骤徽章之间以 1px 连接线衔接,完成段为 `accent/40`,未完成为
+  `line`——流水线进度的静态可视化。
+- **序号**:Critique 条目与指南步骤用两位 `tabular-nums` 序号(01…),文档式排布。
+- **纪律**:装饰只占小面积、只用令牌色、一律 `aria-hidden`、不抢内容层级;同一视图装饰
+  元素不超过两类(如:芯片 + 一处点阵)。
 - 点阵装饰 `.bg-dots` + 径向蒙版:仅落地页 hero;悬浮胶囊标签(黑/主色底白字)仅落地页 mockup。
 
 ## 排版

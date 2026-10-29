@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import DecoCluster from "@/components/DecoCluster";
 
 function LoginForm() {
   const router = useRouter();
@@ -36,6 +37,7 @@ function LoginForm() {
 
   return (
     <form onSubmit={submit} className="rise-in panel w-full max-w-sm space-y-4 rounded-xl border border-line bg-white p-8">
+      <DecoCluster className="-right-2 -top-2" />
       <div className="flex items-center gap-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.svg" alt="" className="h-10 w-10 rounded-full" />

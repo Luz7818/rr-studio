@@ -76,6 +76,18 @@ html {
   background-size: 22px 22px;
 }
 
+/* 点阵弱化版:卡片内部与浅色底上的大面积铺底 */
+.bg-dots-faint {
+  background-image: radial-gradient(circle, rgba(81, 71, 229, 0.1) 1.2px, transparent 1.2px);
+  background-size: 18px 18px;
+}
+
+/* 深色底上的白色点阵(落地页 CTA) */
+.bg-dots-light {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.14) 1.2px, transparent 1.2px);
+  background-size: 22px 22px;
+}
+
 /* 浮岛卡片默认阴影:弹层与落地页浮标使用 */
 .card-shadow {
   box-shadow:

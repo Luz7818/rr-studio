@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft, Building2, Check, Sprout, Zap } from "lucide-react";
+import IconChip from "@/components/IconChip";
 import MarketingNav from "@/components/MarketingNav";
 import { PLAN_UPGRADE_SQL } from "@/lib/quota";
 
@@ -33,7 +34,10 @@ export default function PricingPage() {
       <MarketingNav />
       <div className="mx-auto max-w-4xl space-y-8 px-4 py-12">
       <div className="text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">定价</h1>
+        <h1 className="relative inline-block text-2xl font-semibold tracking-tight">
+            <span aria-hidden className="bg-dots-faint absolute inset-x-[-18px] inset-y-[-10px] -z-10" />
+            定价
+          </h1>
         <p className="mt-2 text-sm text-ink-soft">一次专业润色机构的单篇收费 ¥3000+,Pro 订阅每月不到一顿饭钱。</p>
       </div>
 
@@ -46,7 +50,10 @@ export default function PricingPage() {
             }`}
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-[15px] font-semibold">{t.name}</h2>
+              <div className="flex items-center gap-2">
+                <IconChip icon={t.name === "Pro" ? Zap : t.name === "Lab" ? Building2 : Sprout} size="sm" />
+                <h2 className="text-[15px] font-semibold">{t.name}</h2>
+              </div>
               {t.cta && (
                 <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-medium text-white">{t.cta}</span>
               )}

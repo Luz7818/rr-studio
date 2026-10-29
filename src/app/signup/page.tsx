@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import DecoCluster from "@/components/DecoCluster";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -41,7 +42,8 @@ export default function SignupPage() {
   return (
     <div className="flex min-h-dvh items-center justify-center px-4">
       <form onSubmit={submit} className="rise-in panel w-full max-w-sm space-y-4 rounded-xl border border-line bg-white p-8">
-        <div className="flex items-center gap-3">
+        <DecoCluster className="-right-2 -top-2" />
+      <div className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.svg" alt="" className="h-10 w-10 rounded-full" />
           <h1 className="text-lg font-semibold tracking-tight">注册 R&amp;R Studio</h1>

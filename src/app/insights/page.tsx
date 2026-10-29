@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarCheck, Files, Gauge, Layers, LineChart, ListChecks, ScanSearch, UserCheck } from "lucide-react";
+import IconChip from "@/components/IconChip";
 import EmptyArt from "@/components/EmptyArt";
 import FillBar from "@/components/FillBar";
 
@@ -65,10 +66,20 @@ function useCountUp(target: number, duration = 600) {
   return value;
 }
 
+const STAT_ICONS: Record<string, typeof Files> = {
+  累计稿件: Files,
+  已模拟审稿: UserCheck,
+  "Critique 条数": ListChecks,
+};
+
 function StatCard({ label, value }: { label: string; value: number }) {
   const shown = useCountUp(value);
+  const Icon = STAT_ICONS[label] ?? Files;
   return (
     <div className="panel rounded-xl border border-line bg-white p-5 text-center">
+      <span aria-hidden className="mx-auto mb-2 grid h-8 w-8 place-items-center rounded-full bg-accent-soft text-accent">
+        <Icon className="h-4 w-4" strokeWidth={1.75} />
+      </span>
       <p className="text-3xl font-semibold text-accent">{shown}</p>
       <p className="mt-1 text-sm text-ink-soft">{label}</p>
     </div>
@@ -172,7 +183,10 @@ export default function InsightsPage() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="panel rounded-xl border border-line bg-white p-5">
-          <h2 className="font-semibold">三位审稿人的录用建议分布</h2>
+          <h2 className="flex items-center gap-2 font-semibold">
+            <IconChip icon={Gauge} size="sm" />
+            三位审稿人的录用建议分布
+          </h2>
           <div className="mt-3 space-y-3">
             {data.recommendations.map((r) => (
               <div key={r.persona} className="text-sm">
@@ -190,7 +204,10 @@ export default function InsightsPage() {
         </div>
 
         <div className="panel rounded-xl border border-line bg-white p-5">
-          <h2 className="font-semibold">Critique 问题类型分布</h2>
+          <h2 className="flex items-center gap-2 font-semibold">
+            <IconChip icon={Layers} size="sm" />
+            Critique 问题类型分布
+          </h2>
           {data.categories.length === 0 ? (
             <p className="mt-3 text-sm text-ink-faint">暂无数据,先在稿件里生成 Critique 报告。</p>
           ) : (
@@ -218,7 +235,10 @@ export default function InsightsPage() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="panel rounded-xl border border-line bg-white p-5">
-          <h2 className="font-semibold">审稿人命中率</h2>
+          <h2 className="flex items-center gap-2 font-semibold">
+            <IconChip icon={ScanSearch} size="sm" />
+            审稿人命中率
+          </h2>
           <p className="mt-1 text-xs text-ink-faint">你标记为「有道理」的意见占比——衡量每类审稿人的意见可信度。</p>
           <div className="mt-3 space-y-2">
             {data.hitRates.map((h) => (
@@ -233,7 +253,10 @@ export default function InsightsPage() {
           </div>
         </div>
         <div className="panel rounded-xl border border-line bg-white p-5">
-          <h2 className="font-semibold">承诺兑现率</h2>
+          <h2 className="flex items-center gap-2 font-semibold">
+            <IconChip icon={CalendarCheck} tone="emerald" size="sm" />
+            承诺兑现率
+          </h2>
           <p className="mt-1 text-xs text-ink-faint">回复信里答应的修改,在修改稿中兑现的情况。</p>
           {data.promises.total === 0 ? (
             <p className="mt-3 text-sm text-ink-faint">暂无承诺核查记录。</p>
@@ -264,7 +287,10 @@ export default function InsightsPage() {
       </div>
 
       <div className="panel rounded-xl border border-line bg-white p-5">
-        <h2 className="font-semibold">审稿时间线</h2>
+        <h2 className="flex items-center gap-2 font-semibold">
+            <IconChip icon={LineChart} size="sm" />
+            审稿时间线
+          </h2>
         {data.timeline.length === 0 ? (
           <p className="mt-3 text-sm text-ink-faint">暂无已审稿的稿件。</p>
         ) : (

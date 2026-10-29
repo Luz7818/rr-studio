@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ArrowRight, Upload, X } from "lucide-react";
+import { ArrowRight, FilePlus2, Upload, X } from "lucide-react";
+import IconChip from "@/components/IconChip";
 import SegmentedControl from "@/components/SegmentedControl";
 
 /** 与文件选择框 accept 一致;单文件上限 30MB(unpdf/mammoth 在更大文件上易 OOM 或超时) */
@@ -68,7 +69,10 @@ export default function Uploader({ onCreated }: { onCreated: (id: string) => voi
   return (
     <section className="panel rounded-xl border border-line bg-white p-6">
       <div className="mb-5 flex items-center justify-between">
-        <h2 className="text-[15px] font-semibold">新建稿件</h2>
+        <h2 className="flex items-center gap-2 text-[15px] font-semibold">
+          <IconChip icon={FilePlus2} />
+          新建稿件
+        </h2>
         <SegmentedControl
           value={mode}
           onChange={setMode}
@@ -96,7 +100,7 @@ export default function Uploader({ onCreated }: { onCreated: (id: string) => voi
           className={`group cursor-pointer rounded-2xl border border-dashed px-6 py-10 text-center transition ${
             dragging
               ? "border-accent bg-accent-soft/60"
-              : "border-line hover:border-accent/60 hover:bg-accent-soft/30"
+              : "border-line bg-dots-faint hover:border-accent/60 hover:bg-accent-soft/30"
           }`}
         >
           <input
@@ -106,12 +110,18 @@ export default function Uploader({ onCreated }: { onCreated: (id: string) => voi
             className="hidden"
             onChange={(e) => pickFile(e.target.files?.[0] ?? null)}
           />
-          <Upload
-            className={`mx-auto mb-3 h-5 w-5 text-ink-faint transition-all duration-200 group-hover:-translate-y-0.5 group-hover:text-accent ${
-              dragging ? "-translate-y-1 text-accent" : ""
+          <span
+            className={`mx-auto mb-3 grid h-11 w-11 place-items-center rounded-full transition-colors duration-200 ${
+              dragging ? "bg-accent-soft text-accent" : "bg-accent-soft/60 text-ink-faint group-hover:text-accent"
             }`}
-            strokeWidth={1.5}
-          />
+          >
+            <Upload
+              className={`h-5 w-5 transition-transform duration-200 group-hover:-translate-y-0.5 ${
+                dragging ? "-translate-y-1" : ""
+              }`}
+              strokeWidth={1.5}
+            />
+          </span>
           {file ? (
             <div>
               <p className="text-sm font-medium text-accent">{file.name}</p>
