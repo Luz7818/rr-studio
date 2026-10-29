@@ -21,13 +21,8 @@ body {
     system-ui,
     -apple-system,
     sans-serif;
-  /* 底图质感:顶部靛蓝微光让白岛浮起 + 细颗粒噪声提供纸面触感(纯 CSS/SVG,零请求) */
-  background:
-    radial-gradient(1100px 420px at 50% -120px, rgba(81, 71, 229, 0.07), transparent 70%)
-      no-repeat,
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")
-      repeat,
-    #fafafb;
+  /* isolation 使 .page-deco 的 -z10 层落在 body 背景之上、内容之下 */
+  isolation: isolate;
   color: var(--color-ink);
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
@@ -43,6 +38,11 @@ html {
   scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: #d6d6de transparent;
+  /* 底图基层:细颗粒噪声提供整页纸面触感(0.07) */
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E")
+      repeat,
+    #fafafb;
 }
 
 ::-webkit-scrollbar {
@@ -74,6 +74,24 @@ html {
     animation: none !important;
     transition: none !important;
   }
+}
+
+/* 页面顶部级感底图:三团靛蓝/紫罗兰极光 + 十字网格纹理(呼应 DecoCluster 母题),
+   660px 内向下渐隐——白岛浮在有色底上,滚动后回归安静 */
+.page-deco {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 660px;
+  z-index: -10;
+  pointer-events: none;
+  background:
+    radial-gradient(640px 320px at 16% 0%, rgba(109, 94, 240, 0.16), transparent 62%),
+    radial-gradient(760px 360px at 84% 4%, rgba(81, 71, 229, 0.13), transparent 62%),
+    radial-gradient(900px 420px at 50% -80px, rgba(129, 140, 248, 0.14), transparent 68%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26'%3E%3Cpath d='M13 9v8M9 13h8' stroke='rgba(81,71,229,0.10)' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E")
+      repeat;
+  mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
 }
 
 /* flolab 式点阵装饰(仅落地页 hero) */

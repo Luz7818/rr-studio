@@ -38,6 +38,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="zh-CN" data-scroll-behavior="smooth">
       <body className="antialiased" data-bare={bare ? "true" : undefined}>
+        <div aria-hidden className="page-deco" />
         {bare ? (
           children
         ) : (

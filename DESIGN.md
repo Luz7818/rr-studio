@@ -31,9 +31,11 @@
 | `accent` | `#5147e5` | 唯一主色:主按钮、链接、活动态、数据条 |
 | `accent-soft` | `#eeeefc` | 主色浅底:活动导航、AI 产出块 |
 
-实际取值以 `globals.css` 为准。页面底色 `#fafafb`,其上叠两层质感底图(globals body
-多层背景,纯 CSS/SVG 零请求):顶部 `rgba(81,71,229,0.07)` 径向微光让白色浮岛浮起,
-180px 平铺 `feTurbulence` 细颗粒噪声(rect opacity 0.05)提供纸面触感。改底色时三层一起动。
+实际取值以 `globals.css` 为准。页面底色 `#fafafb`,其上两层质感底图(纯 CSS/SVG 零请求):
+① `html` 平铺 `feTurbulence` 细颗粒噪声(rect opacity 0.07)提供整页纸面触感;
+② `layout` 首个元素的 `.page-deco` 顶部级底图(660px 渐隐)——三团靛蓝/紫罗兰极光
+(0.13–0.16)+ 十字网格纹理(0.10,呼应 DecoCluster 母题)。body `isolation: isolate`
+使 `.page-deco`(-z10)落在背景之上、内容之下;改底色/光强时按层调整。
 
 **状态色纪律**(Major/Minor/裁决/核查结论专用,不得当装饰):
 
