@@ -13,6 +13,8 @@ export interface SanitizeReport {
 
 export type Severity = "major" | "minor" | "suggestion";
 export type Category = "logic" | "expression" | "grammar" | "style";
+/** Critique 口径:strict = 顶刊最挑剔审稿人;balanced = 默认;gentle = 只报高信号问题 */
+export type CritiqueIntensity = "strict" | "balanced" | "gentle";
 
 export interface CritiqueItem {
   id: string;
@@ -31,6 +33,8 @@ export interface CritiqueItem {
 export interface CritiqueReport {
   createdAt: string;
   items: CritiqueItem[];
+  /** 生成本报告用的口径,旧数据缺省按 balanced 展示 */
+  intensity?: CritiqueIntensity;
   errors?: string[];
 }
 

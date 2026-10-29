@@ -1,4 +1,4 @@
-import type { Persona } from "./types";
+import type { CritiqueIntensity, Persona } from "./types";
 
 export const PERSONAS: Array<{ key: Persona; label: string }> = [
   { key: "methodologist", label: "Reviewer #1 · 方法论苛刻型" },
@@ -25,9 +25,23 @@ Rules:
 - Be specific. Never write generic advice like "improve the writing".
 - comment 用中文解释;suggestion 中的英文改写必须是地道的学术英语。`;
 
-export function critiquePrompt(sectionHeading: string, text: string, targetJournal?: string) {
+/** 口径附加规则:strict 追加施压,gentle 只留高信号问题 */
+const INTENSITY_RULES: Record<CritiqueIntensity, string> = {
+  strict:
+    "\nIntensity: MAXIMALLY DEMANDING — review like the most critical referee of a top-tier journal. Surface every weakness a referee could seize on, including borderline methodological concerns, missing comparisons, and overclaims. Expect 5-8 items per section; never pad with trivia to reach the count.",
+  balanced: "",
+  gentle:
+    "\nIntensity: HIGH-SIGNAL ONLY — report only 1-3 issues per section that could genuinely risk rejection or major revision (logic and methodology first). Skip grammar and minor wording entirely unless meaning is obscured. Tone stays constructive.",
+};
+
+export function critiquePrompt(
+  sectionHeading: string,
+  text: string,
+  targetJournal?: string,
+  intensity: CritiqueIntensity = "balanced",
+) {
   const user = `目标期刊: ${targetJournal?.trim() || "未指定(按 top-tier 工程类期刊标准)"}\n章节: ${sectionHeading}\n\n正文:\n"""\n${text}\n"""`;
-  return { system: CRITIQUE_SYSTEM, user };
+  return { system: CRITIQUE_SYSTEM + INTENSITY_RULES[intensity], user };
 }
 
 const PERSONA_DESCRIPTIONS: Record<Persona, string> = {

@@ -101,9 +101,16 @@ await step("文献对标(自定义检索词)", async () => {
   assert(lit.queries.join(" ").includes("adaptive traffic signal"), "检索词未采用手动输入");
 });
 
-await step("Critique 报告", async () => {
-  const d = await json(await fetch(`${BASE}/api/projects/${projectId}/critique`, { method: "POST" }));
+await step("Critique 报告(苛刻口径)", async () => {
+  const d = await json(
+    await fetch(`${BASE}/api/projects/${projectId}/critique`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ intensity: "strict" }),
+    }),
+  );
   assert(d.project.critique.items.length > 0, "items 为空");
+  assert(d.project.critique.intensity === "strict", "口径未随报告落库");
 });
 
 await step("模拟审稿 + 回复线程", async () => {

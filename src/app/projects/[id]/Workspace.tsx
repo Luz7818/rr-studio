@@ -12,7 +12,7 @@ import {
   Lightbulb,
   X,
 } from "lucide-react";
-import type { CritiqueItem, Project, ResponseThread, Severity } from "@/lib/types";
+import type { CritiqueIntensity, CritiqueItem, Project, ResponseThread, Severity } from "@/lib/types";
 import EmptyArt from "@/components/EmptyArt";
 import FillBar from "@/components/FillBar";
 import SegmentedControl from "@/components/SegmentedControl";
@@ -211,6 +211,8 @@ export default function Workspace() {
   const [severityFilter, setSeverityFilter] = useState<"all" | Severity>("all");
   const [seminarDuration, setSeminarDuration] = useState<5 | 10 | 15>(10);
   const [seminarLang, setSeminarLang] = useState<"zh" | "en">("zh");
+  /** Critique 口径:重新生成时随请求发送;已生成的报告记录自己用过的口径 */
+  const [intensity, setIntensity] = useState<CritiqueIntensity>("balanced");
   const [batch, setBatch] = useState<{ total: number; done: number } | null>(null);
   /** 聚焦时的标题快照:失焦时对比,避免 onChange 已改 state 导致误判「未变化」 */
   const titleOnFocus = useRef("");
@@ -239,6 +241,7 @@ export default function Workspace() {
       if (!res.ok) throw new Error(data.error ?? "加载失败");
       setProject(data.project);
       setLlmConfigured(Boolean(data.llmConfigured));
+      setIntensity(data.project?.critique?.intensity ?? "balanced");
       if (data.project?.seminar) {
         setSeminarDuration(data.project.seminar.durationMin);
         setSeminarLang(data.project.seminar.language);
@@ -258,6 +261,7 @@ export default function Workspace() {
         if (!res.ok) throw new Error(data.error ?? "加载失败");
         setProject(data.project);
         setLlmConfigured(Boolean(data.llmConfigured));
+        setIntensity(data.project?.critique?.intensity ?? "balanced");
         if (data.project?.seminar) {
           setSeminarDuration(data.project.seminar.durationMin);
           setSeminarLang(data.project.seminar.language);
@@ -616,9 +620,19 @@ export default function Workspace() {
             </ul>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <SegmentedControl
+              value={intensity}
+              onChange={setIntensity}
+              ariaLabel="Critique 口径"
+              options={[
+                { value: "strict", label: "苛刻", title: "顶刊最挑剔审稿人:每节 5–8 条,不放过边缘问题" },
+                { value: "balanced", label: "均衡" },
+                { value: "gentle", label: "温和", title: "只报真正影响录用的 1–3 条高信号问题" },
+              ]}
+            />
             <button
-              onClick={() => void runPipeline("critique", "critique")}
+              onClick={() => void runPipeline("critique", "critique", { intensity })}
               disabled={busy !== null}
               className="btn-primary press rounded-full bg-accent px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
             >
@@ -678,8 +692,19 @@ export default function Workspace() {
                 })}
               />
               <div className="ml-auto flex items-center gap-2">
+                <span className="hidden text-xs text-ink-faint sm:inline">口径</span>
+                <SegmentedControl
+                  value={intensity}
+                  onChange={setIntensity}
+                  ariaLabel="Critique 口径"
+                  options={[
+                    { value: "strict", label: "苛刻", title: "顶刊最挑剔审稿人:每节 5–8 条,不放过边缘问题" },
+                    { value: "balanced", label: "均衡" },
+                    { value: "gentle", label: "温和", title: "只报真正影响录用的 1–3 条高信号问题" },
+                  ]}
+                />
                 <button
-                  onClick={() => void runPipeline("critique")}
+                  onClick={() => void runPipeline("critique", undefined, { intensity })}
                   disabled={busy !== null}
                   className="press rounded-full border border-accent/30 px-4 py-1.5 text-[13px] text-accent transition hover:bg-accent-soft disabled:opacity-50"
                 >
@@ -709,7 +734,7 @@ export default function Workspace() {
               hint="尚未生成 Critique 报告。"
               action="逐段从逻辑、表达、语法、风格四个维度给出可直接采纳的修改建议。"
               actionLabel="生成 Critique 报告"
-              onAction={() => void runPipeline("critique", "critique")}
+              onAction={() => void runPipeline("critique", "critique", { intensity })}
               disabled={busy !== null}
             />
           ) : (
