@@ -42,13 +42,13 @@ export default function PricingPage() {
           <div
             key={t.name}
             className={`panel rounded-xl border bg-white p-6 ${
-              t.cta ? "border-accent/50" : "border-line"
+              t.cta ? "card-shadow border-accent/50" : "border-line"
             }`}
           >
             <div className="flex items-center justify-between">
               <h2 className="text-[15px] font-semibold">{t.name}</h2>
               {t.cta && (
-                <span className="rounded-md bg-accent px-1.5 py-0.5 text-[11px] font-medium text-white">{t.cta}</span>
+                <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-medium text-white">{t.cta}</span>
               )}
             </div>
             <p className="mt-3 text-2xl font-semibold text-accent">{t.price}</p>

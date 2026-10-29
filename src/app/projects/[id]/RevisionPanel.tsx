@@ -144,6 +144,7 @@ export default function RevisionPanel({
         {!rev ? (
           <>
             <SegmentedControl
+              className="mb-3"
               value={mode}
               onChange={setMode}
               ariaLabel="修改稿上传方式"

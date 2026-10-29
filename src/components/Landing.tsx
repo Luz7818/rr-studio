@@ -145,14 +145,16 @@ export default function Landing() {
             aria-hidden
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/showcase-review.png" alt="" className="block w-full" />
+            <img src="/showcase-review.png" alt="" width={1600} height={1000} loading="lazy" className="block h-auto w-full" />
           </div>
           <div className="float-soft relative overflow-hidden rounded-2xl border border-accent/25 bg-white shadow-2xl shadow-accent/15">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/showcase-response.png"
               alt="R&R Studio 工作台:审稿意见逐条打磨为正式回复,支持裁决与修改承诺"
-              className="block w-full"
+              width={1600}
+              height={1000}
+              className="block h-auto w-full"
             />
           </div>
           <span className="card-shadow float-soft-slow absolute -left-4 top-10 hidden rounded-full bg-ink px-3.5 py-1.5 text-xs font-medium text-white sm:block">

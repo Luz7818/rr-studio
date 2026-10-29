@@ -2,6 +2,9 @@ import { extractText } from "unpdf";
 import mammoth from "mammoth";
 import type { Section } from "./types";
 
+/** 上传文件大小上限(MB),前端 Uploader 与 API 路由双侧共用同一数值 */
+export const MAX_UPLOAD_MB = 30;
+
 /**
  * 常见 IMRaD 章节标题。行内匹配(整行只有标题,或 IEEE 风格编号标题)。
  */

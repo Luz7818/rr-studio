@@ -53,6 +53,7 @@ export default function SignupPage() {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="邮箱"
           required
+          autoComplete="email"
           className="field w-full rounded-full px-4 py-2.5 text-sm outline-none"
         />
         <input
@@ -62,12 +63,14 @@ export default function SignupPage() {
           placeholder="密码(至少 8 位)"
           required
           minLength={8}
+          autoComplete="new-password"
           className="field w-full rounded-full px-4 py-2.5 text-sm outline-none"
         />
         <input
           value={inviteCode}
           onChange={(e) => setInviteCode(e.target.value)}
           placeholder="邀请码"
+          autoComplete="off"
           className="field w-full rounded-full px-4 py-2.5 text-sm outline-none"
         />
         {error && <p className="rise-in rounded-xl bg-red-50 px-3.5 py-2 text-sm text-red-700">{error}</p>}

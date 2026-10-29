@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BarChart3, RefreshCw, Trash2 } from "lucide-react";
+import { ArrowRight, BarChart3, RefreshCw, Trash2 } from "lucide-react";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import EmptyArt from "@/components/EmptyArt";
 import Uploader from "@/components/Uploader";
@@ -151,8 +151,9 @@ export default function Dashboard() {
           {llmLimit !== null && llmUsed >= llmLimit && (
             <span className="text-amber-700">· LLM 次数已用完</span>
           )}
-          <Link href="/pricing" className="ml-auto text-accent hover:underline">
-            查看方案 →
+          <Link href="/pricing" className="ml-auto inline-flex items-center gap-0.5 text-accent hover:underline">
+            查看方案
+            <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden />
           </Link>
         </div>
       )}

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
-import { extractTextFromFile, sectionize } from "@/lib/parse";
+import { extractTextFromFile, MAX_UPLOAD_MB, sectionize } from "@/lib/parse";
 import { sanitizeText } from "@/lib/sanitize";
 import { isLlmConfigured } from "@/lib/llm";
 import { getApiContext } from "@/lib/auth";
@@ -70,6 +70,12 @@ export async function POST(req: NextRequest) {
       const file = form.get("file");
       if (file && typeof file === "object" && "arrayBuffer" in file) {
         const f = file as File;
+        if (f.size > MAX_UPLOAD_MB * 1024 * 1024) {
+          return NextResponse.json(
+            { error: `文件超过 ${MAX_UPLOAD_MB}MB 上限,请拆分或压缩后上传` },
+            { status: 400 },
+          );
+        }
         fileName = f.name;
         rawText = await extractTextFromFile(f);
       }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import EmptyArt from "@/components/EmptyArt";
 import FillBar from "@/components/FillBar";
 
@@ -251,9 +251,9 @@ export default function InsightsPage() {
                 )}
               </div>
               <div className="flex flex-wrap gap-2 text-sm">
-                <span className="rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">已兑现 × {p.fulfilled}</span>
-                <span className="rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">部分兑现 × {p.partial}</span>
-                <span className="rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700">未兑现 × {p.unmet}</span>
+                <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">已兑现 × {p.fulfilled}</span>
+                <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">部分兑现 × {p.partial}</span>
+                <span className="rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700">未兑现 × {p.unmet}</span>
                 <span className="ml-auto self-center text-xs text-ink-faint">
                   兑现率 {Math.round((p.fulfilled / p.total) * 100)}%
                 </span>
@@ -284,8 +284,10 @@ export default function InsightsPage() {
                 </div>
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
                   {t.recs.map((r, i) => (
-                    <span key={i} className={`rounded-full px-2 py-0.5 ${REC_STYLE[r.recommendation]}`}>
-                      {r.persona.split("·")[0].trim()} → {REC_LABEL[r.recommendation]}
+                    <span key={i} className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 ${REC_STYLE[r.recommendation]}`}>
+                      {r.persona.split("·")[0].trim()}
+                      <ArrowRight className="h-3 w-3" strokeWidth={2} aria-hidden />
+                      {REC_LABEL[r.recommendation]}
                     </span>
                   ))}
                   <span className="text-ink-faint">

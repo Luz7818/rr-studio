@@ -63,6 +63,8 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
         raw = Array.isArray(out.items) ? out.items : [];
       } else {
         raw = mockCritique(sec.heading).items;
+        // 演示模式也让口径可体感:gentle 只保留前 2 条高信号示例
+        if (intensity === "gentle") raw = raw.slice(0, 2);
       }
       for (const r of raw) {
         if (!r.comment || !r.suggestion) continue;

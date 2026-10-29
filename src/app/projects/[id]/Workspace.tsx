@@ -67,13 +67,21 @@ const STATUS_STYLE: Record<Project["status"], string> = {
 
 function CopyButton({ text, label = "复制" }: { text: string; label?: string }) {
   const [copied, setCopied] = useState(false);
+  const timerRef = useRef<number | null>(null);
+  useEffect(
+    () => () => {
+      if (timerRef.current !== null) clearTimeout(timerRef.current);
+    },
+    [],
+  );
   return (
     <button
       onClick={async () => {
         try {
           await navigator.clipboard.writeText(text);
           setCopied(true);
-          setTimeout(() => setCopied(false), 1500);
+          if (timerRef.current !== null) clearTimeout(timerRef.current);
+          timerRef.current = window.setTimeout(() => setCopied(false), 1500);
         } catch {
           setCopied(false);
         }
@@ -501,6 +509,7 @@ export default function Workspace() {
                 setTimeout(() => setTitleSaved(false), 1600);
               }
             }}
+            aria-label="稿件标题"
             className="min-w-0 flex-1 rounded-2xl border border-transparent px-2 py-1 text-xl font-semibold tracking-tight transition hover:border-line focus:border-accent/50 focus:outline-none"
           />
           {titleSaved && <span className="rise-in text-xs text-emerald-600">已保存</span>}
@@ -589,6 +598,7 @@ export default function Workspace() {
                     <input
                       value={project.meta.targetJournal ?? ""}
                       placeholder="如 IEEE Transactions on ITS"
+                      aria-label="目标期刊"
                       onChange={(e) => setProject({ ...project, meta: { ...project.meta, targetJournal: e.target.value } })}
                       onBlur={(e) => void patchProject({ targetJournal: e.target.value })}
                       className="field w-full rounded-full px-3.5 py-2 text-[13px] outline-none"

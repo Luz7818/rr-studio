@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 function LoginForm() {
   const router = useRouter();
@@ -46,6 +47,8 @@ function LoginForm() {
         onChange={(e) => setEmail(e.target.value)}
         placeholder="邮箱"
         required
+        autoFocus
+        autoComplete="email"
         className="field w-full rounded-full px-4 py-2.5 text-sm outline-none"
       />
       <input
@@ -54,6 +57,7 @@ function LoginForm() {
         onChange={(e) => setPassword(e.target.value)}
         placeholder="密码"
         required
+        autoComplete="current-password"
         className="field w-full rounded-full px-4 py-2.5 text-sm outline-none"
       />
       {error && <p className="rise-in rounded-xl bg-red-50 px-3.5 py-2 text-sm text-red-700">{error}</p>}
@@ -64,6 +68,12 @@ function LoginForm() {
       >
         {busy ? "登录中…" : "登录"}
       </button>
+      <p className="text-center text-xs text-ink-faint">
+        <Link href="/" className="inline-flex items-center gap-0.5 transition hover:text-accent">
+          <ArrowLeft className="h-3 w-3" strokeWidth={1.75} aria-hidden />
+          返回首页
+        </Link>
+      </p>
       <p className="text-center text-sm text-ink-soft">
         还没有账号?{" "}
         <Link href="/signup" className="text-accent hover:underline">
