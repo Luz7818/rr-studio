@@ -7,7 +7,10 @@
 - 格式与规则由 **eslint**(`npm run lint`,0 告警 0 错误放行)与 **TypeScript**
   (`npm run build` 内置 tsc)强制。风格分歧以 eslint 结果为准,不在 review 里吵格式。
 - Tailwind v4 令牌定义在 `src/app/globals.css` 的 `@theme`;**禁止硬编码颜色值**,用
-  `ink / ink-soft / ink-faint / band / line / accent / accent-soft` 令牌类。
+  `ink / ink-soft / ink-faint / band / line / accent / accent-soft / page` 令牌类。
+- 响应式网格必须写显式小屏列(如 `grid grid-cols-1 ... sm:grid-cols-2`):小于断点时落入
+  隐式 `auto` 轨道,会按内容最宽处撑破容器(390px 实测溢出的直接成因)。
+- 徽章只允许胶囊(`rounded-full`);chrome 内禁止用几何字符(→ ← ✓)当图标,一律 Lucide。
 
 ## 命名
 
