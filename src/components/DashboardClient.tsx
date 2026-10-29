@@ -125,7 +125,7 @@ export default function Dashboard() {
       )}
 
       {error && (
-        <div className="rise-in flex items-center justify-between gap-3 rounded-2xl border border-red-200/60 bg-red-50 px-4 py-2.5 text-[13px] text-red-700">
+        <div role="alert" className="rise-in flex items-center justify-between gap-3 rounded-2xl border border-red-200/60 bg-red-50 px-4 py-2.5 text-[13px] text-red-700">
           <span>{error}</span>
           <button
             onClick={() => void load()}

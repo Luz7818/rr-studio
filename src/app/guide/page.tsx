@@ -73,7 +73,7 @@ export default function GuidePage() {
         <div className="mt-10 space-y-4">
           {STEPS.map((s, i) => (
             <Reveal key={s.n} delay={Math.min(i * 50, 200)}>
-              <section className="rounded-2xl border border-line bg-white p-6">
+              <section className="panel rounded-2xl border border-line bg-white p-6">
                 <div className="flex items-baseline gap-3">
                   <span className="text-sm font-semibold text-accent">{s.n}</span>
                   <h2 className="text-[15px] font-semibold">{s.title}</h2>

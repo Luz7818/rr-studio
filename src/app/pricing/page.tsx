@@ -41,7 +41,7 @@ export default function PricingPage() {
         {TIERS.map((t) => (
           <div
             key={t.name}
-            className={`rounded-xl border bg-white p-6 ${
+            className={`panel rounded-xl border bg-white p-6 ${
               t.cta ? "border-accent/50" : "border-line"
             }`}
           >

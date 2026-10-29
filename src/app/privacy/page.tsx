@@ -27,7 +27,7 @@ export default function PrivacyPage() {
         </p>
       </div>
 
-      <section className="rounded-xl border border-line bg-white p-6">
+      <section className="panel rounded-xl border border-line bg-white p-6">
         <h2 className="font-semibold">本地模式(未配置 Supabase)</h2>
         <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-ink-soft">
           <li>稿件与所有分析结果只保存在<strong>你自己的电脑</strong>(<code>.data/</code> 目录),不上传任何服务器。</li>
@@ -35,7 +35,7 @@ export default function PrivacyPage() {
         </ul>
       </section>
 
-      <section className="rounded-xl border border-line bg-white p-6">
+      <section className="panel rounded-xl border border-line bg-white p-6">
         <h2 className="font-semibold">SaaS 模式(配置 Supabase 后注册使用)</h2>
         <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-ink-soft">
           <li>稿件存储在 Supabase(行级安全策略限制只有你能读到自己数据)。</li>
@@ -44,7 +44,7 @@ export default function PrivacyPage() {
         </ul>
       </section>
 
-      <section className="rounded-xl border border-line bg-white p-6">
+      <section className="panel rounded-xl border border-line bg-white p-6">
         <h2 className="font-semibold">脱敏做了什么、做不到什么</h2>
         <div className="mt-3 space-y-3 text-sm leading-relaxed text-ink-soft">
           <p>
@@ -59,7 +59,7 @@ export default function PrivacyPage() {
         </div>
       </section>
 
-      <section className="rounded-xl border border-line bg-white p-6">
+      <section className="panel rounded-xl border border-line bg-white p-6">
         <h2 className="font-semibold">给部署者与用户的建议</h2>
         <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-ink-soft">
           <li>SaaS 部署者应选择<strong>不拿用户数据训练模型</strong>的 LLM 供应商,并在供应商侧关闭数据留存(如可配)。</li>

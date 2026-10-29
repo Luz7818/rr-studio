@@ -224,7 +224,7 @@ export default function RevisionPanel({
           </div>
         )}
         {error && (
-          <p className="rise-in mt-3 rounded-xl bg-red-50 px-3.5 py-2 text-sm text-red-700">{error}</p>
+          <p role="alert" className="rise-in mt-3 rounded-xl bg-red-50 px-3.5 py-2 text-sm text-red-700">{error}</p>
         )}
       </div>
 

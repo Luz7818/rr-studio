@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import EmptyArt from "@/components/EmptyArt";
 import FillBar from "@/components/FillBar";
 
 const REC_LABEL: Record<string, string> = {
@@ -119,6 +120,29 @@ export default function InsightsPage() {
   }
 
   const maxCat = Math.max(1, ...data.categories.map((c) => c.count));
+  const p = data.promises;
+  const pct = (n: number) => (p.total > 0 ? (n / p.total) * 100 : 0);
+
+  // 一篇稿件都还没有时,零值仪表没有信息量,直接给行动指引
+  if (data.totalProjects === 0) {
+    return (
+      <div className="rise-in">
+        <div className="panel rounded-2xl border border-dashed border-line py-14 text-center">
+          <EmptyArt />
+          <p className="text-sm text-ink-soft">还没有可分析的数据。</p>
+          <p className="mt-1 text-xs text-ink-faint">
+            上传第一篇稿件并跑一次 Critique 或模拟审稿,这里就会开始沉淀你的审稿画像。
+          </p>
+          <Link
+            href="/"
+            className="btn-primary press mt-4 inline-block rounded-full bg-accent px-5 py-2 text-sm font-medium text-white transition hover:bg-accent/90"
+          >
+            去上传稿件
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="rise-in space-y-6">
@@ -214,13 +238,26 @@ export default function InsightsPage() {
           {data.promises.total === 0 ? (
             <p className="mt-3 text-sm text-ink-faint">暂无承诺核查记录。</p>
           ) : (
-            <div className="mt-3 flex flex-wrap gap-2 text-sm">
-              <span className="rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">已兑现 × {data.promises.fulfilled}</span>
-              <span className="rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">部分兑现 × {data.promises.partial}</span>
-              <span className="rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700">未兑现 × {data.promises.unmet}</span>
-              <span className="ml-auto self-center text-xs text-ink-faint">
-                兑现率 {Math.round((data.promises.fulfilled / data.promises.total) * 100)}%
-              </span>
+            <div className="mt-3 space-y-2.5">
+              <div className="flex h-2.5 overflow-hidden rounded-full bg-band" aria-hidden>
+                {p.fulfilled > 0 && (
+                  <div className="h-full bg-emerald-500" style={{ width: `${pct(p.fulfilled)}%` }} />
+                )}
+                {p.partial > 0 && (
+                  <div className="h-full bg-amber-400" style={{ width: `${pct(p.partial)}%` }} />
+                )}
+                {p.unmet > 0 && (
+                  <div className="h-full bg-red-400" style={{ width: `${pct(p.unmet)}%` }} />
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2 text-sm">
+                <span className="rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">已兑现 × {p.fulfilled}</span>
+                <span className="rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">部分兑现 × {p.partial}</span>
+                <span className="rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700">未兑现 × {p.unmet}</span>
+                <span className="ml-auto self-center text-xs text-ink-faint">
+                  兑现率 {Math.round((p.fulfilled / p.total) * 100)}%
+                </span>
+              </div>
             </div>
           )}
         </div>
@@ -232,8 +269,12 @@ export default function InsightsPage() {
           <p className="mt-3 text-sm text-ink-faint">暂无已审稿的稿件。</p>
         ) : (
           <ul className="mt-3 divide-y divide-line">
-            {data.timeline.map((t) => (
-              <li key={t.id} className="relative py-3 pl-5">
+            {data.timeline.map((t, i) => (
+              <li
+                key={t.id}
+                style={{ animationDelay: `${Math.min(i * 40, 240)}ms` }}
+                className="stagger relative py-3 pl-5"
+              >
                 <span aria-hidden className="absolute left-0 top-[1.4rem] h-2 w-2 rounded-full bg-accent/70" />
                 <div className="flex flex-wrap items-center gap-2">
                   <Link href={`/projects/${t.id}`} className="font-medium text-ink hover:text-accent">

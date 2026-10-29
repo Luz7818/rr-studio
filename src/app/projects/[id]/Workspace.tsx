@@ -59,6 +59,11 @@ const STATUS_LABEL: Record<Project["status"], string> = {
   critiqued: "Critique 完成",
   reviewed: "审稿完成",
 };
+const STATUS_STYLE: Record<Project["status"], string> = {
+  uploaded: "border-line bg-band text-ink-soft",
+  critiqued: "border border-amber-200 bg-amber-50 text-amber-700",
+  reviewed: "border border-emerald-200 bg-emerald-50 text-emerald-700",
+};
 
 function CopyButton({ text, label = "复制" }: { text: string; label?: string }) {
   const [copied, setCopied] = useState(false);
@@ -108,13 +113,34 @@ function CommentQuote({ text }: { text: string }) {
   );
 }
 
-function StepBadge({ done, label }: { done: boolean; label: string }) {
+function StepBadge({
+  done,
+  label,
+  onClick,
+  current = false,
+}: {
+  done: boolean;
+  label: string;
+  /** 已完成的步骤可点击直跳对应页签 */
+  onClick?: () => void;
+  current?: boolean;
+}) {
+  const tone = done ? "text-accent" : "text-ink-faint";
+  const state = current ? "bg-accent-soft/70 font-medium" : "";
+  if (done && onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className={`press inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs transition hover:bg-accent-soft/70 ${tone} ${state}`}
+      >
+        <Check className="h-3.5 w-3.5" strokeWidth={2} />
+        {label}
+      </button>
+    );
+  }
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 text-xs ${
-        done ? "text-accent" : "text-ink-faint"
-      }`}
-    >
+    <span className={`inline-flex items-center gap-1.5 text-xs ${tone} ${state}`}>
       {done ? (
         <Check className="h-3.5 w-3.5" strokeWidth={2} />
       ) : (
@@ -474,16 +500,16 @@ export default function Workspace() {
             className="min-w-0 flex-1 rounded-2xl border border-transparent px-2 py-1 text-xl font-semibold tracking-tight transition hover:border-line focus:border-accent/50 focus:outline-none"
           />
           {titleSaved && <span className="rise-in text-xs text-emerald-600">已保存</span>}
-          <span className="rounded-full border border-line bg-band px-2.5 py-0.5 text-[11px] font-medium text-ink-soft">
+          <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${STATUS_STYLE[project.status] ?? "border-line bg-band text-ink-soft"}`}>
             {STATUS_LABEL[project.status] ?? project.status}
           </span>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <StepBadge done label="上传解析" />
-          <StepBadge done={Boolean(project.critique)} label="Critique" />
-          <StepBadge done={Boolean(project.reviews?.length)} label="模拟审稿" />
-          <StepBadge done={threads.some((t) => t.draft || t.polished)} label="回复审稿人" />
-          <StepBadge done={Boolean(project.coverLetter)} label="Cover Letter" />
+          <StepBadge done label="上传解析" current={tab === "overview"} onClick={() => switchTab("overview", true)} />
+          <StepBadge done={Boolean(project.critique)} label="Critique" current={tab === "critique"} onClick={() => switchTab("critique", true)} />
+          <StepBadge done={Boolean(project.reviews?.length)} label="模拟审稿" current={tab === "review"} onClick={() => switchTab("review", true)} />
+          <StepBadge done={threads.some((t) => t.draft || t.polished)} label="回复审稿人" current={tab === "response"} onClick={() => switchTab("response", true)} />
+          <StepBadge done={Boolean(project.coverLetter)} label="Cover Letter" current={tab === "cover"} onClick={() => switchTab("cover", true)} />
         </div>
       </div>
 
@@ -493,7 +519,7 @@ export default function Workspace() {
         </div>
       )}
       {error && (
-        <div className="rise-in rounded-2xl border border-red-200/60 bg-red-50 px-4 py-2.5 text-[13px] text-red-700">{error}</div>
+        <div role="alert" className="rise-in rounded-2xl border border-red-200/60 bg-red-50 px-4 py-2.5 text-[13px] text-red-700">{error}</div>
       )}
 
       {/* 页签条吸顶:长内容滚动时仍可切签;移动端让位 h-14 顶栏 */}
