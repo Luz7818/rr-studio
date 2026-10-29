@@ -37,7 +37,7 @@ export default function PricingPage() {
         <p className="mt-2 text-sm text-ink-soft">一次专业润色机构的单篇收费 ¥3000+,Pro 订阅每月不到一顿饭钱。</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {TIERS.map((t) => (
           <div
             key={t.name}

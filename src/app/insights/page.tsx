@@ -98,7 +98,7 @@ export default function InsightsPage() {
     return (
       <div className="space-y-5 pt-4">
         <div className="skeleton h-8 w-32 rounded-md bg-band" />
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {[0, 1, 2].map((i) => (
             <div key={i} className="panel rounded-xl border border-line bg-white p-5">
               <div className="skeleton mx-auto h-9 w-14 rounded-md bg-band" />
@@ -106,7 +106,7 @@ export default function InsightsPage() {
             </div>
           ))}
         </div>
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           {[0, 1].map((i) => (
             <div key={i} className="panel rounded-xl border border-line bg-white p-5">
               <div className="skeleton h-4 w-40 rounded-md bg-band" />
@@ -160,7 +160,7 @@ export default function InsightsPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[
           { label: "累计稿件", value: data.totalProjects },
           { label: "已模拟审稿", value: data.reviewedProjects },
@@ -170,7 +170,7 @@ export default function InsightsPage() {
         ))}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="panel rounded-xl border border-line bg-white p-5">
           <h2 className="font-semibold">三位审稿人的录用建议分布</h2>
           <div className="mt-3 space-y-3">
@@ -216,7 +216,7 @@ export default function InsightsPage() {
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="panel rounded-xl border border-line bg-white p-5">
           <h2 className="font-semibold">审稿人命中率</h2>
           <p className="mt-1 text-xs text-ink-faint">你标记为「有道理」的意见占比——衡量每类审稿人的意见可信度。</p>

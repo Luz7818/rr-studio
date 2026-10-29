@@ -174,7 +174,7 @@ export default function Landing() {
             通用聊天框做不到的场景化工作流:每一步的结果都可勾选、可编辑、可导出。
           </p>
         </Reveal>
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((f, i) => (
             <Reveal key={f.title} delay={(i % 3) * 70}>
               <div className="h-full rounded-2xl border border-line bg-white p-6 transition hover:shadow-lg hover:shadow-accent/5">

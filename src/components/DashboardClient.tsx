@@ -179,7 +179,7 @@ export default function Dashboard() {
         </div>
 
         {loading ? (
-          <ul className="grid gap-3 sm:grid-cols-2">
+          <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {[0, 1].map((i) => (
               <li key={i} className="panel rounded-xl border border-line bg-white p-4">
                 <div className="skeleton h-5 w-3/4 rounded-full bg-band" />
@@ -199,7 +199,7 @@ export default function Dashboard() {
             </div>
           )
         ) : (
-          <ul className="grid gap-3 sm:grid-cols-2">
+          <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {projects.map((p, i) => (
               <li
                 key={p.id}
@@ -212,8 +212,9 @@ export default function Dashboard() {
                 >
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="line-clamp-2 text-sm font-medium text-ink">{p.title}</h3>
+                    {/* 删除按钮悬停出现在右上角,徽章同步左移让位(触屏删除常显,故恒偏移) */}
                     <span
-                      className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium ${STATUS_STYLE[p.status]}`}
+                      className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium transition-transform duration-200 [@media(hover:none)]:-translate-x-7 group-focus-within:-translate-x-7 group-hover:-translate-x-7 ${STATUS_STYLE[p.status]}`}
                     >
                       {STATUS_LABEL[p.status]}
                     </span>
@@ -250,7 +251,7 @@ export default function Dashboard() {
                   disabled={deleting === p.id}
                   aria-label={`删除「${p.title}」`}
                   title="删除稿件"
-                  className="absolute right-3 top-3 rounded bg-white/80 p-1 text-ink-faint opacity-0 transition hover:bg-red-50 hover:text-red-600 focus-visible:opacity-100 disabled:opacity-40 [@media(hover:none)]:opacity-100 group-hover:opacity-100"
+                  className="absolute right-2.5 top-2.5 rounded-full bg-white/90 p-1.5 text-ink-faint opacity-0 transition hover:bg-red-50 hover:text-red-600 focus-visible:opacity-100 disabled:opacity-40 [@media(hover:none)]:opacity-100 group-focus-within:opacity-100 group-hover:opacity-100"
                 >
                   {deleting === p.id ? (
                     <span className="spinner h-3.5 w-3.5" aria-hidden />

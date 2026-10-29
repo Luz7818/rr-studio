@@ -537,7 +537,7 @@ export default function Workspace() {
 
       {/* 页签条吸顶:长内容滚动时仍可切签;移动端让位 h-14 顶栏 */}
       <div className="sticky top-14 z-20 -mx-1 bg-page/90 px-1 py-1.5 backdrop-blur-sm lg:top-0">
-        <div className="no-scrollbar max-w-full overflow-x-auto">
+        <div className="no-scrollbar min-w-0 max-w-full flex-1 overflow-x-auto">
           <SegmentedControl
             value={tab}
             onChange={(k) => switchTab(k, true)}
@@ -563,7 +563,7 @@ export default function Workspace() {
       <div key={tab} className="rise-in" data-still={!tabMotion}>
       {tab === "overview" && (
         <div className="space-y-5">
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="panel rounded-xl border border-line bg-white p-5">
               <h3 className="text-[13px] font-semibold">脱敏报告</h3>
               <p className="mt-2 flex items-baseline gap-1.5">
@@ -681,38 +681,42 @@ export default function Workspace() {
         <div className="space-y-3">
           {project.critique && (
             <div className="panel flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-white px-4 py-3">
-              <SegmentedControl
-                value={severityFilter}
-                onChange={setSeverityFilter}
-                ariaLabel="按严重程度筛选"
-                options={(["all", "major", "minor", "suggestion"] as const).map((f) => {
-                  const count =
-                    f === "all"
-                      ? project.critique!.items.length
-                      : project.critique!.items.filter((i) => i.severity === f).length;
-                  return {
-                    value: f,
-                    label: (
-                      <>
-                        {f === "all" ? "全部" : SEVERITY_LABEL[f]}
-                        {count > 0 && <span className="ml-1 text-xs text-ink-faint">{count}</span>}
-                      </>
-                    ),
-                  };
-                })}
-              />
-              <div className="ml-auto flex items-center gap-2">
-                <span className="hidden text-xs text-ink-faint sm:inline">口径</span>
+              <div className="no-scrollbar min-w-0 max-w-full flex-1 overflow-x-auto">
                 <SegmentedControl
-                  value={intensity}
-                  onChange={setIntensity}
-                  ariaLabel="Critique 口径"
-                  options={[
-                    { value: "strict", label: "苛刻", title: "顶刊最挑剔审稿人:每节 5–8 条,不放过边缘问题" },
-                    { value: "balanced", label: "均衡" },
-                    { value: "gentle", label: "温和", title: "只报真正影响录用的 1–3 条高信号问题" },
-                  ]}
+                  value={severityFilter}
+                  onChange={setSeverityFilter}
+                  ariaLabel="按严重程度筛选"
+                  options={(["all", "major", "minor", "suggestion"] as const).map((f) => {
+                    const count =
+                      f === "all"
+                        ? project.critique!.items.length
+                        : project.critique!.items.filter((i) => i.severity === f).length;
+                    return {
+                      value: f,
+                      label: (
+                        <>
+                          {f === "all" ? "全部" : SEVERITY_LABEL[f]}
+                          {count > 0 && <span className="ml-1 text-xs text-ink-faint">{count}</span>}
+                        </>
+                      ),
+                    };
+                  })}
                 />
+              </div>
+              <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+                <span className="hidden text-xs text-ink-faint sm:inline">口径</span>
+                <div className="no-scrollbar min-w-0 max-w-full flex-1 overflow-x-auto">
+                  <SegmentedControl
+                    value={intensity}
+                    onChange={setIntensity}
+                    ariaLabel="Critique 口径"
+                    options={[
+                      { value: "strict", label: "苛刻", title: "顶刊最挑剔审稿人:每节 5–8 条,不放过边缘问题" },
+                      { value: "balanced", label: "均衡" },
+                      { value: "gentle", label: "温和", title: "只报真正影响录用的 1–3 条高信号问题" },
+                    ]}
+                  />
+                </div>
                 <button
                   onClick={() => void runPipeline("critique", undefined, { intensity })}
                   disabled={busy !== null}
@@ -879,7 +883,7 @@ export default function Workspace() {
               action="点击「重新模拟审稿」,三位 AI 审稿人将分别给出意见。"
             />
           ) : (
-            <div className="grid gap-4 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               {project.reviews.map((r, i) => (
                 <div
                   key={r.persona}

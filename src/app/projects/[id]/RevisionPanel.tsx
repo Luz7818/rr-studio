@@ -283,7 +283,7 @@ export default function RevisionPanel({
       )}
 
       {rev?.reviews && (
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           {rev.reviews.map((r) => (
             <div key={r.persona} className="panel rounded-xl border border-line bg-white p-5">
               <h4 className="text-sm font-semibold">{r.label}</h4>
