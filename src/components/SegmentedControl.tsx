@@ -62,7 +62,7 @@ export default function SegmentedControl<T extends string>({
       {thumb && (
         <span
           aria-hidden
-          className="absolute inset-y-1 left-0 rounded-full bg-white shadow-sm"
+          className="absolute inset-y-1 left-0 rounded-full bg-white shadow-[0_1px_2px_rgba(23,23,28,0.05),0_2px_8px_-2px_rgba(23,23,28,0.12)]"
           style={{
             width: thumb.width,
             transform: `translateX(${thumb.left}px)`,

@@ -130,32 +130,42 @@ html {
     0 8px 24px -16px rgba(81, 71, 229, 0.18);
 }
 
-/* 质感层:产品内静态面板的发丝级落影(边框仍是层次主来源,此影只提供「纸面」厚度) */
+/* 质感层:静态面板的多层环境光阴影——近层定边缘、远层给空气感,白岛因此「厚」起来 */
 .panel {
-  box-shadow: 0 1px 2px rgba(23, 23, 28, 0.03);
+  box-shadow:
+    0 0 0 1px rgba(23, 23, 28, 0.015),
+    0 1px 2px rgba(23, 23, 28, 0.03),
+    0 8px 24px -12px rgba(23, 23, 28, 0.06);
 }
 
 /* 实底胶囊按钮的深度:内高光 + 主色/墨色柔影,配合 .press 按压 */
 .btn-primary {
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 46%),
+    linear-gradient(180deg, transparent 55%, rgba(0, 0, 0, 0.1));
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
     0 1px 2px rgba(81, 71, 229, 0.25),
     0 3px 10px -3px rgba(81, 71, 229, 0.4);
   transition:
     transform 0.2s cubic-bezier(0.23, 1, 0.32, 1),
-    box-shadow 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+    box-shadow 0.2s cubic-bezier(0.23, 1, 0.32, 1),
+    background-color 0.2s cubic-bezier(0.23, 1, 0.32, 1);
 }
 .btn-primary:hover {
   transform: translateY(-1px);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
     0 2px 4px rgba(81, 71, 229, 0.28),
-    0 6px 16px -4px rgba(81, 71, 229, 0.45);
+    0 6px 16px -4px rgba(81, 71, 229, 0.48);
 }
 .btn-primary:active {
   transform: scale(0.97);
 }
 .btn-dark {
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0) 46%),
+    linear-gradient(180deg, transparent 55%, rgba(0, 0, 0, 0.18));
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
     0 1px 2px rgba(23, 23, 28, 0.35);
@@ -165,6 +175,10 @@ html {
 }
 .btn-dark:hover {
   transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 2px 4px rgba(23, 23, 28, 0.3),
+    0 6px 16px -4px rgba(23, 23, 28, 0.35);
 }
 .btn-dark:active {
   transform: scale(0.97);
@@ -187,7 +201,7 @@ html {
   outline: none;
   border-color: var(--color-accent);
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(81, 71, 229, 0.08);
+  box-shadow: 0 0 0 3px rgba(81, 71, 229, 0.1);
 }
 .field::placeholder {
   color: var(--color-ink-faint);
@@ -239,6 +253,20 @@ html {
   transform-origin: left;
 }
 
+/* 关键数字渐变(小面积,靛蓝→紫罗兰),落地页统计与洞察统计卡使用 */
+.num-grad {
+  background-image: linear-gradient(135deg, var(--color-accent), #7c6cf0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* 渐隐发丝线:两端淡出的分隔线,比实线更轻 */
+.hairline-fade {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-line) 18%, var(--color-line) 82%, transparent);
+}
+
 /* 品牌空态插画的小幅漂浮(比 float-soft 更收敛) */
 @keyframes float-y-sm {
   0%,
@@ -270,7 +298,7 @@ details[open] .details-body {
   }
 }
 .rise-in {
-  animation: rise-in 0.26s cubic-bezier(0.23, 1, 0.32, 1) both;
+  animation: rise-in 0.32s cubic-bezier(0.23, 1, 0.32, 1) both;
 }
 
 /* 弹层进入:rise-in 基础上带 0.98 起步的微缩放(ConfirmDialog 面板) */

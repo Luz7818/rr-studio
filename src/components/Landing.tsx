@@ -103,11 +103,11 @@ export default function Landing() {
             Revise &amp; Resubmit · 研究生投稿加速流水线
           </span>
           <h1 className="stagger mx-auto mt-7 max-w-3xl text-4xl font-semibold leading-[1.18] tracking-tight sm:text-[52px]" style={{ animationDelay: "60ms" }}>
-            <span className="text-accent">投稿前</span>,先被 AI 审稿人
+            <span className="num-grad">投稿前</span>,先被 AI 审稿人
             <br />
             虐一遍
           </h1>
-          <p className="stagger mx-auto mt-6 max-w-xl text-[15px] leading-relaxed text-ink-soft sm:text-base" style={{ animationDelay: "120ms" }}>
+          <p className="stagger mx-auto mt-6 max-w-xl text-balance text-[15px] leading-relaxed text-ink-soft sm:text-base" style={{ animationDelay: "120ms" }}>
             写作平台帮你把论文写顺;R&amp;R Studio 帮你扛住真实审稿。自动脱敏 →
             逐段 Critique → 模拟审稿 → Response Letter 打磨 → Cover Letter →
             组会汇报 PPTX,一条流水线。
@@ -136,7 +136,7 @@ export default function Landing() {
         <Reveal className="relative mx-auto mt-14 grid max-w-3xl grid-cols-2 gap-3 sm:grid-cols-4">
           {STATS.map((s) => (
             <div key={s.label} className="rounded-2xl border border-line bg-white/90 px-4 py-5 backdrop-blur card-shadow">
-              <p className="text-2xl font-semibold text-accent sm:text-3xl">
+              <p className="num-grad text-2xl font-semibold sm:text-3xl">
                 <CountUp to={s.value} suffix={s.suffix} />
               </p>
               <p className="mt-1 text-xs text-ink-soft">{s.label}</p>
@@ -176,7 +176,7 @@ export default function Landing() {
       <section id="features" className="mx-auto max-w-5xl scroll-mt-24 px-4 py-20">
         <Reveal>
           <h2 className="text-center text-2xl font-semibold tracking-tight sm:text-3xl">一条流水线,四个产出物</h2>
-          <p className="mx-auto mt-3 max-w-lg text-center text-sm text-ink-soft sm:text-[15px]">
+          <p className="mx-auto mt-3 max-w-lg text-balance text-center text-sm text-ink-soft sm:text-[15px]">
             通用聊天框做不到的场景化工作流:每一步的结果都可勾选、可编辑、可导出。
           </p>
         </Reveal>
@@ -278,7 +278,7 @@ export default function Landing() {
       {/* CTA */}
       <section className="mx-auto max-w-5xl px-4 pb-24">
         <Reveal>
-          <div className="relative overflow-hidden rounded-[2.5rem] bg-ink px-8 py-16 text-center text-white">
+          <div className="relative overflow-hidden rounded-[2.5rem] bg-ink px-8 py-16 text-center text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_24px_64px_-32px_rgba(23,23,28,0.5)]">
             <div aria-hidden className="bg-dots-light absolute inset-x-0 top-0 h-24 opacity-70" />
             <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
               一篇论文的润色报价 ¥3000+,
@@ -298,7 +298,8 @@ export default function Landing() {
       </section>
 
       {/* 页脚 */}
-      <footer className="border-t border-line bg-white">
+      <footer className="bg-white">
+        <div aria-hidden className="hairline-fade" />
         <div className="mx-auto grid max-w-5xl gap-10 px-4 py-12 sm:grid-cols-[1.4fr_1fr_1fr]">
           <div>
             <div className="flex items-center gap-2">

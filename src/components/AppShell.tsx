@@ -105,7 +105,7 @@ export default function AppShell({
   return (
     <div className="min-h-dvh">
       {/* 桌面侧栏 */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-56 flex-col border-r border-line bg-white px-3 py-5 lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-56 flex-col border-r border-line bg-white/85 px-3 py-5 backdrop-blur-xl lg:flex">
         <div className="px-2">
           <Logo />
         </div>
@@ -144,7 +144,7 @@ export default function AppShell({
       </aside>
 
       {/* 移动端顶栏 */}
-      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-line bg-white/90 px-4 backdrop-blur lg:hidden">
+      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-white/60 bg-white/75 px-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_8px_24px_-16px_rgba(23,23,28,0.15)] backdrop-blur-xl lg:hidden">
         <Logo compact />
         <nav className="flex items-center gap-1">
           {NAV_GROUPS.flatMap((g) => g.items).map((item) => {

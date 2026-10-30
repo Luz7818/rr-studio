@@ -581,7 +581,7 @@ export default function Workspace() {
       )}
 
       {/* 页签条吸顶:长内容滚动时仍可切签;移动端让位 h-14 顶栏 */}
-      <div className="sticky top-14 z-20 -mx-1 bg-page/90 px-1 py-1.5 backdrop-blur-sm lg:top-0">
+      <div className="sticky top-14 z-20 -mx-1 rounded-b-2xl bg-white/65 px-1 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.75),0_12px_32px_-20px_rgba(23,23,28,0.18)] backdrop-blur-xl lg:top-0">
         <div className="no-scrollbar min-w-0 max-w-full flex-1 overflow-x-auto">
           <SegmentedControl
             value={tab}

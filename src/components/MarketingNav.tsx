@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
  *  仅在营销壳(SaaS 未登录,body[data-bare])下显示,应用壳内由 CSS 隐藏。 */
 export default function MarketingNav() {
   return (
-    <header className="bare-only sticky top-4 z-40 mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-4">
+    <header className="bare-only sticky top-4 z-40 mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-4 [&_nav]:bg-white/70 [&_nav]:shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_8px_24px_-16px_rgba(23,23,28,0.14)] [&_nav]:backdrop-blur-xl">
       <Link
         href="/"
         className="press flex items-center gap-2 rounded-full border border-line bg-white py-1.5 pl-1.5 pr-4 card-shadow"
