@@ -141,7 +141,7 @@ function CommentQuote({ text }: { text: string }) {
   const [expanded, setExpanded] = useState(false);
   const long = text.length > 240;
   return (
-    <blockquote className="mt-3 border-l-2 border-accent/25 pl-3 text-[13px] leading-relaxed text-ink-soft">
+    <blockquote className="mt-3 border-l-2 border-accent/25 pl-3 text-[13px] leading-relaxed text-ink-soft transition-colors duration-200 group-hover/thread:border-accent/60">
       <span className={long && !expanded ? "line-clamp-4 block" : undefined}>{text}</span>
       {long && (
         <button
@@ -818,7 +818,7 @@ export default function Workspace() {
                   <li
                     key={item.id}
                     style={{ animationDelay: `${Math.min(i * 30, 240)}ms` }}
-                    className={`stagger p-4 transition hover:bg-band/40 ${item.adopted ? "bg-emerald-50/40" : ""}`}
+                    className={`stagger group/crit p-4 transition hover:bg-band/40 ${item.adopted ? "bg-emerald-50/40" : ""}`}
                   >
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="w-6 shrink-0 text-xs font-medium tabular-nums text-ink-faint">
@@ -844,7 +844,7 @@ export default function Workspace() {
                       </label>
                     </div>
                     {item.quote && (
-                      <p className="mt-2.5 border-l-2 border-line pl-3 text-[13px] italic text-ink-soft">
+                      <p className="mt-2.5 border-l-2 border-line pl-3 text-[13px] italic text-ink-soft transition-colors duration-200 group-hover/crit:border-accent/50">
                         “{item.quote}”
                       </p>
                     )}
@@ -1052,7 +1052,7 @@ export default function Workspace() {
                 <div
                   key={t.commentId}
                   style={{ animationDelay: `${Math.min(i * 30, 240)}ms` }}
-                  className="stagger p-4 sm:p-5"
+                  className="stagger group/thread p-4 sm:p-5"
                 >
                   <div className="flex flex-wrap items-center gap-2">
                     <span

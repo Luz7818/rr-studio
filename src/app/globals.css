@@ -84,6 +84,17 @@ html {
   height: 660px;
   z-index: -10;
   pointer-events: none;
+  animation: deco-drift 26s ease-in-out infinite alternate;
+}
+@keyframes deco-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-1.2%, -0.6%, 0);
+  }
+}
+.page-deco {
   background:
     radial-gradient(640px 320px at 16% 0%, rgba(109, 94, 240, 0.16), transparent 62%),
     radial-gradient(760px 360px at 84% 4%, rgba(81, 71, 229, 0.13), transparent 62%),
@@ -130,11 +141,33 @@ html {
     inset 0 1px 0 rgba(255, 255, 255, 0.16),
     0 1px 2px rgba(81, 71, 229, 0.25),
     0 3px 10px -3px rgba(81, 71, 229, 0.4);
+  transition:
+    transform 0.2s cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 2px 4px rgba(81, 71, 229, 0.28),
+    0 6px 16px -4px rgba(81, 71, 229, 0.45);
+}
+.btn-primary:active {
+  transform: scale(0.97);
 }
 .btn-dark {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
     0 1px 2px rgba(23, 23, 28, 0.35);
+  transition:
+    transform 0.2s cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.btn-dark:hover {
+  transform: translateY(-1px);
+}
+.btn-dark:active {
+  transform: scale(0.97);
 }
 
 /* 输入统一质感:灰底 → 聚焦白底 + 主色微光圈(键盘聚焦同样生效,故抑制全局 outline) */
@@ -179,6 +212,47 @@ html {
 }
 .press:active {
   transform: scale(0.97);
+}
+
+/* 行内文字链接:悬停时下划线从左划入(directional wipe) */
+.link-fx {
+  position: relative;
+}
+.link-fx::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.link-fx:hover::after,
+.link-fx:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* 品牌空态插画的小幅漂浮(比 float-soft 更收敛) */
+@keyframes float-y-sm {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+.float-soft-xs {
+  animation: float-y-sm 5.5s ease-in-out infinite;
+}
+
+/* 折叠内容展开时轻过渡(FAQ 等 details 内容) */
+details[open] .details-body {
+  animation: rise-in 0.25s cubic-bezier(0.23, 1, 0.32, 1) both;
 }
 
 /* 内容块进入:页签切换 / 面板挂载时的轻过渡,禁止 scale(0) 弹出 */
@@ -228,18 +302,23 @@ html {
   transition: width 0.6s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-/* 加载占位脉冲 */
-@keyframes pulse-soft {
-  0%,
+/* 加载占位:浅色底上一道白光扫过(shimmer),只在 transform 上动 */
+@keyframes shimmer {
   100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.55;
+    transform: translateX(100%);
   }
 }
 .skeleton {
-  animation: pulse-soft 1.6s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+  animation: shimmer 1.5s cubic-bezier(0.23, 1, 0.32, 1) infinite;
 }
 
 /* 内联加载圆环:busy 按钮用,颜色跟随 currentColor */

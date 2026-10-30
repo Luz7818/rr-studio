@@ -1,7 +1,7 @@
 /** 空态插画:品牌母题「稿件 × 判定勾」的静音版,仅用令牌色(工作台与仪表盘共用) */
 export default function EmptyArt() {
   return (
-    <svg width="112" height="84" viewBox="0 0 112 84" fill="none" aria-hidden className="mx-auto mb-4">
+    <svg width="112" height="84" viewBox="0 0 112 84" fill="none" aria-hidden className="float-soft-xs mx-auto mb-4">
       <rect x="42" y="6" width="40" height="52" rx="5" fill="#eeeefc" transform="rotate(6 62 32)" />
       <g transform="rotate(-5 44 42)">
         <rect x="24" y="16" width="42" height="54" rx="5" fill="#fff" stroke="#ececf0" strokeWidth="1.5" />

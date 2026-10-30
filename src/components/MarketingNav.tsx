@@ -11,7 +11,7 @@ export default function MarketingNav() {
         className="press flex items-center gap-2 rounded-full border border-line bg-white py-1.5 pl-1.5 pr-4 card-shadow"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.svg" alt="" className="h-9 w-9 rounded-full" />
+        <img src="/logo.svg" alt="" className="h-9 w-9 rounded-full transition-transform duration-200 hover:-rotate-6" />
         <span className="text-[15px] font-semibold tracking-tight">R&amp;R Studio</span>
       </Link>
 

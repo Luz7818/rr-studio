@@ -261,7 +261,7 @@ export default function Landing() {
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
                   </span>
                 </summary>
-                <p className="pb-5 text-[13px] leading-relaxed text-ink-soft">{a}</p>
+                <p className="details-body pb-5 text-[13px] leading-relaxed text-ink-soft">{a}</p>
               </details>
             </Reveal>
           ))}
@@ -306,18 +306,18 @@ export default function Landing() {
           <div>
             <p className="text-xs font-medium uppercase tracking-wider text-ink-faint">产品</p>
             <ul className="mt-3 space-y-2 text-[13px] text-ink-soft">
-              <li><Link href="/#features" className="transition hover:text-accent">产品能力</Link></li>
-              <li><Link href="/pricing" className="transition hover:text-accent">定价</Link></li>
-              <li><Link href="/signup" className="transition hover:text-accent">注册(内测邀请码)</Link></li>
+              <li><Link href="/#features" className="link-fx w-fit transition hover:text-accent">产品能力</Link></li>
+              <li><Link href="/pricing" className="link-fx w-fit transition hover:text-accent">定价</Link></li>
+              <li><Link href="/signup" className="link-fx w-fit transition hover:text-accent">注册(内测邀请码)</Link></li>
             </ul>
           </div>
           <div>
             <p className="text-xs font-medium uppercase tracking-wider text-ink-faint">资源</p>
             <ul className="mt-3 space-y-2 text-[13px] text-ink-soft">
-              <li><Link href="/guide" className="transition hover:text-accent">使用指南</Link></li>
-              <li><Link href="/changelog" className="transition hover:text-accent">更新日志</Link></li>
-              <li><Link href="/privacy" className="transition hover:text-accent">隐私说明</Link></li>
-              <li><Link href="/login" className="transition hover:text-accent">登录</Link></li>
+              <li><Link href="/guide" className="link-fx w-fit transition hover:text-accent">使用指南</Link></li>
+              <li><Link href="/changelog" className="link-fx w-fit transition hover:text-accent">更新日志</Link></li>
+              <li><Link href="/privacy" className="link-fx w-fit transition hover:text-accent">隐私说明</Link></li>
+              <li><Link href="/login" className="link-fx w-fit transition hover:text-accent">登录</Link></li>
               <li><a href="https://luzzz.me" target="_blank" rel="noreferrer" className="transition hover:text-accent">作者主页 luzzz.me</a></li>
             </ul>
           </div>

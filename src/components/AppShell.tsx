@@ -29,7 +29,7 @@ function Logo({ compact = false }: { compact?: boolean }) {
       className="press inline-flex items-center gap-2 rounded-full border border-line bg-white py-1 pl-1 pr-3 card-shadow"
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/logo.svg" alt="" className="h-8 w-8 rounded-full" />
+      <img src="/logo.svg" alt="" className="h-8 w-8 rounded-full transition-transform duration-200 hover:-rotate-6" />
       {!compact && <span className="text-[15px] font-semibold tracking-tight">R&amp;R Studio</span>}
     </Link>
   );

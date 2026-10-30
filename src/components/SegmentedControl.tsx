@@ -67,7 +67,7 @@ export default function SegmentedControl<T extends string>({
             width: thumb.width,
             transform: `translateX(${thumb.left}px)`,
             transition: animate
-              ? "transform 0.22s cubic-bezier(0.23, 1, 0.32, 1), width 0.22s cubic-bezier(0.23, 1, 0.32, 1)"
+              ? "transform 0.24s cubic-bezier(0.3, 1.3, 0.35, 1), width 0.24s cubic-bezier(0.23, 1, 0.32, 1)"
               : undefined,
           }}
         />
