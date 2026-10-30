@@ -113,7 +113,12 @@
 - 数据条一律用 `FillBar` 组件(挂载从 0 填充到目标宽度);弹层入场 `.pop-in`,退场淡出由
   `ConfirmDialog` 内建(130ms,reduced-motion 直关)。
 - 微交互:按压 `.press`(active `scale(0.97)`);内容块进入 `.rise-in`;列表交错 `.stagger`
-  (30–80ms 间隔,上限 240ms);数据条 `.bar-fill`;busy 按钮 `.spinner`(currentColor)。
+  (30–80ms 间隔,上限 240ms);数据条 `.bar-fill`;busy 按钮 `.spinner`(currentColor);
+  实底按钮悬停 `-1px` 浮起、按压归位(`.btn-primary`/`.btn-dark` 自带);行内链接划线
+  `.link-fx`(scaleX 从左划入);骨架屏 shimmer(`.skeleton::after` 白光扫过);意见引用块
+  悬停点亮(容器 group + 边框变色);分段控件活动块带 ~3% 过冲
+  (`cubic-bezier(0.3,1.3,0.35,1)`);极光底图 26s 漂移(`.page-deco`);空态插画小幅漂浮
+  (`.float-soft-xs`);Logo 悬停微倾(-6°)。
 - 键盘触发的状态变化不加动画:页签数字键 1–7 直跳;count-up 只用于洞察页统计卡,
   `prefers-reduced-motion` 时直显终值。
 - 尊重 `prefers-reduced-motion`(globals 已全局降级);不引第三方动画库;只动 transform/opacity。

@@ -999,6 +999,7 @@ export default function Workspace() {
               <div className="ml-auto flex flex-wrap items-center gap-2">
                 <button
                   onClick={() => void polishAllPending()}
+                  aria-live="polite"
                   disabled={busy !== null || batch !== null}
                   className="btn-primary press rounded-full bg-accent px-3.5 py-1.5 text-xs font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
                 >

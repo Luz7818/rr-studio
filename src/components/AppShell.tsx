@@ -90,7 +90,10 @@ export default function AppShell({
   ) : (
     <div className="rounded-2xl bg-band p-3.5">
       <p className="flex items-center gap-1.5 text-xs font-medium text-ink">
-        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+        <span aria-hidden className="relative inline-flex h-1.5 w-1.5">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+        </span>
         本地模式
       </p>
       <p className="mt-1 text-[11px] leading-relaxed text-ink-faint">

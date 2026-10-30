@@ -351,3 +351,20 @@
   DecoCluster 十字母题同源),白岛浮在可见的有色场上;③body `isolation: isolate`
   解决负 z 装饰层与背景的绘制顺序,layout 挂载单一装饰节点,全站(双壳)生效。
 - 验证:lint 0 告警、构建通过、smoke 15/15、计算样式断言(三层背景/遮罩/层级均生效)。
+
+## 2026-10-30 · v0.16.0 微交互与动效精修
+
+- **骨架屏 shimmer**:脉冲改为白光扫过(.skeleton::after,transform-only),加载态更有质感。
+- **实底按钮**:悬停 -1px 浮起 + 阴影加深,按压 scale(0.97) 归位(.btn-primary/.btn-dark 内聚,
+  不再依赖 .press 组合)。
+- **行内链接划线 `.link-fx`**:下划线 scaleX 从左划入(transform-only),落地页页脚、洞察
+  时间线、仪表盘「查看方案」接入。
+- **极光底图漂移**:.page-deco 26s ease-in-out 往复 translate(±1%),首屏氛围「活」起来。
+- **分段控件滑动过冲**:活动块改 cubic-bezier(0.3,1.3,0.35,1),~3% 过冲后回弹。
+- **悬停点亮**:Critique 条目与回复线程的引用竖线随行悬停变色;洞察时间线节点悬停放大;
+  落地页功能卡图标悬停 scale(1.1);Logo 悬停 -6° 微倾(品牌母题方向);输入框悬停边框加深。
+- **其它**:空态插画 float-soft-xs 小幅漂浮;落地页 FAQ 展开内容淡入;锚点跳转 scroll-mt-24
+  (浮动导航不遮标题);落地页统计数字 CountUp(600ms ease-out,reduced-motion 直显);
+  本地模式状态灯呼吸 ping;批量打磨进度 aria-live。
+- 全部动效仅 transform/opacity,`prefers-reduced-motion` 全局降级;lint 0 告警、构建通过、
+  smoke 15/15。

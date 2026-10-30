@@ -179,6 +179,9 @@ html {
     background-color 0.15s cubic-bezier(0.23, 1, 0.32, 1),
     box-shadow 0.15s cubic-bezier(0.23, 1, 0.32, 1);
 }
+.field:hover:not(:focus) {
+  border-color: #d9d9e0;
+}
 .field:focus,
 .field:focus-visible {
   outline: none;

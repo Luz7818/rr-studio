@@ -8,6 +8,7 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react";
+import CountUp from "@/components/CountUp";
 import FooterYear from "@/components/FooterYear";
 import MarketingNav from "@/components/MarketingNav";
 import Reveal from "@/components/Reveal";
@@ -45,11 +46,11 @@ const FEATURES = [
   },
 ];
 
-const STATS = [
-  ["40+", "逐段意见 / 篇"],
-  ["3 位", "立场独立的 AI 审稿人"],
-  ["100%", "审稿引用文献真实可溯"],
-  ["4 类", "交付物一键导出"],
+const STATS: Array<{ value: number; suffix: string; label: string }> = [
+  { value: 40, suffix: "+", label: "逐段意见 / 篇" },
+  { value: 3, suffix: " 位", label: "立场独立的 AI 审稿人" },
+  { value: 100, suffix: "%", label: "审稿引用文献真实可溯" },
+  { value: 4, suffix: " 类", label: "交付物一键导出" },
 ];
 
 const STEPS = [
@@ -130,10 +131,12 @@ export default function Landing() {
 
         {/* 数据带 */}
         <Reveal className="relative mx-auto mt-14 grid max-w-3xl grid-cols-2 gap-3 sm:grid-cols-4">
-          {STATS.map(([v, label]) => (
-            <div key={label} className="rounded-2xl border border-line bg-white/90 px-4 py-5 backdrop-blur card-shadow">
-              <p className="text-2xl font-semibold text-accent sm:text-3xl">{v}</p>
-              <p className="mt-1 text-xs text-ink-soft">{label}</p>
+          {STATS.map((s) => (
+            <div key={s.label} className="rounded-2xl border border-line bg-white/90 px-4 py-5 backdrop-blur card-shadow">
+              <p className="text-2xl font-semibold text-accent sm:text-3xl">
+                <CountUp to={s.value} suffix={s.suffix} />
+              </p>
+              <p className="mt-1 text-xs text-ink-soft">{s.label}</p>
             </div>
           ))}
         </Reveal>
@@ -167,7 +170,7 @@ export default function Landing() {
       </section>
 
       {/* 功能 */}
-      <section id="features" className="mx-auto max-w-5xl px-4 py-20">
+      <section id="features" className="mx-auto max-w-5xl scroll-mt-24 px-4 py-20">
         <Reveal>
           <h2 className="text-center text-2xl font-semibold tracking-tight sm:text-3xl">一条流水线,四个产出物</h2>
           <p className="mx-auto mt-3 max-w-lg text-center text-sm text-ink-soft sm:text-[15px]">
@@ -177,8 +180,8 @@ export default function Landing() {
         <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((f, i) => (
             <Reveal key={f.title} delay={(i % 3) * 70}>
-              <div className="h-full rounded-2xl border border-line bg-white p-6 transition hover:shadow-lg hover:shadow-accent/5">
-                <span className="mb-4 inline-grid h-10 w-10 place-items-center rounded-full bg-accent-soft text-accent">
+              <div className="group h-full rounded-2xl border border-line bg-white p-6 transition hover:shadow-lg hover:shadow-accent/5">
+                <span className="mb-4 inline-grid h-10 w-10 place-items-center rounded-full bg-accent-soft text-accent transition-transform duration-200 group-hover:scale-110">
                   <f.icon className="h-5 w-5" strokeWidth={1.75} />
                 </span>
                 <h3 className="text-[15px] font-semibold">{f.title}</h3>
@@ -190,7 +193,7 @@ export default function Landing() {
       </section>
 
       {/* 工作流程三步 */}
-      <section id="workflow" className="rounded-[2.5rem] bg-band px-6 py-20 sm:px-12">
+      <section id="workflow" className="scroll-mt-24 rounded-[2.5rem] bg-band px-6 py-20 sm:px-12">
         <Reveal>
           <h2 className="text-center text-2xl font-semibold tracking-tight sm:text-3xl">三步跑完</h2>
           <p className="mx-auto mt-3 max-w-lg text-center text-sm text-ink-soft sm:text-[15px]">
@@ -247,7 +250,7 @@ export default function Landing() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="mx-auto max-w-3xl px-4 pb-20">
+      <section id="faq" className="mx-auto max-w-3xl scroll-mt-24 px-4 pb-20">
         <Reveal>
           <h2 className="text-center text-2xl font-semibold tracking-tight sm:text-3xl">常见问题</h2>
         </Reveal>
