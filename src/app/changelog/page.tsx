@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import FooterYear from "@/components/FooterYear";
 import MarketingNav from "@/components/MarketingNav";
 import Reveal from "@/components/Reveal";
+import BackToTop from "@/components/BackToTop";
 
 /** 用户视角的版本亮点(开发者细节见仓库 HISTORY.md) */
 const RELEASES: Array<{ version: string; date: string; title: string; items: string[] }> = [
@@ -143,15 +144,20 @@ export default function ChangelogPage() {
           ))}
         </ol>
 
-        <footer className="mt-12 border-t border-line pt-6 text-center text-[13px] text-ink-faint">
+        <footer className="mt-12 border-t border-line pt-6 text-[13px] text-ink-faint">
+          <div className="mb-4 flex justify-center">
+            <BackToTop />
+          </div>
+          <p className="text-center">
           © <FooterYear /> R&amp;R Studio ·{" "}
           <Link href="/guide" className="transition hover:text-accent">
             使用指南
           </Link>{" "}
           ·{" "}
-          <Link href="/privacy" className="transition hover:text-accent">
-            隐私说明
-          </Link>
+            <Link href="/privacy" className="transition hover:text-accent">
+              隐私说明
+            </Link>
+          </p>
         </footer>
       </div>
     </div>

@@ -6,6 +6,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import {
   AlertCircle,
   ArrowLeft,
+  ArrowRight,
   BookOpen,
   Brain,
   Check,
@@ -215,9 +216,10 @@ function EmptyState({
         <button
           onClick={onAction}
           disabled={disabled}
-          className="btn-primary press mt-4 rounded-full bg-accent px-5 py-2 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
+          className="btn-primary press group mt-4 rounded-full bg-accent px-5 py-2 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
         >
           {actionLabel}
+          <ArrowRight className="ml-1 inline h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" strokeWidth={2} aria-hidden />
         </button>
       )}
     </div>

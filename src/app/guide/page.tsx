@@ -4,6 +4,7 @@ import IconChip from "@/components/IconChip";
 import FooterYear from "@/components/FooterYear";
 import MarketingNav from "@/components/MarketingNav";
 import Reveal from "@/components/Reveal";
+import BackToTop from "@/components/BackToTop";
 
 const STEPS: Array<{ n: string; icon: typeof Upload; title: string; body: string; tip?: string }> = [
   {
@@ -112,15 +113,20 @@ export default function GuidePage() {
           </div>
         </Reveal>
 
-        <footer className="mt-12 border-t border-line pt-6 text-center text-[13px] text-ink-faint">
+        <footer className="mt-12 border-t border-line pt-6 text-[13px] text-ink-faint">
+          <div className="mb-4 flex justify-center">
+            <BackToTop />
+          </div>
+          <p className="text-center">
           © <FooterYear /> R&amp;R Studio ·{" "}
           <Link href="/changelog" className="transition hover:text-accent">
             更新日志
           </Link>{" "}
           ·{" "}
-          <Link href="/privacy" className="transition hover:text-accent">
-            隐私说明
-          </Link>
+            <Link href="/privacy" className="transition hover:text-accent">
+              隐私说明
+            </Link>
+          </p>
         </footer>
       </div>
     </div>

@@ -203,11 +203,12 @@ export default function Landing() {
             从草稿到可提交的完整材料,一个下午。
           </p>
         </Reveal>
-        <div className="mx-auto mt-12 grid max-w-4xl gap-8 sm:grid-cols-3">
+        <div className="relative mx-auto mt-12 grid max-w-4xl gap-8 sm:grid-cols-3">
+          <div aria-hidden className="absolute left-[16%] right-[16%] top-[22px] hidden border-t border-dashed border-line sm:block" />
           {STEPS.map(([t, d], i) => (
             <Reveal key={t} delay={i * 90}>
-              <div className="text-center">
-                <span className="inline-grid h-11 w-11 place-items-center rounded-full bg-ink text-base font-semibold text-white">
+              <div className="relative text-center">
+                <span className="relative inline-grid h-11 w-11 place-items-center rounded-full bg-ink text-base font-semibold text-white ring-4 ring-band">
                   {i + 1}
                 </span>
                 <h3 className="mt-4 text-[15px] font-semibold">{t}</h3>
