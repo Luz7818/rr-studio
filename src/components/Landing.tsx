@@ -1,6 +1,8 @@
 import Link from "next/link";
 import {
   ArrowRight,
+  Check,
+  X,
   FileSearch,
   GitCompareArrows,
   MailCheck,
@@ -8,6 +10,7 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react";
+import BackToTop from "@/components/BackToTop";
 import CountUp from "@/components/CountUp";
 import FooterYear from "@/components/FooterYear";
 import MarketingNav from "@/components/MarketingNav";
@@ -150,7 +153,7 @@ export default function Landing() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/showcase-review.png" alt="" width={1600} height={1000} loading="lazy" className="block h-auto w-full" />
           </div>
-          <div className="float-soft relative overflow-hidden rounded-2xl border border-accent/25 bg-white shadow-2xl shadow-accent/15">
+          <div className="float-soft relative overflow-hidden rounded-2xl border border-accent/25 bg-white shadow-2xl shadow-accent/15 transition-transform duration-300 [transform:perspective(1400px)] hover:[transform:perspective(1400px)_rotateX(1.5deg)_rotateY(-2deg)]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/showcase-response.png"
@@ -228,10 +231,10 @@ export default function Landing() {
             <div className="h-full rounded-3xl border border-line bg-white p-7">
               <p className="text-xs font-medium uppercase tracking-wider text-ink-faint">通用 AI 写作 / 润色平台</p>
               <ul className="mt-4 space-y-3 text-[13px] leading-relaxed text-ink-soft">
-                <li>帮你把句子改通顺、套模板扩写</li>
-                <li>「AI 审查」通常是整体评分,意见不可申诉、不落工作流</li>
-                <li>改完了没有机制验证是否改到位</li>
-                <li>上传全文直接进模型,作者信息与基金号照传</li>
+                <li className="flex gap-2"><X className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink-faint" strokeWidth={1.75} aria-hidden /><span>帮你把句子改通顺、套模板扩写</span></li>
+                <li className="flex gap-2"><X className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink-faint" strokeWidth={1.75} aria-hidden /><span>「AI 审查」通常是整体评分,意见不可申诉、不落工作流</span></li>
+                <li className="flex gap-2"><X className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink-faint" strokeWidth={1.75} aria-hidden /><span>改完了没有机制验证是否改到位</span></li>
+                <li className="flex gap-2"><X className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink-faint" strokeWidth={1.75} aria-hidden /><span>上传全文直接进模型,作者信息与基金号照传</span></li>
               </ul>
             </div>
           </Reveal>
@@ -239,10 +242,10 @@ export default function Landing() {
             <div className="h-full rounded-3xl border border-accent/30 bg-accent-soft/40 p-7">
               <p className="text-xs font-semibold uppercase tracking-wider text-accent">R&amp;R Studio 的做法</p>
               <ul className="mt-4 space-y-3 text-[13px] leading-relaxed text-ink">
-                <li><b className="font-semibold">对抗式审稿</b>:三位不同立场审稿人出具 Major/Minor,依据近三年真实文献,不编造引用;每条意见可标记「有道理 / 不成立」,命中率跨项目沉淀</li>
-                <li><b className="font-semibold">回复成信</b>:意见→草稿→AI 打磨→Word 版逐点回复信,直接可投</li>
-                <li><b className="font-semibold">承诺兑现核查</b>:回复里答应改的每一条,上传修改稿后逐条验证是否真改了</li>
-                <li><b className="font-semibold">上传即脱敏</b>:标题页整体排除,邮箱、基金号、单位自动打码后才进模型</li>
+                <li className="flex gap-2"><Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" strokeWidth={2} aria-hidden /><span><b className="font-semibold">对抗式审稿</b>:三位不同立场审稿人出具 Major/Minor,依据近三年真实文献,不编造引用;每条意见可标记「有道理 / 不成立」,命中率跨项目沉淀</span></li>
+                <li className="flex gap-2"><Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" strokeWidth={2} aria-hidden /><span><b className="font-semibold">回复成信</b>:意见→草稿→AI 打磨→Word 版逐点回复信,直接可投</span></li>
+                <li className="flex gap-2"><Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" strokeWidth={2} aria-hidden /><span><b className="font-semibold">承诺兑现核查</b>:回复里答应改的每一条,上传修改稿后逐条验证是否真改了</span></li>
+                <li className="flex gap-2"><Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" strokeWidth={2} aria-hidden /><span><b className="font-semibold">上传即脱敏</b>:标题页整体排除,邮箱、基金号、单位自动打码后才进模型</span></li>
               </ul>
             </div>
           </Reveal>
@@ -325,8 +328,9 @@ export default function Landing() {
             </ul>
           </div>
         </div>
-        <div className="border-t border-line py-5 text-center text-[13px] text-ink-faint">
-          © <FooterYear /> R&amp;R Studio · Revise &amp; Resubmit
+        <div className="flex flex-col items-center gap-2 border-t border-line py-5 text-center text-[13px] text-ink-faint sm:flex-row sm:justify-between sm:px-4">
+          <span>© <FooterYear /> R&amp;R Studio · Revise &amp; Resubmit</span>
+          <BackToTop />
         </div>
       </footer>
     </div>
