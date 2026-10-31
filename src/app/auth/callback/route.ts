@@ -5,7 +5,9 @@ import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = new URL(req.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/";
+  const rawNext = searchParams.get("next") ?? "/";
+  // 只放行站内绝对路径,防开放重定向(协议相对 //host 与绝对 URL 一律回首页)
+  const next = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/";
 
   if (!isSupabaseConfigured()) {
     return NextResponse.redirect(new URL("/login?error=not_configured", origin));
