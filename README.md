@@ -7,7 +7,7 @@
 组会 PPTX 导出 → 大修后上传修改稿做逐节对照与承诺兑现核查。例:一篇 8 章节稿件 + 1 次点击,
 得到 40 余条带英文改写建议的 Critique 与 3 份 Major/Minor 审稿意见,全程作者信息不出本机脱敏层。
 
-**规模:22 个 API 路由、9 个页面(复核:`npm run build` 输出路由表;或 `find src/app -name route.ts` 应输出 22 行)**
+**规模:21 个 API 路由、9 个页面(复核:`npm run build` 输出路由表;或 `find src/app -name route.ts` 应输出 21 行)**
 
 ## 30 秒跑通
 

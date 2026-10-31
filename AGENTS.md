@@ -24,7 +24,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   文献对标）③交付链路（Response Letter 与 Critique 的 Word 导出、Cover Letter、组会 PPTX）
   ④质量闭环（意见裁决、修改承诺、承诺兑现核查、跨项目洞察）。
 - 技术栈：Next.js 16.4.0（App Router + Turbopack）、React 19.3.0、TypeScript 5、Tailwind CSS v4、
-  Supabase（SSR 认证，可选）、unpdf / mammoth / docx / pptxgenjs / jsonrepair。运行时依赖 10 个
+  Supabase（SSR 认证，可选）、unpdf / mammoth / docx / pptxgenjs / jsonrepair。运行时依赖 11 个
   （复核：`node -e "console.log(Object.keys(require('./package.json').dependencies).length)"`）。
 - 详情：[README.md](README.md)、[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
@@ -117,10 +117,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 | 冒烟自检 | 15/15 项通过(演示模式与真实 LLM 模式同套件) | `LLM_API_KEY= npm run smoke` |
 | 静态检查 | eslint 0 告警 0 错误 | `npm run lint` |
 | 单元测试 | parse/sanitize 17 个用例全绿 | `npm test` |
-| 生产构建 | 通过,22 个 API 路由 + 9 个页面 | `npm run build`(`find src/app -name route.ts` 输出 22 行) |
+| 生产构建 | 通过,21 个 API 路由 + 9 个页面 | `npm run build`(`find src/app -name route.ts` 输出 21 行) |
 | CI | GitHub Actions:lint + test + build + 演示模式 smoke | `.github/workflows/ci.yml` |
 | 远端 | `Luz7818/rr-studio`(推送后 CI 自动跑) | `git remote -v` |
-| 运行时依赖 | 10 个,开发依赖含 vitest,清单在 `package.json` | `node -e "console.log(require('./package.json').dependencies)"` |
+| 运行时依赖 | 11 个,开发依赖含 vitest,清单在 `package.json` | `node -e "console.log(require('./package.json').dependencies)"` |
 
 ## 已知坑（省下一次的调查时间）
 
