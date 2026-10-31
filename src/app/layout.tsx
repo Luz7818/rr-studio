@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import "./globals.css";
 import { getSessionUser, isSaasMode } from "@/lib/auth";
 import AppShell from "@/components/AppShell";
+import PageDeco from "@/components/PageDeco";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
@@ -38,7 +39,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="zh-CN" data-scroll-behavior="smooth">
       <body className="antialiased" data-bare={bare ? "true" : undefined}>
-        <div aria-hidden className="page-deco" />
+        <PageDeco />
         {bare ? (
           children
         ) : (
