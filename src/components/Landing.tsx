@@ -52,7 +52,7 @@ const FEATURES = [
 const STATS: Array<{ value: number; suffix: string; label: string }> = [
   { value: 40, suffix: "+", label: "逐段意见 / 篇" },
   { value: 3, suffix: " 位", label: "立场独立的 AI 审稿人" },
-  { value: 100, suffix: "%", label: "审稿引用文献真实可溯" },
+  { value: 3, suffix: " 年", label: "真实文献检索对标" },
   { value: 4, suffix: " 类", label: "交付物一键导出" },
 ];
 
@@ -103,7 +103,7 @@ export default function Landing() {
             Revise &amp; Resubmit · 研究生投稿加速流水线
           </span>
           <h1 className="stagger mx-auto mt-7 max-w-3xl text-4xl font-semibold leading-[1.18] tracking-tight sm:text-[52px]" style={{ animationDelay: "60ms" }}>
-            <span className="num-grad">投稿前</span>,先被 AI 审稿人
+            <span className="text-accent">投稿前</span>,先被 AI 审稿人
             <br />
             虐一遍
           </h1>
@@ -136,7 +136,7 @@ export default function Landing() {
         <Reveal className="relative mx-auto mt-14 grid max-w-3xl grid-cols-2 gap-3 sm:grid-cols-4">
           {STATS.map((s) => (
             <div key={s.label} className="rounded-2xl border border-line bg-white/90 px-4 py-5 backdrop-blur card-shadow">
-              <p className="num-grad text-2xl font-semibold sm:text-3xl">
+              <p className="text-accent text-2xl font-semibold sm:text-3xl">
                 <CountUp to={s.value} suffix={s.suffix} />
               </p>
               <p className="mt-1 text-xs text-ink-soft">{s.label}</p>

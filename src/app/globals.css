@@ -38,9 +38,9 @@ html {
   scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: #d6d6de transparent;
-  /* 底图基层:细颗粒噪声提供整页纸面触感(0.07) */
+  /* 底图基层:细颗粒噪声提供整页纸面触感(0.05,「纸」档;可见性由 .page-deco 极光承担) */
   background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E")
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")
       repeat,
     #fafafb;
 }
@@ -73,6 +73,10 @@ html {
   *::after {
     animation: none !important;
     transition: none !important;
+  }
+  /* 纯装饰底图不再合成(漂移已停,整层退出省下低端机的合成成本) */
+  .page-deco {
+    display: none;
   }
 }
 
@@ -256,14 +260,6 @@ html {
   transform-origin: left;
 }
 
-/* 关键数字渐变(小面积,靛蓝→紫罗兰),落地页统计与洞察统计卡使用 */
-.num-grad {
-  background-image: linear-gradient(135deg, var(--color-accent), #7c6cf0);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
 /* 渐隐发丝线:两端淡出的分隔线,比实线更轻 */
 .hairline-fade {
   height: 1px;
@@ -331,9 +327,11 @@ details[open] .details-body {
   animation: rise-in 0.3s cubic-bezier(0.23, 1, 0.32, 1) both;
 }
 
-/* 数据条宽度过渡(洞察页进度条) */
+/* 数据条填充:transform scaleX 从左生长(不动画 width,合成器跑,零布局开销);
+   轨道 overflow-hidden + 圆角由 FillBar 承担 */
 .bar-fill {
-  transition: width 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  transform-origin: left;
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 /* 加载占位:浅色底上一道白光扫过(shimmer),只在 transform 上动 */

@@ -80,7 +80,7 @@ function StatCard({ label, value }: { label: string; value: number }) {
       <span aria-hidden className="mx-auto mb-2 grid h-8 w-8 place-items-center rounded-full bg-accent-soft text-accent">
         <Icon className="h-4 w-4" strokeWidth={1.75} />
       </span>
-      <p className="num-grad text-3xl font-semibold">{shown}</p>
+      <p className="text-accent text-3xl font-semibold">{shown}</p>
       <p className="mt-1 text-sm text-ink-soft">{label}</p>
     </div>
   );

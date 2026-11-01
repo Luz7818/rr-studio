@@ -170,6 +170,10 @@ function StepBadge({
 }) {
   const tone = done ? "text-accent" : "text-ink-faint";
   const state = current ? "bg-accent-soft/70 font-medium" : "";
+  // key 随 done 变化重挂载:步骤刚完成时 Check 以 icon-pop 弹入一次(低频时刻的惊喜预算)
+  const check = (
+    <Check key={done ? "done" : "pending"} className={`h-3.5 w-3.5 ${done ? "icon-pop" : ""}`} strokeWidth={2} />
+  );
   if (done && onClick) {
     return (
       <button
@@ -177,18 +181,14 @@ function StepBadge({
         onClick={onClick}
         className={`press inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs transition hover:bg-accent-soft/70 ${tone} ${state}`}
       >
-        <Check className="h-3.5 w-3.5" strokeWidth={2} />
+        {check}
         {label}
       </button>
     );
   }
   return (
     <span className={`inline-flex items-center gap-1.5 text-xs ${tone} ${state}`}>
-      {done ? (
-        <Check className="h-3.5 w-3.5" strokeWidth={2} />
-      ) : (
-        <span className="h-3.5 w-3.5 rounded-full border border-line" aria-hidden />
-      )}
+      {done ? check : <span className="h-3.5 w-3.5 rounded-full border border-line" aria-hidden />}
       {label}
     </span>
   );

@@ -181,7 +181,7 @@ export default function RevisionPanel({
                   </span>
                 ) : (
                   <>
-                    <Upload className="mx-auto mb-2.5 h-5 w-5 text-ink-faint transition-all duration-200 group-hover:-translate-y-0.5 group-hover:text-accent" strokeWidth={1.5} />
+                    <Upload className="mx-auto mb-2.5 h-5 w-5 text-ink-faint transition duration-200 group-hover:-translate-y-0.5 group-hover:text-accent" strokeWidth={1.5} />
                     <p className="text-[13px] text-ink-soft">点击选择或拖拽修改稿(PDF / DOCX / TXT)</p>
                   </>
                 )}

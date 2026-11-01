@@ -32,7 +32,8 @@
 | `accent-soft` | `#eeeefc` | 主色浅底:活动导航、AI 产出块 |
 
 实际取值以 `globals.css` 为准。页面底色 `#fafafb`,其上两层质感底图(纯 CSS/SVG 零请求):
-① `html` 平铺 `feTurbulence` 细颗粒噪声(rect opacity 0.07)提供整页纸面触感;
+① `html` 平铺 `feTurbulence` 细颗粒噪声(rect opacity 0.05,「纸」档;可见性由极光层承担)
+提供整页纸面触感;
 ② `layout` 首个元素的 `.page-deco` 顶部级底图(660px 渐隐)——三团靛蓝/紫罗兰极光
 (0.13–0.16)+ 十字网格纹理(0.10,呼应 DecoCluster 母题)。body `isolation: isolate`
 使 `.page-deco`(-z10)落在背景之上、内容之下;改底色/光强时按层调整。
@@ -95,7 +96,8 @@
   正文/控件 `text-[13px]`;元信息 `text-xs text-ink-faint`。
 - 落地页 hero 可到 `text-5xl`,主色强调词(对齐 flolab 的彩色标题段)。
 - 数字 `tabular-nums`(body 全局开启);中文与英文/数字间留一个半角空格。
-- 强调词用主色,单段最多一处。
+- 强调词用主色,单段最多一处。主色强调一律**纯色**(`text-accent`),禁止同色系明度微渐变
+  (「同一紫的两个明度」是最偷懒的渐变,也是 AI 味头号特征)。
 
 ## 层次与质感
 
@@ -113,7 +115,8 @@
 - 数据条一律用 `FillBar` 组件(挂载从 0 填充到目标宽度);弹层入场 `.pop-in`,退场淡出由
   `ConfirmDialog` 内建(130ms,reduced-motion 直关)。
 - 微交互:按压 `.press`(active `scale(0.97)`);内容块进入 `.rise-in`;列表交错 `.stagger`
-  (30–80ms 间隔,上限 240ms);数据条 `.bar-fill`;busy 按钮 `.spinner`(currentColor);
+  (30–80ms 间隔,上限 240ms);数据条 `FillBar`(scaleX 从左生长,不动画 width);busy 按钮
+  `.spinner`(currentColor);流水线步骤徽章完成时 Check 以 `.icon-pop` 弹入一次;
   实底按钮悬停 `-1px` 浮起、按压归位(`.btn-primary`/`.btn-dark` 自带);行内链接划线
   `.link-fx`(scaleX 从左划入);骨架屏 shimmer(`.skeleton::after` 白光扫过);意见引用块
   悬停点亮(容器 group + 边框变色);分段控件活动块带 ~3% 过冲
@@ -121,7 +124,9 @@
   (`.float-soft-xs`);Logo 悬停微倾(-6°)。
 - 键盘触发的状态变化不加动画:页签数字键 1–7 直跳;count-up 只用于洞察页统计卡,
   `prefers-reduced-motion` 时直显终值。
-- 尊重 `prefers-reduced-motion`(globals 已全局降级);不引第三方动画库;只动 transform/opacity。
+- 尊重 `prefers-reduced-motion`(globals 已全局降级,`.page-deco` 装饰层整层退出);
+  不引第三方动画库;只动 transform/opacity,禁止 `transition: all` 与 width/height 动画
+  (SegmentedControl 活动块的 width 是已登记的例外:小面积绝对定位元素)。
 
 ## 交互组件
 
