@@ -8,6 +8,17 @@ import BackToTop from "@/components/BackToTop";
 /** 用户视角的版本亮点(开发者细节见仓库 HISTORY.md) */
 const RELEASES: Array<{ version: string; date: string; title: string; items: string[] }> = [
   {
+    version: "v0.20",
+    date: "2026-11",
+    title: "视觉收敛与保存可信",
+    items: [
+      "主色强调全面纯色化,去掉同色系渐变文字;底图噪点收敛到「纸」档,更耐看",
+      "数据条与图标动效改合成器运行,低端机更顺滑;开启「减弱动态效果」时装饰底图自动退场",
+      "草稿/裁决/承诺自动保存失败时明确报错,不再误显「已保存」——弱网下写作更放心",
+      "内测邀请码改为原子占用,并发注册不再可能复用同一枚",
+    ],
+  },
+  {
     version: "v0.14",
     date: "2026-10",
     title: "审稿口径与数据洞察",
