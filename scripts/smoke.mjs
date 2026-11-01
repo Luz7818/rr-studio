@@ -65,6 +65,17 @@ let projectId;
 
 console.log(`\nR&R Studio 冒烟测试 → ${BASE}\n`);
 
+// 实例指纹自检:本应用的 API 对未知资源必返回 JSON(404/401),陌生实例多半回 HTML 页。
+// 端口被陈旧进程劫持时,15 步会全部打出误导性失败——先挡在门外(RR-01)。
+const probe = await fetch(`${BASE}/api/projects/00000000-0000-0000-0000-000000000000`).catch(() => null);
+const probeType = probe?.headers.get("content-type") ?? "";
+if (!probe || !probeType.includes("application/json")) {
+  console.error(`  ✗ 目标 ${BASE} 不是 R&R Studio 实例(${probe ? `content-type: ${probeType}` : "无法连接"})。`);
+  console.error("    若 3000 端口被陈旧进程或其他应用占用:先杀掉占用进程;或另起端口自起构建产物,用 SMOKE_BASE_URL 指定。");
+  process.exit(1);
+}
+console.log("  ✓ 实例指纹(目标 API 返回 JSON)");
+
 await step("首页可访问", async () => {
   const r = await fetch(`${BASE}/`);
   assert(r.ok, `status ${r.status}`);

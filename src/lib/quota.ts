@@ -56,7 +56,7 @@ export async function getPlanInfo(userId: string): Promise<PlanInfo> {
 }
 
 export const PLAN_UPGRADE_SQL = (email: string, plan: "pro" | "lab") =>
-  `update public.profiles\n   set plan = '${plan}', plan_expires_at = now() + interval '1 year'\n where email = '${email}';`;
+  `update public.profiles\n   set plan = '${plan}', plan_expires_at = now() + interval '1 year'\n where email = '${email.replace(/'/g, "''")}';`;
 
 // ---------- LLM 月度用量(成本限额)----------
 

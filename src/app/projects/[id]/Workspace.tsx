@@ -360,13 +360,18 @@ export default function Workspace() {
   };
 
   const patchProject = async (fields: Record<string, unknown>) => {
-    const res = await fetch(`/api/projects/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(fields),
-    });
-    const data = await res.json();
-    if (res.ok) setProject(data.project);
+    try {
+      const res = await fetch(`/api/projects/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fields),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "保存失败");
+      setProject(data.project);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "保存失败,请检查网络后重试");
+    }
   };
 
   const toggleAdopted = (item: CritiqueItem, checked: boolean) => {
@@ -393,11 +398,18 @@ export default function Workspace() {
   };
 
   const saveThread = async (thread: ResponseThread) => {
-    await fetch(`/api/projects/${id}/responses`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ threads: [thread] }),
-    });
+    try {
+      const res = await fetch(`/api/projects/${id}/responses`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ threads: [thread] }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "保存失败");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "保存失败,请检查网络后重试");
+      return;
+    }
     setSavedIds((prev) => new Set(prev).add(thread.commentId));
     setTimeout(() => {
       setSavedIds((prev) => {

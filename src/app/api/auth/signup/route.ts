@@ -28,8 +28,6 @@ export async function POST(req: NextRequest) {
 
   // 内测期邀请码校验(service role 绕过 RLS;未配置 service key 时不强制)
   const admin = createSupabaseAdminClient();
-
-  // 内测期邀请码校验(service role 绕过 RLS;未配置 service key 时不强制)
   if (admin) {
     if (!inviteCode) {
       return NextResponse.json({ error: "内测期注册需要邀请码" }, { status: 400 });
@@ -54,12 +52,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
-  // 标记邀请码已使用
+  // 原子占码:update 带 used_by is null 条件,按命中行数判定——并发同码注册恰一次成功
   if (admin && data.user && inviteCode) {
-    await admin
+    const { data: claimed, error: claimErr } = await admin
       .from("invite_codes")
       .update({ used_by: data.user.id, used_at: new Date().toISOString() })
-      .eq("code", inviteCode);
+      .eq("code", inviteCode)
+      .is("used_by", null)
+      .select("code");
+    if (claimErr) {
+      return NextResponse.json({ error: `邀请码标记失败: ${claimErr.message}` }, { status: 500 });
+    }
+    if (!claimed || claimed.length === 0) {
+      // 竞态落败:回滚刚建的账号再拒绝;回滚失败如实报错,不留绕过邀请码的账号
+      const { error: delErr } = await admin.auth.admin.deleteUser(data.user.id);
+      if (delErr) {
+        return NextResponse.json(
+          { error: `邀请码已被并发使用,且账号回滚失败: ${delErr.message}` },
+          { status: 500 },
+        );
+      }
+      return NextResponse.json({ error: "邀请码无效或已被使用" }, { status: 400 });
+    }
   }
 
   return NextResponse.json({ ok: true, needsEmailConfirm: !data.session });
