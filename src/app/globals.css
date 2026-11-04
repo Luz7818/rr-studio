@@ -9,6 +9,16 @@
   --color-accent: #5147e5;
   --color-accent-soft: #eeeefc;
   --color-page: #fafafb;
+  /* 动效令牌(2026-11-05 研究二轮通吃项,照 zhishuxing 参照值):三缓动 + 四档时长阶梯;
+     覆盖 Tailwind 默认 ease-out/ease-in-out(本仓无 ease-* 工具类使用,零行为影响);
+     新增过渡一律引用变量,不在规则内写裸 cubic-bezier */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --dur-1: 120ms;
+  --dur-2: 180ms;
+  --dur-3: 240ms;
+  --dur-4: 300ms;
 }
 
 body {

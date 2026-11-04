@@ -443,3 +443,16 @@
   预览)桌面 + 390px,七路由 390px 溢出扫描全零;FillBar scaleX 条、纯色强调数字、步骤徽章
   状态截图确认。changelog 页补 v0.20 用户视角条目;DESIGN.md 同步(噪声档位/transform 纪律/
   纯色强调/reduced-motion 装饰层退出)。
+
+## 2026-11-05 · 研究二轮 taste 批:三缓动 + 四档时长令牌入 @theme
+
+- `src/app/globals.css` 的 `@theme` 补动效令牌(通吃项,照 zhishuxing 参照值):
+  `--ease-out: cubic-bezier(0.23, 1, 0.32, 1)` / `--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1)` /
+  `--ease-drawer: cubic-bezier(0.32, 0.72, 0, 1)` 与四档时长阶梯
+  `--dur-1: 120ms / --dur-2: 180ms / --dur-3: 240ms / --dur-4: 300ms`
+  (方案原稿为 120/200/300 三档,按通吃项「web 端新仓直接抄四档口径」取齐四档,
+  与 zhishuxing/TH/Marx 体系同源)。覆盖 Tailwind 默认 ease-out/ease-in-out
+  工具类值——本仓源码无 `ease-*` 工具类使用(grep 证),零行为影响。
+- 规则区既有裸 `cubic-bezier(0.23, 1, 0.32, 1)`(0.2s 系过渡)本批不动,
+  归仓逐处替换留待下一批(改动最小化,先立令牌再搬家)。
+- 验证:`npm run build` 过(21 API 路由 + 9 页面)、`npm test` vitest 17/17。
