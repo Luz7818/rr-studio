@@ -124,7 +124,7 @@ export default function ChangelogPage() {
           href="/"
           className="group inline-flex items-center gap-1 text-sm text-ink-faint transition hover:text-accent"
         >
-          <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" strokeWidth={1.75} />
+          <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-(--dur-2) group-hover:-translate-x-0.5" strokeWidth={1.75} />
           返回首页
         </Link>
         <h1 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">更新日志</h1>

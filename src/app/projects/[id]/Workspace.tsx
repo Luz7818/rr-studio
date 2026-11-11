@@ -142,7 +142,7 @@ function CommentQuote({ text }: { text: string }) {
   const [expanded, setExpanded] = useState(false);
   const long = text.length > 240;
   return (
-    <blockquote className="mt-3 border-l-2 border-accent/25 pl-3 text-[13px] leading-relaxed text-ink-soft transition-colors duration-200 group-hover/thread:border-accent/60">
+    <blockquote className="mt-3 border-l-2 border-accent/25 pl-3 text-[13px] leading-relaxed text-ink-soft transition-colors duration-(--dur-2) group-hover/thread:border-accent/60">
       <span className={long && !expanded ? "line-clamp-4 block" : undefined}>{text}</span>
       {long && (
         <button
@@ -219,7 +219,7 @@ function EmptyState({
           className="btn-primary press group mt-4 rounded-full bg-accent px-5 py-2 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
         >
           {actionLabel}
-          <ArrowRight className="ml-1 inline h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" strokeWidth={2} aria-hidden />
+          <ArrowRight className="ml-1 inline h-3.5 w-3.5 transition-transform duration-(--dur-2) group-hover:translate-x-0.5" strokeWidth={2} aria-hidden />
         </button>
       )}
     </div>
@@ -529,7 +529,7 @@ export default function Workspace() {
           href="/"
           className="group inline-flex items-center gap-1 text-[13px] text-ink-faint transition hover:text-accent"
         >
-          <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" strokeWidth={1.75} />
+          <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-(--dur-2) group-hover:-translate-x-0.5" strokeWidth={1.75} />
           返回列表
         </Link>
         <div className="mt-2 flex flex-wrap items-center gap-3">
@@ -802,7 +802,7 @@ export default function Workspace() {
                   href={`/api/projects/${id}/export/critique`}
                   className="press group inline-flex items-center gap-1 rounded-full border border-line px-3.5 py-1.5 text-xs text-ink-soft transition hover:border-accent/40 hover:text-accent"
                 >
-                  <Download className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-y-0.5" strokeWidth={1.75} />
+                  <Download className="h-3.5 w-3.5 transition-transform duration-(--dur-2) group-hover:translate-y-0.5" strokeWidth={1.75} />
                   导出 Word 报告
                 </a>
               </div>
@@ -858,7 +858,7 @@ export default function Workspace() {
                       </label>
                     </div>
                     {item.quote && (
-                      <p className="mt-2.5 border-l-2 border-line pl-3 text-[13px] italic text-ink-soft transition-colors duration-200 group-hover/crit:border-accent/50">
+                      <p className="mt-2.5 border-l-2 border-line pl-3 text-[13px] italic text-ink-soft transition-colors duration-(--dur-2) group-hover/crit:border-accent/50">
                         “{item.quote}”
                       </p>
                     )}
@@ -1031,7 +1031,7 @@ export default function Workspace() {
                   href={`/api/projects/${id}/export/response-letter`}
                   className="press group inline-flex items-center gap-1 rounded-full border border-line px-3.5 py-1.5 text-xs text-ink-soft transition hover:border-accent/40 hover:text-accent"
                 >
-                  <Download className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-y-0.5" strokeWidth={1.75} />
+                  <Download className="h-3.5 w-3.5 transition-transform duration-(--dur-2) group-hover:translate-y-0.5" strokeWidth={1.75} />
                   导出 Word Response Letter
                 </a>
               </div>
@@ -1188,7 +1188,7 @@ export default function Workspace() {
                     href={`/api/projects/${id}/export/cover-letter`}
                     className="press group inline-flex items-center gap-1 rounded-full border border-line px-3.5 py-1.5 text-xs text-ink-soft transition hover:border-accent/40 hover:text-accent"
                   >
-                    <Download className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-y-0.5" strokeWidth={1.75} />
+                    <Download className="h-3.5 w-3.5 transition-transform duration-(--dur-2) group-hover:translate-y-0.5" strokeWidth={1.75} />
                     导出 Word
                   </a>
                 </div>
@@ -1248,7 +1248,7 @@ export default function Workspace() {
                 href={`/api/projects/${id}/seminar/pptx`}
                 className="press group inline-flex items-center gap-1 rounded-full border border-line px-5 py-2 text-[13px] text-ink-soft transition hover:border-accent/40 hover:text-accent"
               >
-                <Download className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-y-0.5" strokeWidth={1.75} />
+                <Download className="h-3.5 w-3.5 transition-transform duration-(--dur-2) group-hover:translate-y-0.5" strokeWidth={1.75} />
                 下载 PPTX(讲稿在演讲者备注)
               </a>
             )}

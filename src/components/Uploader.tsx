@@ -114,12 +114,12 @@ export default function Uploader({ onCreated }: { onCreated: (id: string) => voi
             onChange={(e) => pickFile(e.target.files?.[0] ?? null)}
           />
           <span
-            className={`mx-auto mb-3 grid h-11 w-11 place-items-center rounded-full transition-colors duration-200 ${
+            className={`mx-auto mb-3 grid h-11 w-11 place-items-center rounded-full transition-colors duration-(--dur-2) ${
               dragging ? "bg-accent-soft text-accent" : "bg-accent-soft/60 text-ink-faint group-hover:text-accent"
             }`}
           >
             <Upload
-              className={`h-5 w-5 transition-transform duration-200 group-hover:-translate-y-0.5 ${
+              className={`h-5 w-5 transition-transform duration-(--dur-2) group-hover:-translate-y-0.5 ${
                 dragging ? "-translate-y-1" : ""
               }`}
               strokeWidth={1.5}
@@ -194,7 +194,7 @@ export default function Uploader({ onCreated }: { onCreated: (id: string) => voi
         ) : (
           <>
             上传并解析(自动脱敏)
-            <ArrowRight className="ml-1 inline h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" strokeWidth={2} />
+            <ArrowRight className="ml-1 inline h-3.5 w-3.5 transition-transform duration-(--dur-2) group-hover:translate-x-0.5" strokeWidth={2} />
           </>
         )}
       </button>

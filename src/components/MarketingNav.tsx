@@ -11,7 +11,7 @@ export default function MarketingNav() {
         className="press flex items-center gap-2 rounded-full border border-line bg-white py-1.5 pl-1.5 pr-4 card-shadow"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.svg" alt="" className="h-9 w-9 rounded-full transition-transform duration-200 hover:-rotate-6" />
+        <img src="/logo.svg" alt="" className="h-9 w-9 rounded-full transition-transform duration-(--dur-2) hover:-rotate-6" />
         <span className="text-[15px] font-semibold tracking-tight">R&amp;R Studio</span>
       </Link>
 
@@ -45,7 +45,7 @@ export default function MarketingNav() {
           className="press group inline-flex items-center gap-1 rounded-full bg-accent px-5 py-2.5 text-[13px] font-medium text-white shadow-lg shadow-accent/25 transition hover:bg-accent/90"
         >
           免费开始
-          <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" strokeWidth={2} />
+          <ArrowRight className="h-3.5 w-3.5 transition-transform duration-(--dur-2) group-hover:translate-x-0.5" strokeWidth={2} />
         </Link>
       </div>
     </header>

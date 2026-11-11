@@ -67,7 +67,7 @@ export default function SegmentedControl<T extends string>({
             width: thumb.width,
             transform: `translateX(${thumb.left}px)`,
             transition: animate
-              ? "transform 0.24s cubic-bezier(0.3, 1.3, 0.35, 1), width 0.24s cubic-bezier(0.23, 1, 0.32, 1)"
+              ? "transform var(--dur-3) var(--ease-spring), width var(--dur-3) var(--ease-out)"
               : undefined,
           }}
         />
@@ -84,7 +84,7 @@ export default function SegmentedControl<T extends string>({
           aria-checked={o.value === value}
           title={o.title}
           onClick={() => onChange(o.value)}
-          className={`relative z-10 whitespace-nowrap rounded-full transition-colors duration-150 ${pad} ${
+          className={`relative z-10 whitespace-nowrap rounded-full transition-colors duration-(--dur-1) ${pad} ${
             o.value === value ? "font-medium text-ink" : "text-ink-soft hover:text-ink"
           }`}
         >

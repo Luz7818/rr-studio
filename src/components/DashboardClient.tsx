@@ -218,7 +218,7 @@ export default function Dashboard() {
                     <h3 className="line-clamp-2 text-sm font-medium text-ink">{p.title}</h3>
                     {/* 删除按钮悬停出现在右上角,徽章同步左移让位(触屏删除常显,故恒偏移) */}
                     <span
-                      className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium transition-transform duration-200 [@media(hover:none)]:-translate-x-7 group-focus-within:-translate-x-7 group-hover:-translate-x-7 ${STATUS_STYLE[p.status]}`}
+                      className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium transition-transform duration-(--dur-2) [@media(hover:none)]:-translate-x-7 group-focus-within:-translate-x-7 group-hover:-translate-x-7 ${STATUS_STYLE[p.status]}`}
                     >
                       {STATUS_LABEL[p.status]}
                     </span>

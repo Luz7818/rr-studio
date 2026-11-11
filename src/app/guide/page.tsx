@@ -71,7 +71,7 @@ export default function GuidePage() {
           href="/"
           className="group inline-flex items-center gap-1 text-sm text-ink-faint transition hover:text-accent"
         >
-          <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" strokeWidth={1.75} />
+          <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-(--dur-2) group-hover:-translate-x-0.5" strokeWidth={1.75} />
           返回首页
         </Link>
         <h1 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">使用指南</h1>
@@ -107,7 +107,7 @@ export default function GuidePage() {
               className="press group mt-4 inline-flex items-center gap-1.5 rounded-full bg-accent px-6 py-3 text-sm font-medium text-white transition hover:bg-accent/90"
             >
               免费开始
-              <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" strokeWidth={2} />
+              <ArrowRight className="h-4 w-4 transition-transform duration-(--dur-2) group-hover:translate-x-0.5" strokeWidth={2} />
             </Link>
             <p className="mt-3 text-xs text-ink-faint">Free 方案每月 1 篇 · 内测期需邀请码</p>
           </div>

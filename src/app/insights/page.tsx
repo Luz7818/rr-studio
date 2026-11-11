@@ -162,7 +162,7 @@ export default function InsightsPage() {
           href="/"
           className="group inline-flex items-center gap-1 text-[13px] text-ink-faint transition hover:text-accent"
         >
-          <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" strokeWidth={1.75} />
+          <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-(--dur-2) group-hover:-translate-x-0.5" strokeWidth={1.75} />
           返回列表
         </Link>
         <h1 className="mt-2 text-2xl font-semibold">审稿洞察</h1>
@@ -301,7 +301,7 @@ export default function InsightsPage() {
                 style={{ animationDelay: `${Math.min(i * 40, 240)}ms` }}
                 className="stagger group/tl relative py-3 pl-5"
               >
-                <span aria-hidden className="absolute left-0 top-[1.4rem] h-2 w-2 rounded-full bg-accent/70 transition-transform duration-200 group-hover/tl:scale-150" />
+                <span aria-hidden className="absolute left-0 top-[1.4rem] h-2 w-2 rounded-full bg-accent/70 transition-transform duration-(--dur-2) group-hover/tl:scale-150" />
                 <div className="flex flex-wrap items-center gap-2">
                   <Link href={`/projects/${t.id}`} className="link-fx w-fit font-medium text-ink hover:text-accent">
                     {t.title}

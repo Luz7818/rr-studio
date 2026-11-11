@@ -15,7 +15,7 @@ export default function BackToTop() {
     >
       回到顶部
       <ArrowUp
-        className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-y-0.5"
+        className="h-3.5 w-3.5 transition-transform duration-(--dur-2) group-hover:-translate-y-0.5"
         strokeWidth={1.75}
         aria-hidden
       />

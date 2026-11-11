@@ -96,7 +96,7 @@ export default function ConfirmDialog({
       <button
         aria-label="取消"
         onClick={() => requestClose(onCancel)}
-        className={`absolute inset-0 cursor-default bg-ink/25 backdrop-blur-[2px] transition-opacity duration-150 ${
+        className={`absolute inset-0 cursor-default bg-ink/25 backdrop-blur-[2px] transition-opacity duration-(--dur-1) ${
           closing ? "opacity-0" : "opacity-100"
         }`}
       />
@@ -105,7 +105,7 @@ export default function ConfirmDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`relative w-full max-w-sm rounded-xl border border-line bg-white p-6 shadow-xl shadow-ink/10 transition-[opacity,transform] duration-150 ${
+        className={`relative w-full max-w-sm rounded-xl border border-line bg-white p-6 shadow-xl shadow-ink/10 transition-[opacity,transform] duration-(--dur-1) ${
           closing ? "scale-[0.98] opacity-0" : "pop-in"
         }`}
       >

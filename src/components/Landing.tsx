@@ -118,7 +118,7 @@ export default function Landing() {
               className="press group inline-flex items-center gap-1.5 rounded-full bg-accent px-8 py-3.5 text-sm font-medium text-white shadow-lg shadow-accent/25 transition hover:bg-accent/90"
             >
               免费开始
-              <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" strokeWidth={2} />
+              <ArrowRight className="h-4 w-4 transition-transform duration-(--dur-2) group-hover:translate-x-0.5" strokeWidth={2} />
             </Link>
             <Link
               href="/pricing"
@@ -153,7 +153,7 @@ export default function Landing() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/showcase-review.png" alt="" width={1600} height={1000} loading="lazy" className="block h-auto w-full" />
           </div>
-          <div className="float-soft relative overflow-hidden rounded-2xl border border-accent/25 bg-white shadow-2xl shadow-accent/15 transition-transform duration-300 [transform:perspective(1400px)] hover:[transform:perspective(1400px)_rotateX(1.5deg)_rotateY(-2deg)]">
+          <div className="float-soft relative overflow-hidden rounded-2xl border border-accent/25 bg-white shadow-2xl shadow-accent/15 transition-transform duration-(--dur-4) [transform:perspective(1400px)] hover:[transform:perspective(1400px)_rotateX(1.5deg)_rotateY(-2deg)]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/showcase-response.png"
@@ -184,7 +184,7 @@ export default function Landing() {
           {FEATURES.map((f, i) => (
             <Reveal key={f.title} delay={(i % 3) * 70}>
               <div className="group h-full rounded-2xl border border-line bg-white p-6 transition hover:shadow-lg hover:shadow-accent/5">
-                <span className="mb-4 inline-grid h-10 w-10 place-items-center rounded-full bg-accent-soft text-accent transition-transform duration-200 group-hover:scale-110">
+                <span className="mb-4 inline-grid h-10 w-10 place-items-center rounded-full bg-accent-soft text-accent transition-transform duration-(--dur-2) group-hover:scale-110">
                   <f.icon className="h-5 w-5" strokeWidth={1.75} />
                 </span>
                 <h3 className="text-[15px] font-semibold">{f.title}</h3>
@@ -264,7 +264,7 @@ export default function Landing() {
               <details className="group rounded-2xl border border-line bg-white px-5 transition open:shadow-lg open:shadow-accent/5">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-4 text-sm font-medium text-ink [&::-webkit-details-marker]:hidden">
                   {q}
-                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-band text-ink-soft transition-transform duration-200 group-open:rotate-45">
+                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-band text-ink-soft transition-transform duration-(--dur-2) group-open:rotate-45">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
                   </span>
                 </summary>
@@ -291,7 +291,7 @@ export default function Landing() {
               className="press group mt-8 inline-flex items-center gap-1.5 rounded-full bg-accent px-10 py-3.5 text-sm font-medium text-white transition hover:bg-accent/90"
             >
               现在开始
-              <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" strokeWidth={2} />
+              <ArrowRight className="h-4 w-4 transition-transform duration-(--dur-2) group-hover:translate-x-0.5" strokeWidth={2} />
             </Link>
           </div>
         </Reveal>
