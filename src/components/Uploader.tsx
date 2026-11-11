@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { ArrowRight, FilePlus2, Upload, X } from "lucide-react";
 import IconChip from "@/components/IconChip";
 import SegmentedControl from "@/components/SegmentedControl";
@@ -18,7 +18,6 @@ export default function Uploader({ onCreated }: { onCreated: (id: string) => voi
   const [targetJournal, setTargetJournal] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const pickFile = (f: File | null | undefined) => {
     if (!f) return;
@@ -85,8 +84,12 @@ export default function Uploader({ onCreated }: { onCreated: (id: string) => voi
       </div>
 
       {mode === "file" ? (
-        <div
-          onClick={() => fileInputRef.current?.click()}
+        // a11y(RR4-8):拖放区用 label 包裹 sr-only 文件选择框——label 语义自动把点击与
+        // 键盘激活(Enter/Space)转发给 input,读屏可从可见文本命名控件;sr-only 保持
+        // 可 Tab 聚焦(原 hidden=display:none 连 Tab 都进不了),键盘焦点描边见
+        // globals.css .dropzone:has(:focus-visible)。视觉(样式类/拖拽行为)不变。
+        <label
+          htmlFor="uploader-file-input"
           onDragOver={(e) => {
             e.preventDefault();
             setDragging(true);
@@ -97,17 +100,17 @@ export default function Uploader({ onCreated }: { onCreated: (id: string) => voi
             setDragging(false);
             pickFile(e.dataTransfer.files?.[0]);
           }}
-          className={`group cursor-pointer rounded-2xl border border-dashed px-6 py-10 text-center transition ${
+          className={`dropzone block group cursor-pointer rounded-2xl border border-dashed px-6 py-10 text-center transition ${
             dragging
               ? "border-accent bg-accent-soft/60"
               : "border-line bg-dots-faint hover:border-accent/60 hover:bg-accent-soft/30"
           }`}
         >
           <input
-            ref={fileInputRef}
+            id="uploader-file-input"
             type="file"
             accept=".pdf,.docx,.txt,.md"
-            className="hidden"
+            className="sr-only focus-visible:outline-none"
             onChange={(e) => pickFile(e.target.files?.[0] ?? null)}
           />
           <span
@@ -135,7 +138,7 @@ export default function Uploader({ onCreated }: { onCreated: (id: string) => voi
               <p className="mt-1 text-xs text-ink-faint">支持 PDF / DOCX / TXT / MD,单文件 ≤ {MAX_FILE_MB}MB</p>
             </div>
           )}
-        </div>
+        </label>
       ) : (
         <div>
           <textarea

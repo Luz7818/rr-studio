@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { CalendarCheck, GitCompareArrows, Sparkles, Upload } from "lucide-react";
 import IconChip from "@/components/IconChip";
 import ConfirmDialog from "@/components/ConfirmDialog";
@@ -51,7 +51,6 @@ export default function RevisionPanel({
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const id = project.id;
 
   const clearRevision = () => {
@@ -158,21 +157,24 @@ export default function RevisionPanel({
               ]}
             />
             {mode === "file" ? (
-              <div
-                onClick={() => fileInputRef.current?.click()}
+              // a11y(RR4-9):同 Uploader(RR4-8)——label 包裹 sr-only 文件选择框,
+              // 键盘可 Tab 聚焦并以 Enter/Space 唤起选文件;焦点描边见
+              // globals.css .dropzone:has(:focus-visible)。视觉与拖拽行为不变。
+              <label
+                htmlFor="revision-file-input"
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => {
                   e.preventDefault();
                   const f = e.dataTransfer.files?.[0];
                   if (f) setFile(f);
                 }}
-                className="group cursor-pointer rounded-2xl border border-dashed border-line px-6 py-8 text-center transition hover:border-accent/50 hover:bg-accent-soft/50"
+                className="dropzone block group cursor-pointer rounded-2xl border border-dashed border-line px-6 py-8 text-center transition hover:border-accent/50 hover:bg-accent-soft/50"
               >
                 <input
-                  ref={fileInputRef}
+                  id="revision-file-input"
                   type="file"
                   accept=".pdf,.docx,.txt,.md"
-                  className="hidden"
+                  className="sr-only focus-visible:outline-none"
                   onChange={(e) => setFile(e.target.files?.[0] ?? null)}
                 />
                 {file ? (
@@ -185,7 +187,7 @@ export default function RevisionPanel({
                     <p className="text-[13px] text-ink-soft">点击选择或拖拽修改稿(PDF / DOCX / TXT)</p>
                   </>
                 )}
-              </div>
+              </label>
             ) : (
               <textarea
                 value={pasteText}
