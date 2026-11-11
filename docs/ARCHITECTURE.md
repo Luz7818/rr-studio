@@ -77,9 +77,12 @@ src/
 | `api/projects/[id]/revision/summary` | POST | 逐节差异+总评 |
 | `api/projects/[id]/revision/re-review` | POST | 修改稿重审 |
 | `api/projects/[id]/revision/promise-check` | POST | 承诺兑现核查 |
-| `api/projects/[id]/export/*` | GET | Word 导出 ×2 |
+| `api/projects/[id]/export/*` | GET | Word 导出 ×3(response-letter/critique/cover-letter) |
 | `api/auth/*`、`auth/callback` | — | 注册/登录/登出/确认回调 |
 | `api/insights` | GET | 跨项目聚合(命中率/兑现率) |
+
+共 22 个 Route Handler:21 个在 `src/app/api/`(`find src/app/api -name route.ts` 输出 21 行),
+另有 `src/app/auth/callback/route.ts` 1 个(`find src/app -name route.ts` 输出 22 行)。
 
 ## 数据组织
 

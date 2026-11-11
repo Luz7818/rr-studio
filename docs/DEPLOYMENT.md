@@ -36,8 +36,10 @@ Dashboard → Settings → Environment Variables 至少配置:
 | `LLM_EXTRA_BODY` | 供应商需要时 | JSON 字符串,见 `.env.example` |
 | `NEXT_PUBLIC_SUPABASE_URL` 等 | SaaS 时 | 见下节 |
 
-注意:本地 `.data/` 存储在 Vercel 上**不可用**(文件系统只读、实例不共享)。线上必须完成
-Supabase 接入再开放注册;纯演示可在 Vercel 跑,但数据不持久。
+注意:本地 `.data/` 存储在 Vercel 上**不可用**(文件系统只读、实例不共享)。数据根硬编码在
+`src/lib/store.ts:24`(`process.cwd()/.data`,无法外接存储),演示模式的写步(上传稿件落库)在线上
+同样必挂——「纯演示可在 Vercel 跑」不成立(线上 smoke 曾实测写步失败)。两条修法:**本地模式仅限
+自托管**(有持久文件系统);**线上部署必须完成 Supabase 接入**(SaaS 模式)再开放注册。
 
 ## Supabase 接入(开放注册前置)
 
@@ -63,7 +65,7 @@ Supabase 接入再开放注册;纯演示可在 Vercel 跑,但数据不持久。
 SMOKE_BASE_URL=https://<域名> LLM_API_KEY= npm run smoke
 ```
 
-14/14 通过即线上功能完整(该轮跑演示模式,不消耗 key;真实模式同理可验)。
+15/15 通过即线上功能完整(该轮跑演示模式,不消耗 key;真实模式同理可验)。
 
 ## 排障
 

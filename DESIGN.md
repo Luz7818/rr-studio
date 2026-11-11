@@ -111,7 +111,12 @@
 
 ## 动效
 
-- 统一缓动曲线 `cubic-bezier(0.23, 1, 0.32, 1)`(强 ease-out),UI 动效一律 ≤ 300ms。
+- 缓动/时长统一走 `globals.css` `@theme` 动效令牌(2026-11-05 批新增,11-11 批2 全量归仓):
+  五缓动 `--ease-out`(强 ease-out,`cubic-bezier(0.23,1,0.32,1)`)/`--ease-in-out`/`--ease-drawer`/
+  `--ease-spring`(一次到达可轻微过冲,滑块/勾选回执用)/`--ease-in`(= linear,循环/进度类语义占位);
+  四档时长 `--dur-1..4` = 120/180/240/300ms,UI 动效一律 ≤ 300ms。新增过渡一律引用变量,
+  不在规则内写裸 `cubic-bezier` 或裸秒数;超四档的豁免(bar-fill 0.6s、reveal 0.65s、shimmer 1.5s
+  循环周期)在 globals.css 逐处带理由注释。
 - 数据条一律用 `FillBar` 组件(挂载从 0 填充到目标宽度);弹层入场 `.pop-in`,退场淡出由
   `ConfirmDialog` 内建(130ms,reduced-motion 直关)。
 - 微交互:按压 `.press`(active `scale(0.97)`);内容块进入 `.rise-in`;列表交错 `.stagger`
@@ -119,8 +124,8 @@
   `.spinner`(currentColor);流水线步骤徽章完成时 Check 以 `.icon-pop` 弹入一次;
   实底按钮悬停 `-1px` 浮起、按压归位(`.btn-primary`/`.btn-dark` 自带);行内链接划线
   `.link-fx`(scaleX 从左划入);骨架屏 shimmer(`.skeleton::after` 白光扫过);意见引用块
-  悬停点亮(容器 group + 边框变色);分段控件活动块带 ~3% 过冲
-  (`cubic-bezier(0.3,1.3,0.35,1)`);极光底图 26s 漂移(`.page-deco`);空态插画小幅漂浮
+  悬停点亮(容器 group + 边框变色);分段控件活动块 transform 带 ~12% 过冲(`--ease-spring`,
+  width 部分仍 `--ease-out`,240ms);极光底图 26s 漂移(`.page-deco`);空态插画小幅漂浮
   (`.float-soft-xs`);Logo 悬停微倾(-6°)。
 - 键盘触发的状态变化不加动画:页签数字键 1–7 直跳;count-up 只用于洞察页统计卡,
   `prefers-reduced-motion` 时直显终值。

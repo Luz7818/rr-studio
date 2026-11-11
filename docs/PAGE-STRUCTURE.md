@@ -16,7 +16,8 @@
 | `/changelog` | `app/changelog/page.tsx` | 更新日志(用户视角亮点) | 静态 |
 | `/privacy` | `app/privacy/page.tsx` | 隐私说明 | 静态 |
 
-公开性由 `src/proxy.ts` 控制:`/` 与 `/pricing` 放行,其余未登录跳 `/login`。
+公开性由 `src/proxy.ts` 控制:`/`、`/pricing`、`/privacy`、`/guide`、`/changelog` 5 个公开页放行,
+其余未登录跳 `/login`。
 
 ## 工作台页签(`projects/[id]/Workspace.tsx`)
 

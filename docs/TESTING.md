@@ -16,7 +16,7 @@
 ```bash
 npm run lint            # 0 告警 0 错误
 npm test                # 17/17 通过
-npm run build           # 编译 + 21 路由 + 7 页面全部生成
+npm run build           # 编译 + 21 路由 + 9 页面全部生成
 LLM_API_KEY= npm run smoke   # 演示模式,零 API 消耗,15/15 通过
 npm run smoke            # 真实模式:所有 LLM 环节真实调用,需可用 key 与网络
 SMOKE_BASE_URL=https://<域名> npm run smoke   # 验线上部署
