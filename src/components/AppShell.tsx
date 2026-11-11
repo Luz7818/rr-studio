@@ -59,6 +59,17 @@ export default function AppShell({
     }
   };
 
+  // 只读分享页(/s/[token]):隐藏全部导航与账号入口,仅渲染内容(设计 §2.3-A)
+  if (pathname.startsWith("/s/")) {
+    return (
+      <div className="min-h-dvh">
+        <main>
+          <div className="mx-auto max-w-5xl px-5 py-8 sm:px-8 lg:px-12 lg:py-10">{children}</div>
+        </main>
+      </div>
+    );
+  }
+
   const accountBlock = saas ? (
     email ? (
       <div className="rounded-2xl bg-band p-3.5">

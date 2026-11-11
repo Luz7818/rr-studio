@@ -22,6 +22,8 @@ import {
   MinusCircle,
   PenLine,
   Presentation,
+  Share2,
+  Link2,
   ShieldCheck,
   Sigma,
   SpellCheck,
@@ -270,6 +272,13 @@ export default function Workspace() {
   const [litQuery, setLitQuery] = useState("");
   /** 回复线程状态筛选:定位还没打磨完/还没裁决的意见 */
   const [threadFilter, setThreadFilter] = useState<"all" | "undrafted" | "undecided">("all");
+  /** 只读分享:面板展开态 + 有效分享列表(懒加载)+ 最近创建的链接 */
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shares, setShares] = useState<
+    Array<{ id: string; url: string; createdAt: string; expiresAt: string }>
+  >([]);
+  const [shareLink, setShareLink] = useState<string | null>(null);
+  const [shareBusy, setShareBusy] = useState(false);
   const litPrefilled = useRef(false);
   useEffect(() => {
     if (!litPrefilled.current && project?.literature) {
@@ -302,6 +311,56 @@ export default function Workspace() {
       setError(e instanceof Error ? e.message : "加载失败");
     }
   }, [id, applyLoaded]);
+
+  // 只读分享:列表懒加载(面板展开时)、创建、软撤销
+  const loadShares = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/projects/${id}/share`);
+      const data = await res.json();
+      if (res.ok) setShares(data.shares ?? []);
+    } catch {
+      // 列表拉取失败静默:面板仍可用,创建/撤销各自报错
+    }
+  }, [id]);
+
+  const createShare = useCallback(async () => {
+    setShareBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/projects/${id}/share`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "创建分享失败");
+      setShareLink(data.url);
+      await loadShares();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "创建分享失败");
+    } finally {
+      setShareBusy(false);
+    }
+  }, [id, loadShares]);
+
+  const revokeShare = useCallback(
+    async (shareId: string) => {
+      const target = shares.find((s) => s.id === shareId);
+      try {
+        const res = await fetch(`/api/projects/${id}/share/${shareId}`, { method: "DELETE" });
+        if (res.ok) {
+          setShares((s) => s.filter((x) => x.id !== shareId));
+          if (target && shareLink === target.url) setShareLink(null);
+        } else {
+          const d = (await res.json().catch(() => null)) as { error?: string } | null;
+          setError(d?.error ?? "撤销失败");
+        }
+      } catch {
+        setError("撤销失败");
+      }
+    },
+    [id, shares, shareLink],
+  );
 
   useEffect(() => {
     void (async () => {
@@ -554,6 +613,22 @@ export default function Workspace() {
           <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${STATUS_STYLE[project.status] ?? "border-line bg-band text-ink-soft"}`}>
             {STATUS_LABEL[project.status] ?? project.status}
           </span>
+          <button
+            onClick={() => {
+              const next = !shareOpen;
+              setShareOpen(next);
+              if (next) void loadShares();
+            }}
+            aria-expanded={shareOpen}
+            className={`press inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] transition ${
+              shareOpen
+                ? "border-accent/40 bg-accent-soft text-accent"
+                : "border-line text-ink-soft hover:border-accent/40 hover:text-accent"
+            }`}
+          >
+            <Share2 className="h-3 w-3" strokeWidth={1.75} />
+            分享
+          </button>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {(
@@ -581,6 +656,55 @@ export default function Workspace() {
             </Fragment>
           ))}
         </div>
+        {shareOpen && (
+          <div className="rise-in mt-3 rounded-2xl border border-line bg-white p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-xs font-medium text-ink">只读分享链接</p>
+              <button
+                onClick={() => void createShare()}
+                disabled={shareBusy}
+                className="press rounded-full border border-accent/30 px-3 py-1 text-[11px] font-medium text-accent transition hover:bg-accent-soft disabled:opacity-50"
+              >
+                {shareBusy ? "创建中…" : "生成分享链接(7 天)"}
+              </button>
+            </div>
+            {shareLink && (
+              <p className="mt-2 flex flex-wrap items-center gap-2 rounded-xl bg-band px-3 py-2 text-xs">
+                <Link2 className="h-3.5 w-3.5 shrink-0 text-accent" strokeWidth={1.75} />
+                <code className="min-w-0 flex-1 truncate text-ink-soft">{shareLink}</code>
+                <CopyButton text={shareLink} label="复制链接" />
+              </p>
+            )}
+            {shares.length > 0 ? (
+              <ul className="mt-2 space-y-1">
+                {shares.map((s) => (
+                  <li
+                    key={s.id}
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-xl px-3 py-1.5 text-xs transition hover:bg-band"
+                  >
+                    <span className="min-w-0 flex-1 truncate text-ink-soft">
+                      {s.url.replace(/^https?:\/\//, "")}
+                    </span>
+                    <span className="shrink-0 text-ink-faint">
+                      {new Date(s.expiresAt).toLocaleDateString("zh-CN")} 到期
+                    </span>
+                    <button
+                      onClick={() => void revokeShare(s.id)}
+                      className="press shrink-0 text-[11px] text-ink-faint transition hover:text-rose-600"
+                    >
+                      撤销
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-2 text-[11px] leading-relaxed text-ink-faint">
+                暂无有效分享。链接接收方只能看到只读报告快照(Critique/审稿意见/修改稿对照),
+                看不到稿件原文、回复草稿与 Cover Letter。
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       {!llmConfigured && (

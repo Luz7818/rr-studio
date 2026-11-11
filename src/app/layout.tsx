@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import "./globals.css";
 import { getSessionUser, isSaasMode } from "@/lib/auth";
 import AppShell from "@/components/AppShell";
@@ -36,19 +35,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // SaaS 未登录 = 营销壳:页面自备浮岛导航,脱离应用侧栏
   const bare = saas && !user;
 
+  // 此处刻意不加 <Suspense> 边界包裹 AppShell(曾用于 useSearchParams 预渲染兜底,
+  // 本仓全部路由 force-dynamic 后不再需要):边界会让外壳先冲刷,页面内 notFound()
+  // 只能落成「200 + 带内 404 UI」——/s/[token] 分享页的 token 校验必须拿到真 404
+  // 状态码(防探测语义,smoke 撤销→404 步钉死),实测移除后 404 正常。
   return (
     <html lang="zh-CN" data-scroll-behavior="smooth">
       <body className="antialiased" data-bare={bare ? "true" : undefined}>
         <PageDeco />
-        {bare ? (
-          children
-        ) : (
-          <Suspense fallback={<div className="min-h-dvh" />}>
-            <AppShell saas={saas} email={user?.email}>
-              {children}
-            </AppShell>
-          </Suspense>
-        )}
+        {bare ? children : <AppShell saas={saas} email={user?.email}>{children}</AppShell>}
       </body>
     </html>
   );

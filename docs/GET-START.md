@@ -53,11 +53,12 @@ LLM_MODEL=glm-4.6
 LLM_API_KEY= npm run smoke
 ```
 
-`结果: 16/16 项通过 ✅ 可以交付` 即全部功能正常(16 步会自建并清理测试数据)。
+`结果: 18/18 项通过 ✅ 可以交付` 即全部功能正常(18 步会自建并清理测试数据)。
 
 ## SaaS 模式(开放给用户)
 
-在 Supabase 建项目后,于 SQL Editor 执行 `supabase/migration.sql`,生成邀请码并填好
+在 Supabase 建项目后,于 SQL Editor 执行 `supabase/migration.sql` 与
+`supabase/migration-002-shares.sql`,生成邀请码并填好
 `.env.local` 的三个 Supabase 变量。详细步骤与验证清单见 `docs/DEPLOYMENT.md`。
 本地模式数据在 `.data/`,切 SaaS 后旧数据不自动上云(按 user_id 隔离是新写入)。
 

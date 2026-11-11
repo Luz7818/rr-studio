@@ -482,3 +482,33 @@
   APA 年份段、GB/T 序号与 [J(/OL)] 标识、未知格式 400;smoke 15 步 → 16 步。
 - 验证:lint 0 告警 0 错误、vitest 30/30(parse 10 + sanitize 7 + citations 13)、
   生产构建通过(22 API 路由 + 9 页面)。
+
+## 2026-11-12 · v0.22.0 只读分享链接(token 防探测)
+
+- 工作台标题行新增「分享」按钮:生成只读分享链接(默认 7 天,夹取 1..90 天),面板列有效
+  分享与到期日,可逐条软撤销(置 revoked_at 留审计痕迹)。
+- 接口四条:`POST /api/projects/[id]/share`({ttlDays?}→{url, expiresAt})、
+  `GET /api/projects/[id]/share`(owner 管理视图,仅有效分享)、
+  `DELETE /api/projects/[id]/share/[shareId]`(软撤销,不属于该稿件 404)、
+  公开 `GET /api/share/[token]`(无登录态)。
+- **token 校验不过一律 404**(综合路线图 §3.6-5 红线):不存在/过期/已撤销/形态非法/
+  service key 未配/项目已删全部走同一 404,不区分原因,无存在性泄露防枚举探测;
+  只读页 `/s/[token]` 同语义 notFound(),metadata robots noindex。
+- 新 `src/lib/share.ts` 双实现:SaaS 走 `report_shares` 表(owner 全权 RLS、anon 无任何
+  select 策略,公开兑换走 service role——与 invite_codes 同一权限模型;迁移
+  `supabase/migration-002-shares.sql` 增量幂等);本地走 `.data/shares/<token>.json`
+  + `index.json` 项目索引(刻意不用 fs.readdir 枚举目录,避免 Turbopack 动态 fs 整仓
+  tracing 警告,构建保持 0 警告)。token = crypto randomBytes(32) base64url(256-bit,
+  43 字符),路由入口先做形态校验再查存储。
+- 只读投影 `sanitizeForShare` 纯函数白名单制:title/status/时间戳/meta/critique/reviews/
+  revision 七键显式构造,稿件原文 sections、回复线程 responses、Cover Letter、组会、
+  文献列表与未来新增字段一律不进公开面;只读页隐藏全部编辑入口(AppShell 按 /s/ 前缀
+  裸渲染)与导航,proxy.ts 公开页清单加 `/s/*`(SaaS 匿名访客免登录直达)。
+- smoke 16→18 步:分享两步(创建→匿名只读 200+投影断言+无效/非法 token 404 → 撤销→404)。
+- smoke 两次实测逮住并修复两个真问题:①`/s/[token]` 页被动态段按需渲染缓存,撤销后仍吐
+  旧快照 → 页面 `dynamic = "force-dynamic"`;②根布局 `<Suspense>` 包裹 AppShell 使外壳先
+  冲刷,页面内 notFound() 只能落「200 + 带内 404 UI」(NEXT_HTTP_ERROR_FALLBACK;404 已在
+  响应体而状态码 200)→ 移除该边界(layout.tsx 带注释;全部路由本就 force-dynamic,
+  useSearchParams 预渲染兜底已无必要,build 验证无回归),404 状态码恢复正常。
+- 验证:lint 0 告警 0 错误、vitest 41/41(parse 10 + sanitize 7 + citations 13 + share 11)、
+  生产构建通过(25 API 路由 + 10 页面,0 警告)。

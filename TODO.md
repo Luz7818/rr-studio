@@ -4,13 +4,13 @@
 
 ## 当前状态
 
-M1/M2/M3 全部完成并通过 16 步端到端自检(复核:`LLM_API_KEY= npm run smoke`)。
+M1/M2/M3 全部完成并通过 18 步端到端自检(复核:`LLM_API_KEY= npm run smoke`)。
 下一优先级:**部署上线**(P1),其余按序。
 
 ## P1 · 部署上线
 
 - [ ] Vercel 部署:配置 `LLM_API_KEY` 等环境变量,`SMOKE_BASE_URL=https://<域名> npm run smoke` 验线。
-- [ ] Supabase 实际接入:建项目 → 执行 `supabase/migration.sql` → 生成邀请码 → 填三个环境变量。
+- [ ] Supabase 实际接入:建项目 → 执行 `supabase/migration.sql` 与 `supabase/migration-002-shares.sql` → 生成邀请码 → 填三个环境变量。
   - 验收:注册(邀请码)→ 免费额度第 2 篇被拒 → SQL 升级 Pro 后解锁,全流程走通。
 - [ ] 域名与引流:挂在 luzzz.me 子路径或子域,落地页 OG 卡片实测。
 
@@ -24,6 +24,11 @@ M1/M2/M3 全部完成并通过 16 步端到端自检(复核:`LLM_API_KEY= npm ru
   `src/lib/citations.ts`,期望值为 CSL 官方样式 citeproc-js 实渲染对拍基准,见 citations.test.ts)。
   - 验收:`npm test` citations 13 用例全绿;smoke 引用导出步断言 @article 条目数、APA 年份段、
     GB/T 序号与 [J] 标识、未知格式 400。
+- [x] 只读分享链接(v0.22.0 完成:`POST /api/projects/[id]/share` + 列表 + 软撤销 + 公开
+  `GET /api/share/[token]` + `/s/[token]` 只读页;token 256-bit url-safe,7 天默认有效期,
+  校验不过一律 404 防探测;SaaS 走 report_shares 表 RLS(migration-002)+ service role 兑换,
+  本地走 `.data/shares/`)。
+  - 验收:`npm test` share 11 用例全绿;smoke 分享两步(创建→匿名只读 200→撤销→404)。
 - [ ] 课题组管理台(Lab 版多席位)。
 - [ ] Response Letter 导出格式可配置(期刊模板)。
 
@@ -34,6 +39,6 @@ M1/M2/M3 全部完成并通过 16 步端到端自检(复核:`LLM_API_KEY= npm ru
 
 ## P4 · 工程补强
 
-- [x] 单元测试层:parse/sanitize/citations 已有 30 个 vitest 用例(`npm test`;LLM 相关模块仍靠 smoke 覆盖)。
+- [x] 单元测试层:parse/sanitize/citations/share 已有 41 个 vitest 用例(`npm test`;LLM 相关模块仍靠 smoke 覆盖)。
 - [x] 配置 CI(GitHub Actions:lint + test + build + 演示模式 smoke)。
 - [ ] 文献检索词质量回看:真实论文场景下核对检索命中率,必要时换 PubMed/Europe PMC 做医口。

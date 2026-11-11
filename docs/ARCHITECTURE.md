@@ -29,12 +29,13 @@ Next.js 16 App Router 单体全栈:同一进程承载 React 页面(Static/PPR)�
 ```
 src/
 ├── app/                  页面与 API(App Router 约定)
-│   ├── api/              22 个 Route Handler,见下表
+│   ├── api/              25 个 Route Handler,见下表
 │   ├── auth/callback/    邮箱确认回调(code 换 session)
 │   ├── insights/         审稿洞察页
 │   ├── login/ signup/    认证页
 │   ├── pricing/          定价页(公开)
 │   ├── projects/[id]/    流水线工作台(7 页签)
+│   ├── s/[token]/        只读分享页(公开,token 校验不过 404)
 │   ├── layout.tsx        根布局:侧栏外壳 + 元数据/OG
 │   └── page.tsx          首页:本地模式=仪表盘,SaaS 未登录=落地页
 ├── components/           AppShell / Dashboard / Uploader / Landing / FooterYear
@@ -58,6 +59,7 @@ src/
 | `quota.ts` | 方案读取与免费额度(自然月) |
 | `literature.ts` | OpenAlex/Semantic Scholar 检索、摘要重建、去重排序 |
 | `citations.ts` | 引用导出三纯函数(BibTeX/APA/GB-T 7714),期望值与 CSL 实渲染对拍 |
+| `share.ts` | 报告分享:create/redeem/revoke/list 双实现 + 只读投影白名单(404 防探测语义) |
 | `supabase/server.ts` | SSR 客户端工厂 |
 
 ## API 路由一览
@@ -79,19 +81,23 @@ src/
 | `api/projects/[id]/revision/re-review` | POST | 修改稿重审 |
 | `api/projects/[id]/revision/promise-check` | POST | 承诺兑现核查 |
 | `api/projects/[id]/export/*` | GET | Word 导出 ×3(response-letter/critique/cover-letter)+ 引用列表 ×1(citations?format=bibtex\|apa\|gbt7714) |
+| `api/projects/[id]/share` | POST/GET | 创建分享({url, expiresAt})/ 列出有效分享(owner 管理视图) |
+| `api/projects/[id]/share/[shareId]` | DELETE | 软撤销分享(置 revoked_at) |
+| `api/share/[token]` | GET | 公开兑换只读投影;校验不过(不存在/过期/撤销)一律 404 防探测 |
 | `api/auth/*`、`auth/callback` | — | 注册/登录/登出/确认回调 |
 | `api/insights` | GET | 跨项目聚合(命中率/兑现率) |
 
-共 23 个 Route Handler:22 个在 `src/app/api/`(`find src/app/api -name route.ts` 输出 22 行),
-另有 `src/app/auth/callback/route.ts` 1 个(`find src/app -name route.ts` 输出 23 行)。
+共 26 个 Route Handler:25 个在 `src/app/api/`(`find src/app/api -name route.ts` 输出 25 行),
+另有 `src/app/auth/callback/route.ts` 1 个(`find src/app -name route.ts` 输出 26 行)。
 
 ## 数据组织
 
 - **本地模式**:`.data/projects/<userId>/<uuid>.json`,每稿一文件;旧版单层目录首次访问自动迁入
-  `local/`。整目录已 gitignore。
+  `local/`。分享记录在 `.data/shares/<token>.json`(附 `index.json` 项目索引)。整目录已 gitignore。
 - **SaaS 模式**:`projects` 表(`id uuid PK, user_id, title, status, data jsonb, created_at,
   updated_at`),`data` 即完整 Project;RLS 限定 `auth.uid() = user_id`;`profiles`(方案)、
-  `invite_codes`(邀请码,仅 service role)建表见 `supabase/migration.sql`。
+  `invite_codes`(邀请码,仅 service role)建表见 `supabase/migration.sql`;`report_shares`
+  (分享,owner 全权 RLS、anon 无策略,公开读取走 service role)见 `supabase/migration-002-shares.sql`。
 - **`.env.local`**:LLM 与 Supabase 凭据,gitignore;模板在 `.env.example`。
 
 ## 模块依赖

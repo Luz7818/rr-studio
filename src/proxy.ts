@@ -39,13 +39,15 @@ export async function proxy(request: NextRequest) {
   }
 
   const isAuthPage = pathname === "/login" || pathname === "/signup";
-  // 落地页、定价页、隐私说明、使用指南与更新日志对未登录访客开放
+  // 落地页、定价页、隐私说明、使用指南、更新日志与只读分享页对未登录访客开放
+  // (/s/[token] 页面自校验 token,校验不过 notFound 404,不存在性不泄露)
   const isPublicPage =
     pathname === "/" ||
     pathname === "/pricing" ||
     pathname === "/privacy" ||
     pathname === "/guide" ||
-    pathname === "/changelog";
+    pathname === "/changelog" ||
+    pathname.startsWith("/s/");
 
   if (!user && !isAuthPage && !isPublicPage) {
     return NextResponse.redirect(new URL("/login", request.url));

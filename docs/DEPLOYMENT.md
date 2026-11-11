@@ -6,6 +6,8 @@
 
 - [ ] **重跑 `supabase/migration.sql`**(2026-10 后版本含 `llm_usage` 表与 `increment_llm_usage`
       函数,LLM 月度限额依赖;全部语句幂等,已建环境直接完整重跑)。
+- [ ] **执行 `supabase/migration-002-shares.sql`**(2026-11 增量:`report_shares` 分享表 + RLS;
+      幂等可重复执行;公开读取依赖 `SUPABASE_SERVICE_ROLE_KEY`,未配置时分享页一律 404)。
 - [ ] **LLM 供应商换公共渠道**(智谱/DeepSeek 等):高校端点(如 SEU aicloud)在校外 IP 被 WAF
       420 拦截,Vercel 出口必挂;同时确认所选供应商**不拿用户数据训练模型**(见 `/privacy`)。
 - [ ] **Vercel 函数时长**:LLM 路由已声明 `maxDuration = 60`;Hobby 计划函数上限即 60s,8 章节
@@ -44,7 +46,8 @@ Dashboard → Settings → Environment Variables 至少配置:
 ## Supabase 接入(开放注册前置)
 
 1. [supabase.com](https://supabase.com) 建项目(免费档够内测)。
-2. SQL Editor 完整执行 `supabase/migration.sql`(建表 + 注册触发器 + RLS)。
+2. SQL Editor 完整执行 `supabase/migration.sql`(建表 + 注册触发器 + RLS)与
+   `supabase/migration-002-shares.sql`(分享表,增量幂等)。
 3. 生成邀请码:`insert into public.invite_codes (code, note) values ('RR-BETA-0001', '首批内测');`
 4. 环境变量:`NEXT_PUBLIC_SUPABASE_URL`、`NEXT_PUBLIC_SUPABASE_ANON_KEY`、
    `SUPABASE_SERVICE_ROLE_KEY`(服务端邀请码校验用,勿泄露)。
@@ -65,7 +68,7 @@ Dashboard → Settings → Environment Variables 至少配置:
 SMOKE_BASE_URL=https://<域名> LLM_API_KEY= npm run smoke
 ```
 
-16/16 通过即线上功能完整(该轮跑演示模式,不消耗 key;真实模式同理可验)。
+18/18 通过即线上功能完整(该轮跑演示模式,不消耗 key;真实模式同理可验)。
 
 ## 排障
 

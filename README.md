@@ -7,7 +7,7 @@
 组会 PPTX 导出 → 大修后上传修改稿做逐节对照与承诺兑现核查。例:一篇 8 章节稿件 + 1 次点击,
 得到 40 余条带英文改写建议的 Critique 与 3 份 Major/Minor 审稿意见,全程作者信息不出本机脱敏层。
 
-**规模:22 个 API 路由、9 个页面(复核:`npm run build` 输出路由表;或 `find src/app/api -name route.ts` 应输出 22 行)**
+**规模:25 个 API 路由、10 个页面(复核:`npm run build` 输出路由表;或 `find src/app/api -name route.ts` 应输出 25 行)**
 
 ## 30 秒跑通
 
@@ -32,6 +32,7 @@ npm run dev
 | Response Letter | 「回复审稿人」页签 | 你写草稿 AI 打磨,批量打磨,导出 Word 逐点回复信 |
 | 修改稿对照 | 「修改稿对照」页签 | 逐节差异 + 重审;承诺兑现核查逐条验证是否真改了 |
 | 组会引擎 | 「组会汇报」页签 | PPT 大纲 + 逐页讲稿 + 导师 Q&A 预演,导出 PPTX(讲稿在演讲者备注) |
+| 只读分享 | 标题行「分享」按钮 → 生成链接 | `/s/<token>` 只读报告快照(7 天有效,可撤销);接收方看不到稿件原文/回复草稿;无效 token 一律 404 防探测 |
 | 审稿洞察 | 侧栏「审稿洞察」 | 审稿人命中率、Critique 类型分布、承诺兑现率 |
 
 ## 目录怎么分
@@ -48,7 +49,7 @@ npm run dev
 ## 双模式
 
 未配 Supabase 环境变量 = **本地模式**:数据存 `.data/`,无需登录,侧栏显示「本地模式」。
-配好并执行 `supabase/migration.sql` 后自动切 **SaaS 模式**:邮箱注册(内测邀请码)、Free 每月
+配好并执行 `supabase/migration.sql` 与 `supabase/migration-002-shares.sql` 后自动切 **SaaS 模式**:邮箱注册(内测邀请码)、Free 每月
 1 篇额度、Pro/Lab 无限。接入步骤见 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)。
 
 ## 已知做不到什么
@@ -58,7 +59,7 @@ npm run dev
   (不联网也能跑,但审稿人不再引用真实论文)。
 - **单元测试只覆盖纯函数**:parse/sanitize/citations 有 vitest 用例(`npm test`,citations 的
   期望值是 CSL 官方样式实渲染对拍基准);LLM 调用链的函数级回归
-  仍靠 16 步端到端 smoke(见 [docs/TESTING.md](docs/TESTING.md))。
+  仍靠 18 步端到端 smoke(见 [docs/TESTING.md](docs/TESTING.md))。
 - **双栏 PDF 公式密集稿解析质量有限**:unpdf 按文本流抽取,复杂排版可能切节不准,建议粘贴文本兜底。
 - **SaaS 模式 LLM 次数限额**:Free 每月默认 60 次(`FREE_LLM_MONTHLY_LIMIT`),需在 Supabase
   重跑 `supabase/migration.sql` 建 `llm_usage` 表后生效;本地/演示模式不限额。

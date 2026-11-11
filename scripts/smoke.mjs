@@ -243,6 +243,44 @@ await step("审稿洞察", async () => {
   assert(typeof d.promises.total === "number", "promises 缺失");
 });
 
+// 分享链接:创建→匿名 GET 200(只读投影)→ 撤销→404。无效 token 一律 404 防探测。
+await step("分享链接(创建+匿名只读)", async () => {
+  const d = await json(
+    await fetch(`${BASE}/api/projects/${projectId}/share`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    }),
+  );
+  const shareUrl = new URL(d.url);
+  assert(/^\/s\/[A-Za-z0-9_-]{43}$/.test(shareUrl.pathname), `分享路径异常: ${shareUrl.pathname}`);
+  const token = shareUrl.pathname.slice(3);
+  const page = await fetch(`${BASE}${shareUrl.pathname}`);
+  assert(page.status === 200, `只读页 ${page.status}`);
+  const anon = await fetch(`${BASE}/api/share/${token}`);
+  assert(anon.status === 200, `匿名兑换 ${anon.status}`);
+  const pj = await anon.json();
+  assert(pj.project?.title === "Smoke Test Paper", "投影标题不符");
+  assert(!("sections" in (pj.project ?? {})) && !("responses" in (pj.project ?? {})),
+    "投影不得含稿件原文与回复线程");
+  assert(typeof pj.expiresAt === "string", "缺 expiresAt");
+  const bad = await fetch(`${BASE}/api/share/${"x".repeat(43)}`);
+  assert(bad.status === 404, `无效 token 应 404,实际 ${bad.status}`);
+  const short = await fetch(`${BASE}/api/share/tooshort`);
+  assert(short.status === 404, `形态非法 token 应 404,实际 ${short.status}`);
+});
+
+await step("分享链接(撤销后 404)", async () => {
+  const list = await json(await fetch(`${BASE}/api/projects/${projectId}/share`));
+  const sid = (list.shares ?? [])[0]?.id;
+  assert(sid, "有效分享列表为空");
+  const url = list.shares[0].url;
+  const del = await fetch(`${BASE}/api/projects/${projectId}/share/${sid}`, { method: "DELETE" });
+  assert(del.ok, `撤销 ${del.status}`);
+  const anon = await fetch(url);
+  assert(anon.status === 404, `撤销后应 404,实际 ${anon.status}`);
+});
+
 await step("清理测试数据", async () => {
   const d = await json(await fetch(`${BASE}/api/projects/${projectId}`, { method: "DELETE" }));
   assert(d.ok === true, "delete 失败");

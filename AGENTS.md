@@ -114,10 +114,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 | 项 | 值 | 复核命令 |
 |---|---|---|
-| 冒烟自检 | 16/16 项通过(演示模式与真实 LLM 模式同套件;含实例指纹前置自检,目标非本应用即拒绝执行) | `LLM_API_KEY= npm run smoke` |
+| 冒烟自检 | 18/18 项通过(演示模式与真实 LLM 模式同套件;含实例指纹前置自检,目标非本应用即拒绝执行) | `LLM_API_KEY= npm run smoke` |
 | 静态检查 | eslint 0 告警 0 错误 | `npm run lint` |
-| 单元测试 | parse/sanitize/citations 30 个用例全绿(citations 含 CSL 实渲染对拍基准) | `npm test` |
-| 生产构建 | 通过,22 个 API 路由 + 9 个页面 | `npm run build`(`find src/app/api -name route.ts` 输出 22 行) |
+| 单元测试 | parse/sanitize/citations/share 41 个用例全绿(citations 含 CSL 实渲染对拍基准,share 含 404 防探测语义) | `npm test` |
+| 生产构建 | 通过,25 个 API 路由 + 10 个页面 | `npm run build`(`find src/app/api -name route.ts` 输出 25 行) |
 | CI | GitHub Actions:lint + test + build + 演示模式 smoke | `.github/workflows/ci.yml` |
 | 远端 | `Luz7818/rr-studio`(推送后 CI 自动跑) | `git remote -v` |
 | 运行时依赖 | 11 个,开发依赖含 vitest,清单在 `package.json` | `node -e "console.log(require('./package.json').dependencies)"` |
@@ -133,6 +133,12 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   配置时用临时路由，不要起双实例。
 - **middleware 已改名 proxy**：Next 16 路由保护文件是 `src/proxy.ts`、导出 `proxy` 函数；写回
   `middleware.ts` 会失效。
+- **页面内 notFound() 不等于 404 状态码（若布局有 Suspense 边界）**：根布局用 `<Suspense>`
+  包裹 AppShell 时外壳先冲刷，页面体内 `notFound()` 只能落「200 + 带内 404 UI」
+  （响应体含 `NEXT_HTTP_ERROR_FALLBACK;404` 但状态码 200），`generateMetadata` 里抛同样无效。
+  已移除该边界（layout.tsx 有注释）；若日后回加，/s/[token] 分享页的防探测 404 会被静默破坏
+  （smoke「撤销→404」步会红）。`fs.readdir(<动态目录>)` 同理会触发 Turbopack「Dynamic
+  filesystem access」整仓 tracing 警告——本地文件枚举一律走索引文件（share.ts 的 index.json）。
 - **qwen 系模型偶发 JSON 语法错误**：长 JSON（如组会大纲）约数百次一遇。已有两层兜底：
   `jsonrepair` 自动修复 + `chatJSON` 解析失败整体重试一次；仍失败才报错。
 - **`.env.local` 里是本机密钥**：已被 gitignore，禁止入库；他人使用按 `.env.example` 自填。
