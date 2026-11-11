@@ -53,13 +53,24 @@ export default function RevisionPanel({
   const [confirmClear, setConfirmClear] = useState(false);
   const id = project.id;
 
-  const clearRevision = () => {
+  /** 乐观清空修改稿:先清本地再 PATCH;失败回滚前值并进本面板错误条(RR4-3——
+   * 服务端数据仍在时,本地不能装作已清除,否则刷新后修改稿「复活」) */
+  const clearRevision = async () => {
+    const prev = project; // 捕获前值:失败回滚
     setProject({ ...project, revision: undefined });
-    void fetch(`/api/projects/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ revision: null }),
-    }).catch(() => {});
+    try {
+      const res = await fetch(`/api/projects/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ revision: null }),
+      });
+      const data = (await res.json().catch(() => null)) as { error?: string } | null;
+      if (!res.ok) throw new Error(data?.error ?? "清除失败");
+      setError(null);
+    } catch (e) {
+      setProject(prev);
+      setError(e instanceof Error ? e.message : "清除失败,请检查网络后重试");
+    }
   };
 
   const api = async (path: string, init?: RequestInit) => {
@@ -327,7 +338,7 @@ export default function RevisionPanel({
         confirmLabel="清除"
         danger
         onConfirm={() => {
-          clearRevision();
+          void clearRevision();
           setConfirmClear(false);
         }}
         onCancel={() => setConfirmClear(false)}

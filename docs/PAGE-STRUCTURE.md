@@ -43,6 +43,10 @@
 
 - 所有写操作经 `runPipeline` / `patchProject` / `saveThread`,失败进页面错误条;
   `busy` 单值防重入。
+- 乐观写路径(`toggleAdopted` / `setVerdict` / RevisionPanel `clearRevision`)必须
+  捕获前值并在 PATCH 失败时回滚 + 条目级内联提示(`patchProject`/`saveThread` 返回
+  boolean 供调用方判定);`saveThread` 保持悲观——savedIds 仅在服务端确认后点亮,
+  不回归乐观语义(RR5-4 拍板,见综合路线图 §3.6-3)。
 - 工作台页签持久化在 URL `?tab=`(replaceState,不产生路由历史);键盘 1–7 切签直跳不加动画
   (容器 `data-still`)。
 - 自动保存:标题、期刊、回复草稿、承诺在 `onBlur` 时 PATCH;乐观更新本地 state 再落库。

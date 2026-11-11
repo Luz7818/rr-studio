@@ -272,6 +272,8 @@ export default function Workspace() {
   const [litQuery, setLitQuery] = useState("");
   /** 回复线程状态筛选:定位还没打磨完/还没裁决的意见 */
   const [threadFilter, setThreadFilter] = useState<"all" | "undrafted" | "undecided">("all");
+  /** 条目级内联写失败提示(乐观更新回滚后展示):键 = critique 条目 id 或线程 commentId */
+  const [writeErrors, setWriteErrors] = useState<Record<string, string>>({});
   /** 只读分享:面板展开态 + 有效分享列表(懒加载)+ 最近创建的链接 */
   const [shareOpen, setShareOpen] = useState(false);
   const [shares, setShares] = useState<
@@ -418,7 +420,9 @@ export default function Workspace() {
     }
   };
 
-  const patchProject = async (fields: Record<string, unknown>) => {
+  /** PATCH 字段到服务端;返回是否成功——乐观更新调用方据此回滚本地 state(RR5-4)。
+   * 失败已进页面错误条;条目级内联提示由调用方自行维护 */
+  const patchProject = async (fields: Record<string, unknown>): Promise<boolean> => {
     try {
       const res = await fetch(`/api/projects/${id}`, {
         method: "PATCH",
@@ -428,19 +432,39 @@ export default function Workspace() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "保存失败");
       setProject(data.project);
+      return true;
     } catch (e) {
       setError(e instanceof Error ? e.message : "保存失败,请检查网络后重试");
+      return false;
     }
   };
 
-  const toggleAdopted = (item: CritiqueItem, checked: boolean) => {
+  /** 条目级内联写失败提示:键 = 条目 id,值 = 提示文案;成功或重试成功即清除 */
+  const clearWriteError = (key: string) => {
+    setWriteErrors((prev) => {
+      if (!(key in prev)) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  };
+
+  /** 乐观勾选「已采纳」:先改本地再 PATCH,失败回滚前值并在条目旁内联提示 */
+  const toggleAdopted = async (item: CritiqueItem, checked: boolean) => {
     if (!project?.critique) return;
+    const prevProject = project; // 捕获前值:失败回滚
     const adopted = project.critique.items.filter((i) => (i.id === item.id ? checked : i.adopted)).map((i) => i.id);
     setProject({
       ...project,
       critique: { ...project.critique, items: project.critique.items.map((i) => (i.id === item.id ? { ...i, adopted: checked } : i)) },
     });
-    void patchProject({ adopted });
+    const ok = await patchProject({ adopted });
+    if (ok) {
+      clearWriteError(item.id);
+    } else {
+      setProject(prevProject);
+      setWriteErrors((prev) => ({ ...prev, [item.id]: "采纳状态保存失败,已还原" }));
+    }
   };
 
   const updateThreadLocal = (commentId: string, patch: Partial<ResponseThread>) => {
@@ -456,7 +480,9 @@ export default function Workspace() {
     );
   };
 
-  const saveThread = async (thread: ResponseThread) => {
+  /** 线程保存:保持悲观(savedIds 仅在服务端确认后点亮,语义不回归乐观)。
+   * 返回是否成功,裁决(setVerdict)据此回滚乐观本地态 */
+  const saveThread = async (thread: ResponseThread): Promise<boolean> => {
     try {
       const res = await fetch(`/api/projects/${id}/responses`, {
         method: "PATCH",
@@ -467,7 +493,7 @@ export default function Workspace() {
       if (!res.ok) throw new Error(data.error ?? "保存失败");
     } catch (e) {
       setError(e instanceof Error ? e.message : "保存失败,请检查网络后重试");
-      return;
+      return false;
     }
     setSavedIds((prev) => new Set(prev).add(thread.commentId));
     setTimeout(() => {
@@ -477,6 +503,7 @@ export default function Workspace() {
         return next;
       });
     }, 1600);
+    return true;
   };
 
   /** 打磨单条回复;返回是否成功,批量流程据此汇总失败数 */
@@ -517,10 +544,17 @@ export default function Workspace() {
     }
   };
 
-  /** 裁决某条审稿意见是否成立 */
+  /** 裁决某条审稿意见是否成立:乐观改本地,失败回滚前值并在该线程内联提示 */
   const setVerdict = async (thread: ResponseThread, verdict: "valid" | "invalid" | null) => {
+    const prevProject = project; // 捕获前值:失败回滚
     updateThreadLocal(thread.commentId, { verdict: verdict ?? undefined });
-    await saveThread({ ...thread, verdict: verdict ?? undefined });
+    const ok = await saveThread({ ...thread, verdict: verdict ?? undefined });
+    if (ok) {
+      clearWriteError(thread.commentId);
+    } else {
+      if (prevProject) setProject(prevProject);
+      setWriteErrors((prev) => ({ ...prev, [thread.commentId]: "裁决保存失败,已还原" }));
+    }
   };
 
   /** 顺序打磨所有未完成的回复(尊重供应商限速),显示进度并汇总失败数 */
@@ -601,7 +635,9 @@ export default function Workspace() {
             onBlur={async (e) => {
               const v = e.target.value.trim();
               if (v && v !== titleOnFocus.current) {
-                await patchProject({ title: v });
+                const ok = await patchProject({ title: v });
+                // 失败已进页面错误条,不弹「已保存」假阳性(RR4-2)
+                if (!ok) return;
                 setTitleSaved(true);
                 setTimeout(() => setTitleSaved(false), 1600);
               }
@@ -975,11 +1011,14 @@ export default function Workspace() {
                         <input
                           type="checkbox"
                           checked={item.adopted}
-                          onChange={(e) => toggleAdopted(item, e.target.checked)}
+                          onChange={(e) => void toggleAdopted(item, e.target.checked)}
                           className="accent-emerald-600"
                         />
                         已采纳
                       </label>
+                      {writeErrors[item.id] && (
+                        <span role="alert" className="rise-in text-[11px] text-rose-600">{writeErrors[item.id]}</span>
+                      )}
                     </div>
                     {item.quote && (
                       <p className="mt-2.5 border-l-2 border-line pl-3 text-[13px] italic text-ink-soft transition-colors duration-(--dur-2) group-hover/crit:border-accent/50">
@@ -1283,6 +1322,9 @@ export default function Workspace() {
                       className="field ml-auto min-w-56 flex-1 rounded-full px-3.5 py-1.5 text-xs outline-none"
                     />
                   </div>
+                  {writeErrors[t.commentId] && (
+                    <p role="alert" className="rise-in mt-2 text-[11px] text-rose-600">{writeErrors[t.commentId]}</p>
+                  )}
                 </div>
                 );
               })}
