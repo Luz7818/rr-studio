@@ -456,3 +456,29 @@
 - 规则区既有裸 `cubic-bezier(0.23, 1, 0.32, 1)`(0.2s 系过渡)本批不动,
   归仓逐处替换留待下一批(改动最小化,先立令牌再搬家)。
 - 验证:`npm run build` 过(21 API 路由 + 9 页面)、`npm test` vitest 17/17。
+
+## 2026-11-12 · v0.21.0 引用格式导出(BibTeX / APA / GB-T 7714)
+
+- 文献对标结果可一键导出引用列表:工作台文献区新增三个下载按钮,后端
+  `GET /api/projects/[id]/export/citations?format=bibtex|apa|gbt7714` 返回纯文本附件
+  (.bib / .txt),与既有三条 Word 导出路由同构(getApiContext 鉴权、404/400 语义)。
+- 新 `src/lib/citations.ts` 三纯函数 `toBibtex/toApa/toGbT7714`(输入即文献 5 字段,
+  缺字段按格式规则降级:无 doi 省略链接段、无卷期页整段省略、无作者题名顶替):
+  BibTeX 键 = 首作者姓+年+题名首词(全小写清洗 [a-z0-9],冲突按序追加 a/b/c),
+  作者姓前名后 " and " 连接,LaTeX 活跃字符 & % $ # _ 转义;APA 第 7 版
+  (作者 (年). 题名. 刊名. doi 链接,年缺 (n.d.));GB/T 7714-2015 顺序编码制
+  (>3 作者前三+「等」、西文姓全大写名缩写无点 SMITH J A、DOI/URL 存在用 [J/OL]
+  否则 [J]、无年整段省略)。
+- 自写纯函数而非 CSL 引擎的决策与调研-业务仓后端 §2.5 一致;**CSL 官方样式
+  (apa.csl 与 china-national-standard-gb-t-7714-2015-numeric.csl)经 citeproc-js
+  对 6 条受控样本实渲染作为对拍基准**,逐条期望值与已登记差异(纯文本无斜体、
+  无卷期页数据段省略、GB/T 序号取入参序、BibTeX 键小写不跳冠词等)写在
+  citations.test.ts 文件头注释。citation-js 0.7 旁证:中文条目 BibTeX 导出坏键+空作者,
+  佐证自写方案。
+- 检索侧补作者数据:`LiteratureRef` 增量加可选 `authors[]`(OpenAlex authorships /
+  Semantic Scholar authors,截 30 人),旧存量数据缺字段自动降级不抛错;
+  url 为 doi.org 链接时三函数自动提取裸 DOI 并去重 url 段。
+- smoke 在两条文献对标步后新增「引用导出」步:断言 BibTeX @article 条目数 ≥3 与 .bib 附件头、
+  APA 年份段、GB/T 序号与 [J(/OL)] 标识、未知格式 400;smoke 15 步 → 16 步。
+- 验证:lint 0 告警 0 错误、vitest 30/30(parse 10 + sanitize 7 + citations 13)、
+  生产构建通过(22 API 路由 + 9 页面)。

@@ -1,5 +1,7 @@
 export interface LiteratureRef {
   title: string;
+  /** 作者显示名全称(缺省/旧数据无此字段 → 引用导出按无作者规则降级) */
+  authors?: string[];
   year: number | null;
   venue: string;
   citedBy: number;
@@ -41,6 +43,7 @@ async function searchOpenAlex(query: string, fromYear: number): Promise<Literatu
       display_name?: string;
       publication_year?: number | null;
       cited_by_count?: number;
+      authorships?: Array<{ display_name?: string | null }>;
       primary_location?: { source?: { display_name?: string } | null };
       abstract_inverted_index?: Record<string, number[]> | null;
     }>;
@@ -49,6 +52,7 @@ async function searchOpenAlex(query: string, fromYear: number): Promise<Literatu
     .filter((r) => r.display_name)
     .map((r) => ({
       title: r.display_name as string,
+      authors: (r.authorships ?? []).map((a) => a.display_name ?? "").filter(Boolean).slice(0, 30),
       year: r.publication_year ?? null,
       venue: r.primary_location?.source?.display_name ?? "",
       citedBy: r.cited_by_count ?? 0,
@@ -62,7 +66,7 @@ async function searchOpenAlex(query: string, fromYear: number): Promise<Literatu
 async function searchSemanticScholar(query: string, fromYear: number): Promise<LiteratureRef[]> {
   const url =
     `https://api.semanticscholar.org/graph/v1/paper/search?query=${encodeURIComponent(query)}` +
-    `&limit=8&fields=title,year,venue,citationCount,abstract,externalIds,url`;
+    `&limit=8&fields=title,year,venue,citationCount,authors,abstract,externalIds,url`;
   const res = await fetch(url, {
     headers: { "User-Agent": UA },
     signal: AbortSignal.timeout(20_000),
@@ -74,6 +78,7 @@ async function searchSemanticScholar(query: string, fromYear: number): Promise<L
       year?: number | null;
       venue?: string;
       citationCount?: number;
+      authors?: Array<{ name?: string }>;
       abstract?: string | null;
       url?: string;
       externalIds?: { DOI?: string };
@@ -83,6 +88,7 @@ async function searchSemanticScholar(query: string, fromYear: number): Promise<L
     .filter((r) => r.title && (r.year == null || r.year >= fromYear))
     .map((r) => ({
       title: r.title as string,
+      authors: (r.authors ?? []).map((a) => a.name ?? "").filter(Boolean).slice(0, 30),
       year: r.year ?? null,
       venue: r.venue ?? "",
       citedBy: r.citationCount ?? 0,

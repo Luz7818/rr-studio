@@ -124,6 +124,8 @@ export interface Revision {
 
 export interface LiteratureRef {
   title: string;
+  /** 作者显示名全称(旧数据缺省 → 引用导出按无作者规则降级) */
+  authors?: string[];
   year: number | null;
   venue: string;
   citedBy: number;

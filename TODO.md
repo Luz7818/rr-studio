@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-M1/M2/M3 全部完成并通过 15 步端到端自检(复核:`LLM_API_KEY= npm run smoke`)。
+M1/M2/M3 全部完成并通过 16 步端到端自检(复核:`LLM_API_KEY= npm run smoke`)。
 下一优先级:**部署上线**(P1),其余按序。
 
 ## P1 · 部署上线
@@ -20,6 +20,10 @@ M1/M2/M3 全部完成并通过 15 步端到端自检(复核:`LLM_API_KEY= npm ru
   检索结果与审稿引用同步更新;smoke 含回归步)。
   - 验收:输入检索词后检索结果与审稿引用同步更新。
 - [x] Critique 口径可调(v0.14.0 完成:苛刻/均衡/温和三档,双入口切换,口径随报告落库)。
+- [x] 引用格式导出(v0.21.0 完成:文献区 BibTeX/APA/GB-T 7714 三下载,后端三纯函数
+  `src/lib/citations.ts`,期望值为 CSL 官方样式 citeproc-js 实渲染对拍基准,见 citations.test.ts)。
+  - 验收:`npm test` citations 13 用例全绿;smoke 引用导出步断言 @article 条目数、APA 年份段、
+    GB/T 序号与 [J] 标识、未知格式 400。
 - [ ] 课题组管理台(Lab 版多席位)。
 - [ ] Response Letter 导出格式可配置(期刊模板)。
 
@@ -30,6 +34,6 @@ M1/M2/M3 全部完成并通过 15 步端到端自检(复核:`LLM_API_KEY= npm ru
 
 ## P4 · 工程补强
 
-- [x] 单元测试层:parse/sanitize 已有 17 个 vitest 用例(`npm test`;LLM 相关模块仍靠 smoke 覆盖)。
+- [x] 单元测试层:parse/sanitize/citations 已有 30 个 vitest 用例(`npm test`;LLM 相关模块仍靠 smoke 覆盖)。
 - [x] 配置 CI(GitHub Actions:lint + test + build + 演示模式 smoke)。
 - [ ] 文献检索词质量回看:真实论文场景下核对检索命中率,必要时换 PubMed/Europe PMC 做医口。

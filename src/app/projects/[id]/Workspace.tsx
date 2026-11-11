@@ -948,10 +948,30 @@ export default function Workspace() {
                     </li>
                   ))}
                 </ul>
-                <p className="mt-2 px-2 text-[11px] text-ink-faint">
-                  来源 {project.literature.source} · 共 {project.literature.papers.length} 篇
-                  (检索词:{project.literature.queries.join(" / ").slice(0, 90)})
-                </p>
+                <div className="mt-2 flex flex-wrap items-center justify-between gap-2 px-2">
+                  <p className="text-[11px] text-ink-faint">
+                    来源 {project.literature.source} · 共 {project.literature.papers.length} 篇
+                    (检索词:{project.literature.queries.join(" / ").slice(0, 90)})
+                  </p>
+                  <div className="flex shrink-0 gap-1.5">
+                    {(
+                      [
+                        ["bibtex", "BibTeX"],
+                        ["gbt7714", "GB/T 7714"],
+                        ["apa", "APA"],
+                      ] as const
+                    ).map(([fmt, label]) => (
+                      <a
+                        key={fmt}
+                        href={`/api/projects/${id}/export/citations?format=${fmt}`}
+                        className="press inline-flex items-center gap-1 rounded-full border border-line px-2.5 py-1 text-[11px] text-ink-soft transition hover:border-accent/40 hover:text-accent"
+                      >
+                        <Download className="h-3 w-3" strokeWidth={1.75} />
+                        {label}
+                      </a>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
           </div>

@@ -7,17 +7,17 @@
 | 层 | 现状 | 说明 |
 |---|---|---|
 | 静态检查 | `npm run lint` | eslint + react-hooks 规则,0 告警放行 |
-| 单元测试 | `npm test` | vitest:parse(切分)/sanitize(脱敏)纯函数 17 用例 |
+| 单元测试 | `npm test` | vitest:parse(切分)/sanitize(脱敏)/citations(引用导出三纯函数,含 CSL 对拍)纯函数 30 用例 |
 | 类型/构建 | `npm run build` | tsc 全仓类型检查 + 生产构建 + 预渲染 |
-| 端到端冒烟 | `npm run smoke` | 15 步走完全部产品能力并断言,主力门禁 |
+| 端到端冒烟 | `npm run smoke` | 16 步走完全部产品能力并断言,主力门禁 |
 
 ## 门禁命令(仓库根执行)
 
 ```bash
 npm run lint            # 0 告警 0 错误
-npm test                # 17/17 通过
-npm run build           # 编译 + 21 路由 + 9 页面全部生成
-LLM_API_KEY= npm run smoke   # 演示模式,零 API 消耗,15/15 通过
+npm test                # 30/30 通过
+npm run build           # 编译 + 22 路由 + 9 页面全部生成
+LLM_API_KEY= npm run smoke   # 演示模式,零 API 消耗,16/16 通过
 npm run smoke            # 真实模式:所有 LLM 环节真实调用,需可用 key 与网络
 SMOKE_BASE_URL=https://<域名> npm run smoke   # 验线上部署
 ```
@@ -25,9 +25,9 @@ SMOKE_BASE_URL=https://<域名> npm run smoke   # 验线上部署
 ## 冒烟脚本约定(`scripts/smoke.mjs`)
 
 - **实例指纹前置自检**:第一步探测未知资源 API 路径,断言返回 JSON——3000 端口被陈旧进程
-  或其他应用占用时立即报「不是 R&R Studio 实例」退出,不放跑后面 15 步的误导性失败。
-- 15 步按用户旅程排序:首页 → 上传脱敏 → 文献对标(自动 + 自定义检索词)→ Critique → 模拟审稿 → 回复打磨 →
-  Word×2 → Cover Letter → 组会+PPTX → 修改稿对照 → 承诺核查 → 洞察 → 清理。
+  或其他应用占用时立即报「不是 R&R Studio 实例」退出,不放跑后面 16 步的误导性失败。
+- 16 步按用户旅程排序:首页 → 上传脱敏 → 文献对标(自动 + 自定义检索词)→ 引用导出(BibTeX/APA/GB-T 7714)→
+  Critique → 模拟审稿 → 回复打磨 → Word×2 → Cover Letter → 组会+PPTX → 修改稿对照 → 承诺核查 → 洞察 → 清理。
 - 每步自建数据、末步清理,可对同一实例重复执行;新增功能**必须**补对应步骤与断言。
 - 断言口径:结构断言(章节数、线程数、zip 魔数)在演示模式即可验;语义质量不进断言,
   人工看真实模式输出。
@@ -47,7 +47,10 @@ SMOKE_BASE_URL=https://<域名> npm run smoke   # 验线上部署
 ## 用例规范
 
 - 框架用 vitest,测试文件与被测对象同目录 `*.test.ts`;先写可失败的用例再实现。
-- `parse.ts`/`sanitize.ts` 是纯函数,已覆盖;LLM 相关模块用注入 mock,不在单测里真调模型。
+- `parse.ts`/`sanitize.ts`/`citations.ts` 是纯函数,已覆盖;`citations.test.ts` 的期望值是
+  CSL 官方样式(apa.csl 与 GB/T 7714-2015 numeric)经 citeproc-js 的**实渲染对拍基准**,
+  与自写输出的已登记差异逐条写在测试文件头注释——改 `citations.ts` 先读该注释。
+- LLM 相关模块用注入 mock,不在单测里真调模型。
   配额模块(`quota.ts`)依赖 Supabase 连接,归入 SaaS 全链路验收(docs/DEPLOYMENT.md 清单)。
 - 测试数写进 `AGENTS.md` 时必须带复核命令。
 

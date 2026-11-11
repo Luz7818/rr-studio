@@ -112,6 +112,23 @@ await step("文献对标(自定义检索词)", async () => {
   assert(lit.queries.join(" ").includes("adaptive traffic signal"), "检索词未采用手动输入");
 });
 
+await step("引用导出(BibTeX/APA/GB-T 7714)", async () => {
+  const bib = await fetch(`${BASE}/api/projects/${projectId}/export/citations?format=bibtex`);
+  assert(bib.ok, `bibtex status ${bib.status}`);
+  const bibText = await bib.text();
+  const n = (bibText.match(/@article\{/g) ?? []).length;
+  assert(n >= 3, `BibTeX 条目数 ${n} < 3`);
+  assert(bib.headers.get("content-disposition")?.includes(".bib"), "缺 .bib 附件头");
+  const apa = await fetch(`${BASE}/api/projects/${projectId}/export/citations?format=apa`);
+  const apaText = await apa.text();
+  assert(apa.ok && /\((19|20)\d{2}\)/.test(apaText), "APA 缺 (年份) 段");
+  const gbt = await fetch(`${BASE}/api/projects/${projectId}/export/citations?format=gbt7714`);
+  const gbtText = await gbt.text();
+  assert(gbt.ok && gbtText.includes("[1] ") && /\[J(\/OL)?\]/.test(gbtText), "GB/T 缺序号或 [J] 标识");
+  const bad = await fetch(`${BASE}/api/projects/${projectId}/export/citations?format=ris`);
+  assert(bad.status === 400, `未知格式应 400,实际 ${bad.status}`);
+});
+
 await step("Critique 报告(苛刻口径)", async () => {
   const d = await json(
     await fetch(`${BASE}/api/projects/${projectId}/critique`, {

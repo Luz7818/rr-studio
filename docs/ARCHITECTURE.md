@@ -29,7 +29,7 @@ Next.js 16 App Router 单体全栈:同一进程承载 React 页面(Static/PPR)�
 ```
 src/
 ├── app/                  页面与 API(App Router 约定)
-│   ├── api/              21 个 Route Handler,见下表
+│   ├── api/              22 个 Route Handler,见下表
 │   ├── auth/callback/    邮箱确认回调(code 换 session)
 │   ├── insights/         审稿洞察页
 │   ├── login/ signup/    认证页
@@ -57,6 +57,7 @@ src/
 | `auth.ts` | `getApiContext()`:API 统一鉴权入口 |
 | `quota.ts` | 方案读取与免费额度(自然月) |
 | `literature.ts` | OpenAlex/Semantic Scholar 检索、摘要重建、去重排序 |
+| `citations.ts` | 引用导出三纯函数(BibTeX/APA/GB-T 7714),期望值与 CSL 实渲染对拍 |
 | `supabase/server.ts` | SSR 客户端工厂 |
 
 ## API 路由一览
@@ -77,12 +78,12 @@ src/
 | `api/projects/[id]/revision/summary` | POST | 逐节差异+总评 |
 | `api/projects/[id]/revision/re-review` | POST | 修改稿重审 |
 | `api/projects/[id]/revision/promise-check` | POST | 承诺兑现核查 |
-| `api/projects/[id]/export/*` | GET | Word 导出 ×3(response-letter/critique/cover-letter) |
+| `api/projects/[id]/export/*` | GET | Word 导出 ×3(response-letter/critique/cover-letter)+ 引用列表 ×1(citations?format=bibtex\|apa\|gbt7714) |
 | `api/auth/*`、`auth/callback` | — | 注册/登录/登出/确认回调 |
 | `api/insights` | GET | 跨项目聚合(命中率/兑现率) |
 
-共 22 个 Route Handler:21 个在 `src/app/api/`(`find src/app/api -name route.ts` 输出 21 行),
-另有 `src/app/auth/callback/route.ts` 1 个(`find src/app -name route.ts` 输出 22 行)。
+共 23 个 Route Handler:22 个在 `src/app/api/`(`find src/app/api -name route.ts` 输出 22 行),
+另有 `src/app/auth/callback/route.ts` 1 个(`find src/app -name route.ts` 输出 23 行)。
 
 ## 数据组织
 

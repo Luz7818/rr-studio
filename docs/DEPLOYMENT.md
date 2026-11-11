@@ -65,7 +65,7 @@ Dashboard → Settings → Environment Variables 至少配置:
 SMOKE_BASE_URL=https://<域名> LLM_API_KEY= npm run smoke
 ```
 
-15/15 通过即线上功能完整(该轮跑演示模式,不消耗 key;真实模式同理可验)。
+16/16 通过即线上功能完整(该轮跑演示模式,不消耗 key;真实模式同理可验)。
 
 ## 排障
 
